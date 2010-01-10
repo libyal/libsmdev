@@ -1,0 +1,9 @@
+TODO
+* implement libsmdev_check_device_wide
+* libsmdev_handle_get_offset
+* work on libsmdev_metadata
+* implement posix_fadvise
+
+20100110
+* Created initial version based on earlier media input/output code
+

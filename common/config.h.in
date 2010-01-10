@@ -1,0 +1,347 @@
+/* common/config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to 1 if you have the `atoll' function. */
+#undef HAVE_ATOLL
+
+/* Define to 1 if you have the `btowc' function. */
+#undef HAVE_BTOWC
+
+/* Define to 1 if you have the `close' function. */
+#undef HAVE_CLOSE
+
+/* Define to 1 if you have the <cygwin/fs.h> header file. */
+#undef HAVE_CYGWIN_FS_H
+
+/* Define to 1 if you have the <cygwin/hdreg.h> header file. */
+#undef HAVE_CYGWIN_HDREG_H
+
+/* Define to 1 if debug output should be used */
+#undef HAVE_DEBUG_OUTPUT
+
+/* Define to 1 if you have the declaration of `memrchr', and to 0 if you
+   don't. */
+#undef HAVE_DECL_MEMRCHR
+
+/* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRERROR_R
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <errno.h> header file. */
+#undef HAVE_ERRNO_H
+
+/* Define to 1 if you have the `fclose' function. */
+#undef HAVE_FCLOSE
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the `feof' function. */
+#undef HAVE_FEOF
+
+/* Define to 1 if you have the `fgets' function. */
+#undef HAVE_FGETS
+
+/* Define to 1 if you have the `fgetws' function. */
+#undef HAVE_FGETWS
+
+/* Define to 1 if you have the `fopen' function. */
+#undef HAVE_FOPEN
+
+/* Define to 1 if you have the `fread' function. */
+#undef HAVE_FREAD
+
+/* Define to 1 if you have the `free' function. */
+#undef HAVE_FREE
+
+/* Define to 1 if you have the `fseeko' function. */
+#undef HAVE_FSEEKO
+
+/* Define to 1 if you have the `fstat' function. */
+#undef HAVE_FSTAT
+
+/* Define to 1 if you have the `fwrite' function. */
+#undef HAVE_FWRITE
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `una' library (-luna). */
+#undef HAVE_LIBUNA
+
+/* Define to 1 if you have the <libuna.h> header file. */
+#undef HAVE_LIBUNA_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <linux/cdrom.h> header file. */
+#undef HAVE_LINUX_CDROM_H
+
+/* Define to 1 if you have the <linux/fs.h> header file. */
+#undef HAVE_LINUX_FS_H
+
+/* Define to 1 if you have the <linux/hdreg.h> header file. */
+#undef HAVE_LINUX_HDREG_H
+
+/* Define to 1 if you have the <linux/usbdevice_fs.h> header file. */
+#undef HAVE_LINUX_USBDEVICE_FS_H
+
+/* Define to 1 if you have the <linux/usb/ch9.h> header file. */
+#undef HAVE_LINUX_USB_CH9_H
+
+/* Define to 1 if the local version of libuna is used. */
+#undef HAVE_LOCAL_LIBUNA
+
+/* Define to 1 if you have the `lseek' function. */
+#undef HAVE_LSEEK
+
+/* Define to 1 if you have the `malloc' function. */
+#undef HAVE_MALLOC
+
+/* Define to 1 if you have the `memchr' function. */
+#undef HAVE_MEMCHR
+
+/* Define to 1 if you have the `memcmp' function. */
+#undef HAVE_MEMCMP
+
+/* Define to 1 if you have the `memcpy' function. */
+#undef HAVE_MEMCPY
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `memrchr' function. */
+#undef HAVE_MEMRCHR
+
+/* Define to 1 if you have the `memset' function. */
+#undef HAVE_MEMSET
+
+/* Define to 1 if you have the `open' function. */
+#undef HAVE_OPEN
+
+/* Define to 1 whether printf supports the conversion specifier "%jd". */
+#undef HAVE_PRINTF_JD
+
+/* Define to 1 whether printf supports the conversion specifier "%zd". */
+#undef HAVE_PRINTF_ZD
+
+/* Define to 1 if you have the `read' function. */
+#undef HAVE_READ
+
+/* Define to 1 if you have the `realloc' function. */
+#undef HAVE_REALLOC
+
+/* Define to 1 if you have the <scsi/scsi.h> header file. */
+#undef HAVE_SCSI_SCSI_H
+
+/* Define to 1 if you have the <scsi/scsi_ioctl.h> header file. */
+#undef HAVE_SCSI_SCSI_IOCTL_H
+
+/* Define to 1 if you have the <scsi/sg.h> header file. */
+#undef HAVE_SCSI_SG_H
+
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
+
+/* Define to 1 if you have the `sscanf' function. */
+#undef HAVE_SSCANF
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#undef HAVE_STDARG_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strchr' function. */
+#undef HAVE_STRCHR
+
+/* Define to 1 if you have the `strcmp' function. */
+#undef HAVE_STRCMP
+
+/* Define to 1 if you have the `strcpy' function. */
+#undef HAVE_STRCPY
+
+/* Define to 1 if you have the `strerror_r' function. */
+#undef HAVE_STRERROR_R
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strlen' function. */
+#undef HAVE_STRLEN
+
+/* Define to 1 if you have the `strncmp' function. */
+#undef HAVE_STRNCMP
+
+/* Define to 1 if you have the `strncpy' function. */
+#undef HAVE_STRNCPY
+
+/* Define to 1 if you have the `strrchr' function. */
+#undef HAVE_STRRCHR
+
+/* Define to 1 if you have the `strtoll' function. */
+#undef HAVE_STRTOLL
+
+/* Define to 1 if you have the `strtoull' function. */
+#undef HAVE_STRTOULL
+
+/* Define to 1 if you have the `swprintf' function. */
+#undef HAVE_SWPRINTF
+
+/* Define to 1 if you have the <sys/disklabel.h> header file. */
+#undef HAVE_SYS_DISKLABEL_H
+
+/* Define to 1 if you have the <sys/disk.h> header file. */
+#undef HAVE_SYS_DISK_H
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the <varargs.h> header file. */
+#undef HAVE_VARARGS_H
+
+/* Define to 1 if verbose output should be used */
+#undef HAVE_VERBOSE_OUTPUT
+
+/* Define to 1 if you have the `vfprintf' function. */
+#undef HAVE_VFPRINTF
+
+/* Define to 1 if you have the `vsnprintf' function. */
+#undef HAVE_VSNPRINTF
+
+/* Define to 1 if you have the `vswprintf' function. */
+#undef HAVE_VSWPRINTF
+
+/* Define to 1 if you have the <wchar.h> header file. */
+#undef HAVE_WCHAR_H
+
+/* Define to 1 if you have the `wcscasecmp' function. */
+#undef HAVE_WCSCASECMP
+
+/* Define to 1 if you have the `wcschr' function. */
+#undef HAVE_WCSCHR
+
+/* Define to 1 if you have the `wcscmp' function. */
+#undef HAVE_WCSCMP
+
+/* Define to 1 if you have the `wcscpy' function. */
+#undef HAVE_WCSCPY
+
+/* Define to 1 if you have the `wcslen' function. */
+#undef HAVE_WCSLEN
+
+/* Define to 1 if you have the `wcsncasecmp' function. */
+#undef HAVE_WCSNCASECMP
+
+/* Define to 1 if you have the `wcsncmp' function. */
+#undef HAVE_WCSNCMP
+
+/* Define to 1 if you have the `wcsncpy' function. */
+#undef HAVE_WCSNCPY
+
+/* Define to 1 if you have the `wcsrchr' function. */
+#undef HAVE_WCSRCHR
+
+/* Define to 1 if you have the `wcstoll' function. */
+#undef HAVE_WCSTOLL
+
+/* Define to 1 if you have the `wcstoull' function. */
+#undef HAVE_WCSTOULL
+
+/* Define to 1 if you have the `wctob' function. */
+#undef HAVE_WCTOB
+
+/* Define to 1 if wide character type should be used. */
+#undef HAVE_WIDE_CHARACTER_TYPE
+
+/* Define to 1 if you have the `wmemchr' function. */
+#undef HAVE_WMEMCHR
+
+/* Define to 1 if you have the `wmemcmp' function. */
+#undef HAVE_WMEMCMP
+
+/* Define to 1 if you have the `wmemcpy' function. */
+#undef HAVE_WMEMCPY
+
+/* Define to 1 if you have the `wmemrchr' function. */
+#undef HAVE_WMEMRCHR
+
+/* Define to 1 if you have the `write' function. */
+#undef HAVE_WRITE
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* The size of `off_t', as computed by sizeof. */
+#undef SIZEOF_OFF_T
+
+/* The size of `size_t', as computed by sizeof. */
+#undef SIZEOF_SIZE_T
+
+/* The size of `wchar_t', as computed by sizeof. */
+#undef SIZEOF_WCHAR_T
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if strerror_r returns char *. */
+#undef STRERROR_R_CHAR_P
+
+/* Version number of package */
+#undef VERSION
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#undef _FILE_OFFSET_BITS
+
+/* Define for large files, on AIX-style hosts. */
+#undef _LARGE_FILES
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
+/* Define to `long int' if <sys/types.h> does not define. */
+#undef off_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
+
+/* Define to empty if the keyword `volatile' does not work. Warning: valid
+   code using `volatile' can become incorrect without. Disable with care. */
+#undef volatile

@@ -1,0 +1,72 @@
+/*
+ * Definitions for libsmdev
+ *
+ * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Hoffmann Investigations.
+ *
+ * Refer to AUTHORS for acknowledgements.
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#if !defined( _LIBSMDEV_DEFINIONS_H )
+#define _LIBSMDEV_DEFINIONS_H
+
+#include <libsmdev/types.h>
+
+#define LIBSMDEV_VERSION				@VERSION@
+
+/* The libsmdev version string
+ */
+#define LIBSMDEV_VERSION_STRING				"@VERSION@"
+
+/* The libsmdev file access
+ * bit 1        set to 1 for read access
+ * bit 2        set to 1 for write access
+ * bit 3        set to 1 to truncate an existing file on write
+ * bit 4-8      not used
+ */
+#define LIBSMDEV_FLAG_READ				(uint8_t) 0x01
+#define LIBSMDEV_FLAG_WRITE				(uint8_t) 0x02
+#define LIBSMDEV_FLAG_TRUNCATE				(uint8_t) 0x04
+
+/* The libsmdev file access macros
+ */
+#define LIBSMDEV_OPEN_READ				( LIBSMDEV_FLAG_READ )
+#define LIBSMDEV_OPEN_WRITE				( LIBSMDEV_FLAG_WRITE )
+#define LIBSMDEV_OPEN_READ_WRITE			( LIBSMDEV_FLAG_READ | LIBSMDEV_FLAG_WRITE )
+#define LIBSMDEV_OPEN_WRITE_TRUNCATE			( LIBSMDEV_FLAG_WRITE | LIBSMDEV_FLAG_TRUNCATE )
+#define LIBSMDEV_OPEN_READ_WRITE_TRUNCATE		( LIBSMDEV_FLAG_READ | LIBSMDEV_FLAG_WRITE | LIBSMDEV_FLAG_TRUNCATE )
+
+/* The media type definitions
+ */
+enum LIBSMDEV_MEDIA_TYPES
+{
+	LIBSMDEV_MEDIA_TYPE_REMOVABLE			= 0x00,
+	LIBSMDEV_MEDIA_TYPE_FIXED			= 0x01,
+	LIBSMDEV_MEDIA_TYPE_OPTICAL			= 0x03,
+	LIBSMDEV_MEDIA_TYPE_MEMORY			= 0x10
+};
+
+enum LIBSMDEV_BUS_TYPES
+{
+	LIBSMDEV_BUS_TYPE_UNKNOWN			= 0,
+	LIBSMDEV_BUS_TYPE_ATA				= (uint8_t) 'a',
+	LIBSMDEV_BUS_TYPE_FIREWIRE			= (uint8_t) 'f',
+	LIBSMDEV_BUS_TYPE_SCSI				= (uint8_t) 's',
+	LIBSMDEV_BUS_TYPE_USB				= (uint8_t) 'u'
+};
+
+#endif
+

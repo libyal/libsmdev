@@ -1,0 +1,2259 @@
+/*
+ * libsmdev main handle
+ *
+ * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Hoffmann Investigations.
+ *
+ * Refer to AUTHORS for acknowledgements.
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <common.h>
+#include <memory.h>
+#include <narrow_string.h>
+#include <types.h>
+#include <wide_string.h>
+
+#include <liberror.h>
+#include <libnotify.h>
+
+#if defined( HAVE_SYS_STAT_H )
+#include <sys/stat.h>
+#endif
+
+#if defined( HAVE_FCNTL_H )
+#include <fcntl.h>
+#endif
+
+#if defined( HAVE_UNISTD_H )
+#include <unistd.h>
+#endif
+
+#if defined( HAVE_ERRNO_H ) || defined( WINAPI )
+#include <errno.h>
+#endif
+
+#include "libsmdev_definitions.h"
+#include "libsmdev_error_string.h"
+#include "libsmdev_handle.h"
+#include "libsmdev_system_string.h"
+#include "libsmdev_types.h"
+
+/* Initializes the handle
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_initialize(
+     libsmdev_handle_t **handle,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_initialize";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( *handle == NULL )
+	{
+		internal_handle = (libsmdev_internal_handle_t *) memory_allocate(
+		                                                  sizeof( libsmdev_internal_handle_t ) );
+
+		if( internal_handle == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create internal handle.",
+			 function );
+
+			return( -1 );
+		}
+		if( memory_set(
+		     internal_handle,
+		     0,
+		     sizeof( libsmdev_internal_handle_t ) ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear handle.",
+			 function );
+
+			memory_free(
+			 internal_handle );
+
+			return( -1 );
+		}
+#if defined( WINAPI )
+		internal_handle->file_handle     = INVALID_HANDLE_VALUE;
+#else
+		internal_handle->file_descriptor = -1;
+#endif
+
+		*handle = (libsmdev_handle_t *) internal_handle;
+	}
+	return( 1 );
+}
+
+/* Frees the handle
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_free(
+     libsmdev_handle_t **handle,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_internal_handle_free";
+	int result                                  = 1;
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( *handle != NULL )
+	{
+		internal_handle = (libsmdev_internal_handle_t *) *handle;
+		*handle         = NULL;
+
+		if( internal_handle->filename != NULL )
+		{
+			memory_free(
+			 internal_handle->filename );
+		}
+		memory_free(
+		 internal_handle );
+	}
+	return( result );
+}
+
+/* Signals the handle to abort its current activity
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_signal_abort(
+     libsmdev_handle_t *handle,
+     liberror_error_t **error )
+{
+	static char *function = "libsmdev_handle_signal_abort";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	( (libsmdev_internal_handle_t *) handle )->abort = 1;
+
+	return( 1 );
+}
+
+/* Opens a storage media device
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_open(
+     libsmdev_handle_t *handle,
+     char * const filenames[],
+     int amount_of_filenames,
+     int flags,
+     liberror_error_t **error )
+{
+	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_open";
+	size_t narrow_filename_size                 = 0;
+
+#if defined( WINAPI )
+	DWORD error_code                            = 0;
+	DWORD file_io_access_flags                  = 0;
+	DWORD file_io_creation_flags                = 0;
+#else
+	int file_io_flags                           = 0;
+#endif
+#if !defined( WINAPI ) && defined( LIBSMDEV_WIDE_SYSTEM_CHARACTER_T )
+	char *narrow_filename                       = NULL;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid handle - name already exists.",
+		 function );
+
+		return( -1 );
+	}
+	if( filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filenames.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames <= 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid amount of filenames value out of range.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: currently only one device file supported.",
+		 function );
+
+		return( -1 );
+	}
+	if( filenames[ 0 ] == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing device filename.",
+		 function );
+
+		return( -1 );
+	}
+	narrow_filename_size = 1 + narrow_string_length(
+	                            filenames[ 0 ] );
+
+	if( libsmdev_handle_set_filename(
+	     handle,
+	     filenames[ 0 ],
+	     narrow_filename_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set filename in handle.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	{
+		file_io_access_flags   = GENERIC_WRITE | GENERIC_READ;
+		file_io_creation_flags = OPEN_ALWAYS;
+	}
+	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	{
+		file_io_access_flags   = GENERIC_READ;
+		file_io_creation_flags = OPEN_EXISTING;
+	}
+	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	{
+		file_io_access_flags   = GENERIC_WRITE;
+		file_io_creation_flags = OPEN_ALWAYS;
+	}
+	else
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	{
+		file_io_creation_flags = TRUNCATE_EXISTING;
+	}
+
+	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	{
+		internal_handle->file_handle = CreateFile(
+		                                (LPCTSTR) internal_handle->filename,
+		                                file_io_access_flags,
+		                                0,
+		                                NULL,
+		                                file_io_creation_flags,
+		                                FILE_ATTRIBUTE_NORMAL,
+		                                NULL );
+
+		if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+		{
+			error_code = GetLastError();
+
+			switch( error_code )
+			{
+				case ERROR_ACCESS_DENIED:
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 "%s: access denied to file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename );
+
+					break;
+
+				case ERROR_FILE_NOT_FOUND:
+				case ERROR_PATH_NOT_FOUND:
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 "%s: no such file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename );
+
+					break;
+
+				default:
+					if( libsmdev_error_string_copy_from_error_number(
+					     error_string,
+					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+					     error_code,
+					     error ) != 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 function,
+						 internal_handle->filename,
+						 error_string );
+					}
+					else
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 function,
+						 internal_handle->filename );
+					}
+					break;
+			}
+			return( -1 );
+		}
+	}
+#else
+	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	{
+		file_io_flags = O_RDWR | O_CREAT;
+	}
+	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	{
+		file_io_flags = O_RDONLY;
+	}
+	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	{
+		file_io_flags = O_WRONLY | O_CREAT;
+	}
+	else
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	{
+		file_io_flags |= O_TRUNC;
+	}
+	if( internal_handle->file_descriptor == -1 )
+	{
+#if defined( LIBSMDEV_WIDE_SYSTEM_CHARACTER_T )
+		/* Assumed here that the narrow open function can handle UTF-8
+		 */
+#if SIZEOF_WCHAR_T == 4
+		if( libuna_utf8_string_size_from_utf32(
+		     (libuna_utf32_character_t *) internal_handle->filename,
+		     internal_handle->filename_size,
+		     &narrow_filename_size,
+		     error ) != 1 )
+#elif SIZEOF_WCHAR_T == 2
+		if( libuna_utf8_string_size_from_utf16(
+		     (libuna_utf16_character_t *) internal_handle->filename,
+		     internal_handle->filename_size,
+		     &narrow_filename_size,
+		     error ) != 2 )
+#else
+#error Unsupported size of wchar_t
+#endif
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 "%s: unable to determine narrow character filename size.",
+			 function );
+
+			return( -1 );
+		}
+		narrow_filename = (char *) memory_allocate(
+					    sizeof( char ) * narrow_filename_size );
+
+		if( narrow_filename == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create narrow character filename.",
+			 function );
+
+			return( -1 );
+		}
+#if SIZEOF_WCHAR_T == 4
+		if( libuna_utf8_string_copy_from_utf32(
+		     (libuna_utf8_character_t *) narrow_filename,
+		     narrow_filename_size,
+		     (libuna_utf32_character_t *) internal_handle->filename,
+		     internal_handle->filename_size,
+		     error ) != 1 )
+#elif SIZEOF_WCHAR_T == 2
+		if( libuna_utf8_string_copy_from_utf16(
+		     (libuna_utf8_character_t *) narrow_filename,
+		     narrow_filename_size,
+		     (libuna_utf16_character_t *) internal_handle->filename,
+		     internal_handle->filename_size,
+		     error ) != 1 )
+#else
+#error Unsupported size of wchar_t
+#endif
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 "%s: unable to set narrow character filename.",
+			 function );
+
+			memory_free(
+			 narrow_filename );
+
+			return( -1 );
+		}
+		internal_handle->file_descriptor = open(
+		                                    narrow_filename,
+		                                    file_io_flags,
+		                                    0644 );
+
+		memory_free(
+		 narrow_filename );
+#else
+		internal_handle->file_descriptor = open(
+		                                    internal_handle->filename,
+		                                    file_io_flags,
+		                                    0644 );
+#endif
+
+		if( internal_handle->file_descriptor == -1 )
+		{
+			switch( errno )
+			{
+				case EACCES:
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 "%s: access denied to file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename );
+
+					break;
+
+				case ENOENT:
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 "%s: no such file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename );
+
+					break;
+
+				default:
+					if( libsmdev_error_string_copy_from_error_number(
+					     error_string,
+					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+					     errno,
+					     error ) != 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 function,
+						 internal_handle->filename,
+						 error_string );
+					}
+					else
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 function,
+						 internal_handle->filename );
+					}
+					break;
+			}
+			return( -1 );
+		}
+	}
+#endif
+	return( 1 );
+}
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Opens a storage media device
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_open_wide(
+     libsmdev_handle_t *handle,
+     wchar_t * const filenames[],
+     int amount_of_filenames,
+     int flags,
+     liberror_error_t **error )
+{
+	return( 1 );
+}
+
+#endif
+
+/* Closes a RAW handle
+ * Returns the 0 if succesful or -1 on error
+ */
+int libsmdev_handle_close(
+     libsmdev_handle_t *handle,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_close";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( CloseHandle(
+	     internal_handle->file_handle ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		/* TODO use GetLastError to get detailed error information */
+
+		return( -1 );
+	}
+	internal_handle->file_handle = INVALID_HANDLE_VALUE;
+#else
+	if( internal_handle->file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( close(
+	     internal_handle->file_descriptor ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+	internal_handle->file_descriptor = -1;
+#endif
+	return( 0 );
+}
+
+/* Reads a buffer
+ * Returns the amount of bytes read or -1 on error
+ */
+ssize_t libsmdev_handle_read_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_read_buffer";
+	ssize_t read_count                          = 0;
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file handle.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	if( internal_handle->file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( buffer == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid buffer.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( buffer_size > (size_t) UINT_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ReadFile(
+	     internal_handle->file_handle,
+	     buffer,
+	     buffer_size,
+	     (LPDWORD) &read_count,
+	     NULL ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read from device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+	}
+	if( read_count < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: invalid read count: %" PRIzd " returned.".
+		 function,
+		 read_count );
+
+		return( -1 );
+	}
+#else
+	if( buffer_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	read_count = read(
+	              internal_handle->file_descriptor,
+	              buffer,
+	              buffer_size );
+
+	if( read_count < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read from device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+#endif
+	return( read_count );
+}
+
+/* Writes a buffer
+ * Returns the amount of bytes written or -1 on error
+ */
+ssize_t libsmdev_handle_write_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_write_buffer";
+	ssize_t write_count                         = 0;
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file handle.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	if( internal_handle->file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( buffer == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid buffer.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( buffer_size > (size_t) UINT_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( WriteFile(
+	     internal_handle->file_handle,
+	     buffer,
+	     buffer_size,
+	     (LPDWORD) &write_count,
+	     NULL ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write to device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+	if( write_count < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: invalid write count: %" PRIzd " returned.".
+		 function,
+		 write_count );
+
+		return( -1 );
+	}
+#else
+	if( buffer_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	write_count = write(
+	               internal_handle->file_descriptor,
+	               buffer,
+	               buffer_size );
+
+	if( write_count < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write to device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+#endif
+	return( write_count );
+}
+
+/* Seeks a certain offset
+ * Returns the offset or -1 on error
+ */
+off64_t libsmdev_handle_seek_offset(
+         libsmdev_handle_t *handle,
+         off64_t offset,
+         int whence,
+         liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_seek_offset";
+
+#if defined( WINAPI )
+	LARGE_INTEGER large_integer_offset          = LIBSMDEV_LARGE_INTEGER_ZERO;
+	DWORD move_method                           = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file handle.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	if( internal_handle->file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( offset > (off64_t) INT64_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid offset value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( whence != SEEK_CUR )
+	 && ( whence != SEEK_END )
+	 && ( whence != SEEK_SET ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported whence.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI )
+	if( whence == SEEK_SET )
+	{
+		move_method = FILE_BEGIN;
+	}
+	else if( whence == SEEK_CUR )
+	{
+		move_method = FILE_CURRENT;
+	}
+	else if( whence == SEEK_END )
+	{
+		move_method = FILE_END;
+	}
+	large_integer_offset.LowPart  = (DWORD) ( 0x0ffffffff & offset );
+	large_integer_offset.HighPart = (LONG) ( offset >> 32 );
+
+	if( SetFilePointerEx(
+	     internal_handle->file_handle,
+	     large_integer_offset,
+	     &large_integer_offset,
+	     move_method ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to find offset: %" PRIi64 " in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 offset,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+	offset = ( (off64_t) large_integer_offset.HighPart << 32 ) + large_integer_offset.LowPart;
+
+	if( offset < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: invalid offset: %" PRIi64 " returned.",
+		 function,
+		 offset );
+
+		return( -1 );
+	}
+#else
+	offset = lseek(
+	          internal_handle->file_descriptor,
+	          (off_t) offset,
+	          whence );
+
+	if( offset < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 function,
+		 internal_handle->filename );
+
+		return( -1 );
+	}
+#endif
+	return( offset );
+}
+
+/* Retrieves the current offset of the (media) data
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_get_offset(
+     libsmdev_handle_t *handle,
+     off64_t *offset,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_offset";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( offset == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offset.",
+		 function );
+
+		return( -1 );
+	}
+	/* TODO */
+	*offset = 0;
+
+	return( 1 );
+}
+
+/* Retrieves the filename size of the file handle
+ * The filename size includes the end of string character
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_get_filename_size(
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_filename_size";
+
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                  = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename size.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_size_from_utf32(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_size_from_utf16(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_size_from_utf32(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_size_from_utf16(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	*filename_size = internal_handle->filename_size;
+#endif
+	return( 1 );
+}
+
+/* Retrieves the filename of the file handle
+ * The filename size should include the end of string character
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_get_filename(
+     libsmdev_handle_t *handle,
+     char *filename,
+     size_t filename_size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_filename";
+	size_t narrow_filename_size                 = 0;
+
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                  = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_size_from_utf32(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_size_from_utf16(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_size_from_utf32(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_size_from_utf16(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	narrow_filename_size = internal_handle->filename_size;
+#endif
+	if( filename_size < narrow_filename_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: filename too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_copy_from_utf32(
+		          (libuna_utf8_character_t *) filename,
+		          filename_size,
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_copy_from_utf16(
+		          (libuna_utf8_character_t *) filename,
+		          filename_size,
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_copy_from_utf32(
+		          (uint8_t *) filename,
+		          filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_copy_from_utf16(
+		          (uint8_t *) filename,
+		          filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set filename.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	if( libsmdev_system_string_copy(
+	     filename,
+	     internal_handle->filename,
+	     internal_handle->filename_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set filename.",
+		 function );
+
+		return( -1 );
+	}
+	filename[ internal_handle->filename_size - 1 ] = 0;
+#endif
+	return( 1 );
+}
+
+/* Sets the filename for the file handle
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_set_filename(
+     libsmdev_handle_t *handle,
+     const char *filename,
+     size_t filename_length,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                      = "libsmdev_handle_set_filename";
+
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                 = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_length == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 "%s: invalid filename length is zero.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_length >= (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid filename length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle->filename != NULL )
+	{
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+		if( internal_handle->file_handle != INVALID_HANDLE_VALUE )
+#else
+		if( internal_handle->file_descriptor != -1 )
+#endif
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+			 "%s: filename already set: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 function,
+			 internal_handle->filename );
+
+			return( -1 );
+		}
+		memory_free(
+		  internal_handle->filename );
+
+		 internal_handle->filename      = NULL;
+		 internal_handle->filename_size = 0;
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_utf8(
+		          (libuna_utf8_character_t *) filename,
+		          filename_length + 1,
+		          &( internal_handle->filename_size ),
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_utf8(
+		          (libuna_utf8_character_t *) filename,
+		          filename_length + 1,
+		          &( internal_handle->filename_size ),
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_byte_stream(
+		          (uint8_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &( internal_handle->filename_size ),
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_byte_stream(
+		          (uint8_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &( internal_handle->filename_size ),
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#else
+	internal_handle->filename_size = filename_length + 1;
+#endif
+	internal_handle->filename = (libsmdev_system_character_t *) memory_allocate(
+	                                                             sizeof( libsmdev_system_character_t ) * internal_handle->filename_size );
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_copy_from_utf8(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (libuna_utf8_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_copy_from_utf8(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (libuna_utf8_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_copy_from_byte_stream(
+		          (libuna_utf32_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (uint8_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_copy_from_byte_stream(
+		          (libuna_utf16_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (uint8_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set filename.",
+		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
+
+		return( -1 );
+	}
+#else
+	if( libsmdev_system_string_copy(
+	     internal_handle->filename,
+	     filename,
+	     filename_length + 1 ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set filename.",
+		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
+
+		return( -1 );
+	}
+	internal_handle->filename[ filename_length ] = 0;
+#endif
+	return( 1 );
+}
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Retrieves the filename size of the file handle
+ * The filename size includes the end of string character
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_get_filename_size_wide(
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_filename_size_wide";
+
+#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                  = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename size.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	*filename_size = internal_handle->filename_size;
+#else
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_utf8(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_utf8(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_byte_stream(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_byte_stream(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( 1 );
+}
+
+/* Retrieves the filename of the file handle
+ * The filename size should include the end of string character
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_get_filename_wide(
+     libsmdev_handle_t *handle,
+     wchar_t *filename,
+     size_t filename_size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                      = "libsmdev_handle_get_filename_wide";
+	size_t wide_filename_size                      = 0;
+
+#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                 = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid handle - missing filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	wide_filename_size = internal_handle->filename_size;
+#else
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_utf8(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          &wide_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_utf8(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          &wide_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_size_from_byte_stream(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          &wide_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_size_from_byte_stream(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          &wide_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	if( filename_size < wide_filename_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: filename too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_string_copy(
+	     filename,
+	     internal_handle->filename,
+	     internal_handle->filename_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set filename.",
+		 function );
+
+		return( -1 );
+	}
+	filename[ internal_handle->filename_size - 1 ] = 0;
+#else
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_copy_from_utf8(
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_copy_from_utf8(
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf32_string_copy_from_byte_stream(
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf16_string_copy_from_byte_stream(
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set filename.",
+		 function );
+
+		return( -1 );
+	}
+#endif
+	return( 1 );
+}
+
+/* Sets the filename for the file handle
+ * Returns 1 if succesful or -1 on error
+ */
+int libsmdev_handle_set_filename_wide(
+     libsmdev_handle_t *handle,
+     const wchar_t *filename,
+     size_t filename_length,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_set_filename_wide";
+
+#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	int result                                  = 0;
+#endif
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_length == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 "%s: invalid filename length is zero.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_length >= (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid filename length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle->filename != NULL )
+	{
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+		if( internal_handle->file_handle != INVALID_HANDLE_VALUE )
+#else
+		if( internal_handle->file_descriptor != -1 )
+#endif
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+			 "%s: filename already set: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 function,
+			 internal_handle->filename );
+
+			return( -1 );
+		}
+		memory_free(
+		  internal_handle->filename );
+
+		 internal_handle->filename      = NULL;
+		 internal_handle->filename_size = 0;
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	internal_handle->filename_size = filename_length + 1;
+#else
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          &( internal_handle->filename_size ),
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          &( internal_handle->filename_size ),
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &( internal_handle->filename_size ),
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &( internal_handle->filename_size ),
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine filename size.",
+		 function );
+
+		return( -1 );
+	}
+#endif /* defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) */
+
+	internal_handle->filename = (libsmdev_system_character_t *) memory_allocate(
+	                                                             sizeof( libsmdev_system_character_t ) * internal_handle->filename_size );
+
+	if( internal_handle->filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libsmdev_system_string_copy(
+	     internal_handle->filename,
+	     filename,
+	     filename_length + 1 ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set filename.",
+		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
+
+		return( -1 );
+	}
+	internal_handle->filename[ filename_length ] = 0;
+#else
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_copy_from_utf32(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_copy_from_utf16(
+		          (libuna_utf8_character_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_copy_from_utf32(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_copy_from_utf16(
+		          (uint8_t *) internal_handle->filename,
+		          internal_handle->filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set filename.",
+		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
+
+		return( -1 );
+	}
+#endif /* defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) */
+
+	return( 1 );
+}
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+

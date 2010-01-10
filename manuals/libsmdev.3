@@ -1,0 +1,158 @@
+.Dd January 10, 2010
+.Dt libsmdev 3
+.Os libsmdev
+.Sh NAME
+.Nm libsmdev.h
+.Nd Library to access and read storage media (SM) devices
+.Sh LIBRARY
+.Lb libsmdev
+.Sh SYNOPSIS
+.In libsmdev.h
+.Pp
+Support functions
+.Ft const char *
+.Fn libsmdev_get_version "void"
+.Ft int
+.Fn libsmdev_check_device "const char *filename, libsmdev_error_t **error"
+.Pp
+Available when compiled with wide character string support:
+.Ft int
+.Fn libsmdev_check_device_wide "const char *filename, libsmdev_error_t **error"
+.Pp
+Notify functions
+.Ft void
+.Fn libsmdev_notify_set_verbose "int verbose"
+.Ft int
+.Fn libsmdev_notify_set_stream "FILE *stream, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_notify_stream_open "const char *filename, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_notify_stream_close "libsmdev_error_t **error"
+.Pp
+Error functions
+.Ft void
+.Fn libsmdev_error_free "libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_error_fprint "libsmdev_error_t *error, FILE *stream"
+.Ft int
+.Fn libsmdev_error_sprint "libsmdev_error_t *error, char *string, size_t size"
+.Ft int
+.Fn libsmdev_error_backtrace_fprint "libsmdev_error_t *error, FILE *stream"
+.Ft int
+.Fn libsmdev_error_backtrace_sprint "libsmdev_error_t *error, char *string, size_t size"
+.Pp
+File/Handle functions
+.Ft int
+.Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_initialize "libsmdev_handle_t **handle, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_free "libsmdev_handle_t **handle, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_open "libsmdev_handle_t *handle, char * const filenames[], int amount_of_filenames, uint8_t flags, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_close "libsmdev_handle_t *handle, libsmdev_error_t **error"
+.Ft ssize_t
+.Fn libsmdev_handle_read_buffer "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, libsmdev_error_t **error"
+.Ft ssize_t
+.Fn libsmdev_handle_read_random "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Ft ssize_t
+.Fn libsmdev_handle_write_buffer "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, libsmdev_error_t **error"
+.Ft ssize_t
+.Fn libsmdev_handle_write_random "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Ft off64_t
+.Fn libsmdev_handle_seek_offset "libsmdev_handle_t *handle, off64_t offset, int whence, libsmdev_error_t **error"
+.Ft off64_t
+.Fn libsmdev_handle_get_offset "libsmdev_handle_t *handle, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_filename_size "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_filename "libsmdev_handle_t *handle, char *filename, size_t filename_size, libsmdev_error_t **error"
+.Pp
+Available when compiled with wide character string support:
+.Ft int
+.Fn libsmdev_handle_open_wide "libsmdev_handle_t *handle, wchar_t * const filenames[], int amount_of_filenames, uint8_t flags"
+.Ft int
+.Fn libsmdev_handle_get_filename_size_wide "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_filename_wide "libsmdev_handle_t *handle, wchar_t *filename, size_t filename_size, libsmdev_error_t **error"
+.Pp
+Available when compiled with libbfio support:
+.Ft int
+.Fn libsmdev_handle_open_file_io_pool "libsmdev_handle_t *handle, libbfio_pool_t *file_io_pool, uint8_t flags, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_file_io_handle "libsmdev_handle_t *handle, libbfio_handle_t **file_io_handle, libsmdev_error_t **error"
+.Pp
+Meta data functions
+.Ft int
+.Fn libsmdev_handle_get_media_size "libsmdev_handle_t *handle, size64_t *media_size, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_bytes_per_sector "libsmdev_handle_t *handle, uint32_t *bytes_per_sector, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_media_type "libsmdev_handle_t *handle, uint8_t *media_type, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_bus_type "libsmdev_handle_t *handle, uint8_t *bus_type, libsmdev_error_t **error"
+.Sh DESCRIPTION
+The
+.Fn libsmdev_get_version
+function is used to retrieve the library version.
+.Pp
+The
+.Fn libsmdev_get_flags_*
+functions are used to get the values of the flags for read and/or write.
+.Pp
+The
+.Fn libsmdev_signal_abort
+function signals the handle to aborts it current activity.
+.Pp
+The
+.Fn libsmdev_open ,
+.Fn libsmdev_open_wide ,
+.Fn libsmdev_seek_offset ,
+.Fn libsmdev_read_buffer ,
+.Fn libsmdev_read_random ,
+.Fn libsmdev_write_buffer ,
+.Fn libsmdev_write_random ,
+.Fn libsmdev_close
+functions can be used to open, seek in, read from, write to and close storage media devices.
+.Pp
+The
+.Fn libsmdev_set_notify_values
+function can be used to direct the warning, verbose and debug output from the library.
+.Sh RETURN VALUES
+Most of the functions return NULL or \-1 on error, dependent on the return type. For the actual return values refer to libsmdev.h
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh NOTES
+libsmdev allows to be compiled with wide character support.
+To compile libsmdev with wide character support use
+.Ar ./configure --enable-wide-character-type=yes
+or pass the definition
+.Ar HAVE_WIDE_CHARACTER_TYPE
+ to the compiler (i.e. in case of Microsoft Visual Studio (MSVS) C++).
+
+To have other code to determine if libsmdev was compiled with wide character support it defines
+.Ar LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE
+ in libsmdev/features.h.
+
+libsmdev uses UTF-8 encoded strings except for filenames.
+
+libsmdev allows to be compiled with chained IO support using libbfio.
+libsmdev will automatically detect if a compatible version of libbfio is available.
+
+To have other code to determine if libsmdev was compiled with libbfio support it defines
+.Ar LIBSMDEV_HAVE_BFIO
+ in libsmdev/features.h.
+
+.Sh BUGS
+Please report bugs of any kind to <forensics@hoffmannbv.nl> or on the project website:
+http://libsmdev.sourceforge.net/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright 2006-2010 Joachim Metz, Hoffmann Investigations <forensics@hoffmannbv.nl> and contributors.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+the libsmdev.h include file
