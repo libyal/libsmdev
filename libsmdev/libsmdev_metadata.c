@@ -1211,21 +1211,21 @@ int libsmdev_handle_get_bus_type(
 	return( 1 );
 }
 
-/* Retrieves the media information value
+/* Retrieves the information value by identifier
  * Returns 1 if successful, 0 if value not present or -1 on error
  */
-int libsmdev_handle_get_media_information_value(
+int libsmdev_handle_get_information_value(
      libsmdev_handle_t *handle,
-     const uint8_t *media_information_value_identifier,
-     size_t media_information_value_identifier_length,
-     uint8_t *media_information_value,
-     size_t media_information_value_size,
+     const uint8_t *information_value_identifier,
+     size_t information_value_identifier_length,
+     uint8_t *information_value,
+     size_t information_value_size,
      liberror_error_t **error )
 {
-	libsmdev_internal_handle_t *internal_handle  = NULL;
-	uint8_t *internal_media_information_value    = NULL;
-	static char *function                        = "libsmdev_handle_get_media_information_value";
-	size_t internal_media_information_value_size = 0;
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	uint8_t *internal_information_value         = NULL;
+	static char *function                       = "libsmdev_handle_get_information_value";
+	size_t internal_information_value_size      = 0;
 
 	if( handle == NULL )
 	{
@@ -1240,24 +1240,24 @@ int libsmdev_handle_get_media_information_value(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( media_information_value_identifier == NULL )
+	if( information_value_identifier == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid media information value identifier.",
+		 "%s: invalid information value identifier.",
 		 function );
 
 		return( -1 );
 	}
-	if( media_information_value == NULL )
+	if( information_value == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid media information value.",
+		 "%s: invalid information value.",
 		 function );
 
 		return( -1 );
@@ -1278,71 +1278,71 @@ int libsmdev_handle_get_media_information_value(
 			return( -1 );
 		}
 	}
-	if( ( media_information_value_identifier_length == 5 )
+	if( ( information_value_identifier_length == 5 )
 	 && ( narrow_string_compare(
 	       "model",
-	       (char *) media_information_value_identifier,
-	       media_information_value_identifier_length ) == 0 ) )
+	       (char *) information_value_identifier,
+	       information_value_identifier_length ) == 0 ) )
 	{
-		internal_media_information_value = (uint8_t *) internal_handle->model;
+		internal_information_value = (uint8_t *) internal_handle->model;
 	}
-	else if( ( media_information_value_identifier_length == 6 )
+	else if( ( information_value_identifier_length == 6 )
 	      && ( narrow_string_compare(
 		    "vendor",
-		    (char *) media_information_value_identifier,
-		    media_information_value_identifier_length ) == 0 ) )
+		    (char *) information_value_identifier,
+		    information_value_identifier_length ) == 0 ) )
 	{
-		internal_media_information_value = (uint8_t *) internal_handle->vendor;
+		internal_information_value = (uint8_t *) internal_handle->vendor;
 	}
-	else if( ( media_information_value_identifier_length == 13 )
+	else if( ( information_value_identifier_length == 13 )
 	      && ( narrow_string_compare(
 		    "serial_number",
-		    (char *) media_information_value_identifier,
-		    media_information_value_identifier_length ) == 0 ) )
+		    (char *) information_value_identifier,
+		    information_value_identifier_length ) == 0 ) )
 	{
-		internal_media_information_value = (uint8_t *) internal_handle->serial_number;
+		internal_information_value = (uint8_t *) internal_handle->serial_number;
 	}
 	else
 	{
 		return( 0 );
 	}
-	if( internal_media_information_value != NULL )
+	if( internal_information_value != NULL )
 	{
-		if( internal_media_information_value[ 0 ] == 0 )
+		if( internal_information_value[ 0 ] == 0 )
 		{
 			return( 0 );
 		}
 		/* Determine the header value size
 		 */
-		internal_media_information_value_size = 1 + libsmdev_string_length(
-							     (char *) internal_media_information_value );
+		internal_information_value_size = 1 + libsmdev_string_length(
+		                                       (char *) internal_information_value );
 
-		if( media_information_value_size < internal_media_information_value_size )
+		if( information_value_size < internal_information_value_size )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-			 "%s: media information value too small.",
+			 "%s: information value too small.",
 			 function );
 
 			return( -1 );
 		}
 		if( libsmdev_string_copy(
-		     media_information_value,
-		     internal_media_information_value,
-		     internal_media_information_value_size ) == NULL )
+		     information_value,
+		     internal_information_value,
+		     internal_information_value_size ) == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set media information value.",
+			 "%s: unable to set information value.",
 			 function );
 
 			return( -1 );
 		}
-		media_information_value[ internal_media_information_value_size - 1 ] = 0;
+		information_value[ internal_information_value_size - 1 ] = 0;
 	}
 	return( 1 );
 }

@@ -59,12 +59,12 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_bus_type(
                      uint8_t *bus_type,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_media_information_value(
+LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      libsmdev_handle_t *handle,
-                     const uint8_t *media_information_value_identifier,
-                     size_t media_information_value_identifier_length,
-                     uint8_t *media_information_value,
-                     size_t media_information_value_size,
+                     const uint8_t *information_value_identifier,
+                     size_t information_value_identifier_length,
+                     uint8_t *information_value,
+                     size_t information_value_size,
                      liberror_error_t **error );
 
 #ifdef TODO
