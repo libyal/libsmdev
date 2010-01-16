@@ -106,10 +106,11 @@ int libsmdev_handle_initialize(
 			return( -1 );
 		}
 #if defined( WINAPI )
-		internal_handle->file_handle     = INVALID_HANDLE_VALUE;
+		internal_handle->file_handle             = INVALID_HANDLE_VALUE;
 #else
-		internal_handle->file_descriptor = -1;
+		internal_handle->file_descriptor         = -1;
 #endif
+		internal_handle->amount_of_error_retries = 2;
 
 		*handle = (libsmdev_handle_t *) internal_handle;
 	}
@@ -694,9 +695,19 @@ ssize_t libsmdev_handle_read_buffer(
          size_t buffer_size,
          liberror_error_t **error )
 {
+	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_read_buffer";
+	off64_t calculated_current_offset           = 0;
+	off64_t current_offset                      = 0;
+	size_t buffer_offset                        = 0;
+	size_t error_granularity_buffer_offset      = 0;
+	size_t error_granularity_skip_size          = 0;
+	size_t read_error_size                      = 0;
+	size_t read_size                            = 0;
 	ssize_t read_count                          = 0;
+	int16_t amount_of_read_errors               = 0;
 
 	if( handle == NULL )
 	{
@@ -770,33 +781,6 @@ ssize_t libsmdev_handle_read_buffer(
 
 		return( -1 );
 	}
-	if( ReadFile(
-	     internal_handle->file_handle,
-	     buffer,
-	     buffer_size,
-	     (LPDWORD) &read_count,
-	     NULL ) == 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read from device: %" PRIs_LIBSMDEV_SYSTEM ".",
-		 function,
-		 internal_handle->filename );
-	}
-	if( read_count < 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: invalid read count: %" PRIzd " returned.".
-		 function,
-		 read_count );
-
-		return( -1 );
-	}
 #else
 	if( buffer_size > (size_t) SSIZE_MAX )
 	{
@@ -809,24 +793,408 @@ ssize_t libsmdev_handle_read_buffer(
 
 		return( -1 );
 	}
-	read_count = read(
-	              internal_handle->file_descriptor,
-	              buffer,
-	              buffer_size );
+#endif
+	/* TODO what if media_size_set is not set */
 
-	if( read_count < 0 )
+	if( internal_handle->offset >= (off64_t) internal_handle->media_size )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read from device: %" PRIs_LIBSMDEV_SYSTEM ".",
-		 function,
-		 internal_handle->filename );
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: offset exceeds media size.",
+		 function );
 
 		return( -1 );
 	}
+	read_size = buffer_size;
+
+	if( ( internal_handle->offset + (off64_t) read_size ) > (off64_t) internal_handle->media_size )
+	{
+		read_size = (size_t) ( internal_handle->media_size - internal_handle->offset );
+	}
+	while( amount_of_read_errors <= (int16_t) internal_handle->amount_of_error_retries )
+	{
+		if( internal_handle->abort != 0 )
+		{
+			break;
+		}
+#if defined( WINAPI )
+		if( ReadFile(
+		     internal_handle->file_handle,
+		     &( buffer[ buffer_offset ] ),
+		     read_size,
+		     (LPDWORD) &read_count,
+		     NULL ) == 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read from device: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 function,
+			 internal_handle->filename );
+		}
+		/* TODO implement error handling */
+
+		if( read_count < 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: invalid read count: %" PRIzd " returned.".
+			 function,
+			 read_count );
+
+			return( -1 );
+		}
+#else
+		read_count = read(
+			      internal_handle->file_descriptor,
+			      &( buffer[ buffer_offset ] ),
+			      read_size );
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: read buffer at offset: %" PRIu64 " of size: %" PRIzd ".\n",
+			 function,
+			 internal_handle->offset + (off64_t) buffer_offset,
+			 read_count );
+		}
 #endif
+		if( read_count < 0 )
+		{
+			switch( errno )
+			{
+				/* Reading should not be retries for some error conditions
+				 */
+				case ESPIPE:
+				case EPERM:
+				case ENXIO:
+				case ENODEV:
+					if( libsmdev_error_string_copy_from_error_number(
+					     error_string,
+					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+					     errno,
+					     error ) != 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 function,
+						 internal_handle->filename,
+						 error_string );
+					}
+					else
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_OPEN_FAILED,
+						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 function,
+						 internal_handle->filename );
+					}
+					return( -1 );
+
+				default:
+#if defined( HAVE_VERBOSE_OUTPUT )
+					if( libnotify_verbose != 0 )
+					{
+						if( libsmdev_error_string_copy_from_error_number(
+						     error_string,
+						     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+						     errno,
+						     error ) != 0 )
+						{
+							libnotify_printf(
+							 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+							 function,
+							 internal_handle->filename,
+							 error_string );
+						}
+						else
+						{
+							libnotify_printf(
+							 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+							 function,
+							 internal_handle->filename );
+						}
+					}
+#endif
+					break;
+			}
+			current_offset = lseek(
+			                  internal_handle->file_descriptor,
+			                  0,
+			                  SEEK_CUR );
+
+			if( current_offset < 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_SEEK_FAILED,
+				 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+				 function,
+				 internal_handle->filename );
+
+				return( -1 );
+			}
+			calculated_current_offset = internal_handle->offset + (off64_t) buffer_offset;
+
+			/* On MacOS the read count is -1 on error and the file offset is set to the position of the error
+			 */
+			if( current_offset != calculated_current_offset )
+			{
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "%s: correcting offset drift (actual: %" PRIu64 ", calculated: %" PRIu64 ").\n",
+					 function,
+					 current_offset,
+					 calculated_current_offset );
+				}
+#endif
+				if( current_offset < calculated_current_offset )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+					 "%s: unable to to correct negative offset drift.",
+					 function );
+
+					return( -1 );
+				}
+				read_count = (ssize_t) ( current_offset - calculated_current_offset );
+			}
+		}
+#endif
+		else
+		{
+			/* Check if the last read was alright determine the total read count
+			 */
+			if( read_count == (ssize_t) read_size )
+			{
+				read_count = buffer_offset + read_size;
+			}
+			/* Check if the entire buffer was read
+			 */
+			if( read_count == (ssize_t) read_size )
+			{
+				break;
+			}
+			/* No bytes were read
+			 */
+			if( read_count == 0 )
+			{
+				return( 0 );
+			}
+		}
+		if( read_count > 0 )
+		{
+			buffer_offset += read_count;
+			read_size     -= read_count;
+		}
+		/* There was a read error
+		 */
+		amount_of_read_errors++;
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+		if( libsystem_notify_verbose != 0 )
+		{
+			libsystem_notify_printf(
+			 "%s: read error: %" PRIi16 " at offset %" PRIu64 ".\n",
+			 function,
+			 amount_of_read_errors,
+			 internal_handle->offset + buffer_offset );
+		}
+#endif
+		if( amount_of_read_errors > (int16_t) internal_handle->amount_of_error_retries )
+		{
+			error_granularity_buffer_offset = ( buffer_offset / internal_handle->error_granularity ) * internal_handle->error_granularity;
+			error_granularity_skip_size     = ( error_granularity_buffer_offset + internal_handle->error_granularity ) - buffer_offset;
+
+			if( ( internal_handle->error_flags & LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) != 0 )
+			{
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libsystem_notify_verbose != 0 )
+				{
+					libsystem_notify_printf(
+					 "%s: zero-ing buffer of size: %" PRIzd " bytes at offset %" PRIu32 ".\n",
+					 function,
+					 internal_handle->error_granularity,
+					 error_granularity_buffer_offset );
+				}
+#endif
+
+				if( memory_set(
+				     &( buffer[ error_granularity_buffer_offset ] ),
+				     0,
+				     internal_handle->error_granularity ) == NULL )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_MEMORY,
+					 LIBERROR_MEMORY_ERROR_SET_FAILED,
+					 "%s: unable to zero buffer on error.",
+					 function );
+
+					return( -1 );
+				}
+				read_error_size = internal_handle->error_granularity;
+			}
+			else
+			{
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libsystem_notify_verbose != 0 )
+				{
+					libsystem_notify_printf(
+					 "%s: zero-ing remainder of buffer of size: %" PRIu32 " bytes at offset %" PRIzd ".\n",
+					 function,
+					 error_granularity_skip_size,
+					 buffer_offset );
+				}
+#endif
+
+				if( memory_set(
+				     &( buffer[ buffer_offset ] ),
+				     0,
+				     error_granularity_skip_size ) == NULL )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_MEMORY,
+					 LIBERROR_MEMORY_ERROR_SET_FAILED,
+					 "%s: unable to zero remainder of buffer on error.",
+					 function );
+
+					return( -1 );
+				}
+				read_error_size = error_granularity_skip_size;
+			}
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libsystem_notify_verbose != 0 )
+			{
+				libsystem_notify_printf(
+				 "%s: adding read error at offset: %" PRIu64 ", amount of bytes: %" PRIzd ".\n",
+				 function,
+				 current_offset,
+				 read_error_size );
+			}
+#endif
+
+			if( imaging_handle_add_read_error(
+			     imaging_handle,
+			     current_offset,
+			     read_error_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to add read errror.",
+				 function );
+
+				return( -1 );
+			}
+			/* At the end of the input
+			 */
+			if( ( current_offset + (off64_t) read_size ) >= (off64_t) internal_handle->media_size )
+			{
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libsystem_notify_verbose != 0 )
+				{
+					libsystem_notify_printf(
+					 "%s: at end of input no remaining bytes to read from chunk.\n",
+					 function );
+				}
+#endif
+
+				read_count = (ssize_t) read_size;
+
+				break;
+			}
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libsystem_notify_verbose != 0 )
+			{
+				libsystem_notify_printf(
+				 "%s: skipping %" PRIu32 " bytes.\n",
+				 function,
+				 error_granularity_skip_size );
+			}
+#endif
+
+			if( device_handle_seek_offset(
+			     device_handle,
+			     error_granularity_skip_size,
+			     SEEK_CUR,
+			     error ) == -1 )
+			{
+				if( libsystem_error_copy_to_string(
+				     errno,
+				     error_string,
+				     128,
+				     error ) == 1 )
+				{
+					libsystem_notify_printf(
+					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBSYSTEM ".",
+					 function,
+					 error_granularity_skip_size,
+					 error_string );
+				}
+				else
+				{
+					libsystem_notify_printf(
+					 "%s: unable to skip %" PRIu32 " bytes after sector.",
+					 function,
+					 error_granularity_skip_size );
+				}
+				return( -1 );
+			}
+			/* If error granularity skip is still within the chunk
+			 */
+			if( read_size > byte_error_granularity )
+			{
+				read_size             -= error_granularity_skip_size;
+				buffer_offset         += error_granularity_skip_size;
+				amount_of_read_errors  = 0;
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libsystem_notify_verbose != 0 )
+				{
+					libsystem_notify_printf(
+					 "%s: %" PRIzd " bytes remaining to read.\n",
+					 function,
+					 buffer_size );
+				}
+#endif
+			}
+			else
+			{
+				read_count = (ssize_t) read_size;
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libsystem_notify_verbose != 0 )
+				{
+					libsystem_notify_printf(
+					 "%s: no bytes remaining to read.\n",
+					 function );
+				}
+#endif
+
+				break;
+			}
+		}
+	}
 	return( read_count );
 }
 
@@ -974,6 +1342,8 @@ ssize_t libsmdev_handle_write_buffer(
 		return( -1 );
 	}
 #endif
+	/* TODO update internal_handle->offset */
+
 	return( write_count );
 }
 
@@ -1133,6 +1503,8 @@ off64_t libsmdev_handle_seek_offset(
 		return( -1 );
 	}
 #endif
+	/* TODO update internal_handle->offset */
+
 	return( offset );
 }
 

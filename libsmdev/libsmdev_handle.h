@@ -60,6 +60,10 @@ struct libsmdev_internal_handle
 	int file_descriptor;
 #endif
 
+	/* The current offset
+	 */
+	off64_t offset;
+
 	/* The amount of bytes per sector
 	 */
 	uint32_t bytes_per_sector;
@@ -108,20 +112,19 @@ struct libsmdev_internal_handle
 	 */
 	uint8_t media_information_set;
 
+	/* The amount of read/write error retries
+	 */
+	uint8_t amount_of_error_retries;
+
+	/* The error granularity
+	 */
+	size_t error_granularity;
+
+	/* The read/write error flags
+	 */
+	uint8_t error_flags;
+
 	/* TODO */
-
-	/* The amount of read error retries
-	 */
-	int read_error_retries;
-
-	/* Value to indicate if buffer should be entirely cleaned
-	 * on read error
-	 */
-	int clear_buffer_on_read_error;
-
-	/* The current offset
-	 */
-	off64_t offset;
 
 	/* The read error offset list
 	 */

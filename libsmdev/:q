@@ -1626,7 +1626,7 @@ int libsmio_device_set_error_flags(
 
 		return( -1 );
 	}
-	if( ( error_flags & ~( LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) ) != 0 )
+	if( ( error_flags & ~( LIBSMDEV_ERROR_FLAG_CLEAN_BUFFER_ON_ERROR ) ) != 0 )
 	{
 		liberror_error_set(
 		 error,

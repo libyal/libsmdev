@@ -67,27 +67,37 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      size_t information_value_size,
                      liberror_error_t **error );
 
+LIBSMIO_EXTERN int libsmio_device_get_amount_of_error_retries(
+                    libsmio_handle_t *handle,
+                    uint8_t *amount_of_error_retries,
+                    liberror_error_t **error );
+
+LIBSMIO_EXTERN int libsmio_device_set_amount_of_error_retries(
+                    libsmio_handle_t *handle,
+                    uint8_t amount_of_error_retries,
+                    liberror_error_t **error );
+
+LIBSMIO_EXTERN int libsmio_device_get_error_granularity(
+                    libsmio_handle_t *handle,
+                    size_t *error_granularity,
+                    liberror_error_t **error );
+
+LIBSMIO_EXTERN int libsmio_device_set_error_granularity(
+                    libsmio_handle_t *handle,
+                    size_t *error_granularity,
+                    liberror_error_t **error );
+
+LIBSMIO_EXTERN int libsmio_device_get_error_flags(
+                    libsmio_handle_t *handle,
+                    uint8_t *error_flags,
+                    liberror_error_t **error );
+
+LIBSMIO_EXTERN int libsmio_device_set_error_flags(
+                    libsmio_handle_t *handle,
+                    uint8_t error_flags,
+                    liberror_error_t **error );
+
 #ifdef TODO
-
-LIBSMIO_EXTERN int libsmio_device_get_read_error_retries(
-                    libsmio_handle_t *handle,
-                    int *read_error_retries,
-                    liberror_error_t **error );
-
-LIBSMIO_EXTERN int libsmio_device_set_read_error_retries(
-                    libsmio_handle_t *handle,
-                    int read_error_retries,
-                    liberror_error_t **error );
-
-LIBSMIO_EXTERN int libsmio_device_get_clear_buffer_on_read_error(
-                    libsmio_handle_t *handle,
-                    int *clear_buffer_on_read_error,
-                    liberror_error_t **error );
-
-LIBSMIO_EXTERN int libsmio_device_set_clear_buffer_on_read_error(
-                    libsmio_handle_t *handle,
-                    int clear_buffer_on_read_error,
-                    liberror_error_t **error );
 
 int libsmio_device_get_amount_of_read_errors(
      intptr_t *io_handle,

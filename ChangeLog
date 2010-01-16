@@ -4,8 +4,12 @@ TODO
 * work on libsmdev_metadata
 * implement posix_fadvise
 
+Library
+* windows read error retry support
+
 20100116
 * worked on initial version
+* worked on read error retries
 
 20100110
 * Created initial version based on earlier media input/output code
