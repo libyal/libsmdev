@@ -1,4 +1,4 @@
-.Dd January 10, 2010
+.Dd January 17, 2010
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -92,6 +92,18 @@ Meta data functions
 .Fn libsmdev_handle_get_media_type "libsmdev_handle_t *handle, uint8_t *media_type, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_get_bus_type "libsmdev_handle_t *handle, uint8_t *bus_type, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_amount_of_error_retries "libsmdev_handle_t *handle, uint8_t *amount_of_error_retries, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_set_amount_of_error_retries "libsmdev_handle_t *handle, uint8_t amount_of_error_retries, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_get_error_granularity "libsmdev_handle_t *handle, size_t *error_granularity, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_set_error_granularity "libsmdev_handle_t *handle, size_t error_granularity, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_get_error_flags "libsmdev_handle_t *handle, uint8_t *error_flags, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_set_error_flags "libsmdev_handle_t *handle, uint8_t error_flags, libsmdev_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libsmdev_get_version
@@ -117,8 +129,8 @@ The
 functions can be used to open, seek in, read from, write to and close storage media devices.
 .Pp
 The
-.Fn libsmdev_set_notify_values
-function can be used to direct the warning, verbose and debug output from the library.
+.Fn libsmdev_notify_set_
+functions can be used to direct the warning, verbose and debug output from the library.
 .Sh RETURN VALUES
 Most of the functions return NULL or \-1 on error, dependent on the return type. For the actual return values refer to libsmdev.h
 .Sh ENVIRONMENT

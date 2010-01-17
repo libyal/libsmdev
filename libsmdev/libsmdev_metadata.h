@@ -67,57 +67,47 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      size_t information_value_size,
                      liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_get_amount_of_error_retries(
-                    libsmio_handle_t *handle,
-                    uint8_t *amount_of_error_retries,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t *amount_of_error_retries,
+                     liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_set_amount_of_error_retries(
-                    libsmio_handle_t *handle,
-                    uint8_t amount_of_error_retries,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t amount_of_error_retries,
+                     liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_get_error_granularity(
-                    libsmio_handle_t *handle,
-                    size_t *error_granularity,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_error_granularity(
+                     libsmdev_handle_t *handle,
+                     size_t *error_granularity,
+                     liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_set_error_granularity(
-                    libsmio_handle_t *handle,
-                    size_t *error_granularity,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_error_granularity(
+                     libsmdev_handle_t *handle,
+                     size_t *error_granularity,
+                     liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_get_error_flags(
-                    libsmio_handle_t *handle,
-                    uint8_t *error_flags,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_error_flags(
+                     libsmdev_handle_t *handle,
+                     uint8_t *error_flags,
+                     liberror_error_t **error );
 
-LIBSMIO_EXTERN int libsmio_device_set_error_flags(
-                    libsmio_handle_t *handle,
-                    uint8_t error_flags,
-                    liberror_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
+                     libsmdev_handle_t *handle,
+                     uint8_t error_flags,
+                     liberror_error_t **error );
 
-#ifdef TODO
+LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_errors(
+                     libsmdev_handle_t *handle,
+                     int *amount_of_errors,
+                     liberror_error_t **error );
 
-int libsmio_device_get_amount_of_read_errors(
-     intptr_t *io_handle,
-     int *amount_of_errors,
-     liberror_error_t **error );
-
-int libsmio_device_get_read_error(
-     intptr_t *io_handle,
-     int index,
-     off64_t *offset,
-     size64_t *size,
-     liberror_error_t **error );
-
-int libsmio_device_add_read_error(
-     intptr_t *io_handle,
-     off64_t offset,
-     size64_t size,
-     liberror_error_t **error );
-
-#endif /* TODO */
+LIBSMDEV_EXTERN int libsmdev_handle_get_error(
+                     libsmdev_handle_t *handle,
+                     int index,
+                     off64_t *offset,
+                     size64_t *size,
+                     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

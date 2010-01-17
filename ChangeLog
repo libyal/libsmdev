@@ -6,6 +6,20 @@ TODO
 
 Library
 * windows read error retry support
+* support for floppy devices
+* add Windows support for accessing memory device
+* detect removable disk
+* detect optical disk
+* determine optical disk sessions
+* detect floppy
+* move fstat to file_io ?
+* improve error detection and output (refactor error string like libbfio)
+* detect bus type
+* determine USB serial number
+* add read/write error logging
+
+20100117
+* worked on read error retries
 
 20100116
 * worked on initial version

@@ -58,6 +58,8 @@ typedef size_t u64;
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
+#include "libsmdev_list_type.h"
+#include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disk.h"
 #include "libsmdev_scsi.h"
 #include "libsmdev_types.h"
@@ -1350,13 +1352,13 @@ int libsmdev_handle_get_information_value(
 /* Retrieves the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_get_amount_of_error_retries(
-     libsmio_handle_t *handle,
+int libsmdev_handle_get_amount_of_error_retries(
+     libsmdev_handle_t *handle,
      int *amount_of_error_retries,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_get_amount_of_error_retries";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_amount_of_error_retries";
 
 	if( handle == NULL )
 	{
@@ -1369,19 +1371,8 @@ int libsmio_device_get_amount_of_error_retries(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( amount_of_error_retries == NULL )
 	{
 		liberror_error_set(
@@ -1401,13 +1392,13 @@ int libsmio_device_get_amount_of_error_retries(
 /* Sets the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_set_amount_of_error_retries(
-     libsmio_handle_t *handle,
+int libsmdev_handle_set_amount_of_error_retries(
+     libsmdev_handle_t *handle,
      uint8_t amount_of_error_retries,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_set_amount_of_error_retries";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_set_amount_of_error_retries";
 
 	if( handle == NULL )
 	{
@@ -1420,34 +1411,24 @@ int libsmio_device_set_amount_of_error_retries(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	internal_handle->amount_of_error_retries = amount_of_error_retries;
 
 	return( 1 );
 }
 
 /* Retrieves the read/write error granularity
+ * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_get_error_granularity(
-     libsmio_handle_t *handle,
+int libsmdev_handle_get_error_granularity(
+     libsmdev_handle_t *handle,
      size_t *error_granularity,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_get_error_granularity";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_error_granularity";
 
 	if( handle == NULL )
 	{
@@ -1460,19 +1441,8 @@ int libsmio_device_get_error_granularity(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( error_granularity == NULL )
 	{
 		liberror_error_set(
@@ -1490,15 +1460,16 @@ int libsmio_device_get_error_granularity(
 }
 
 /* Sets the read/write error granularity
+ * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_set_error_granularity(
-     libsmio_handle_t *handle,
+int libsmdev_handle_set_error_granularity(
+     libsmdev_handle_t *handle,
      size_t error_granularity,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_set_error_granularity";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_set_error_granularity";
 
 	if( handle == NULL )
 	{
@@ -1511,19 +1482,8 @@ int libsmio_device_set_error_granularity(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( error_granularity > (size_t) SSIZE_MAX )
 	{
 		liberror_error_set(
@@ -1543,13 +1503,13 @@ int libsmio_device_set_error_granularity(
 /* Retrieves the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_get_error_flags(
-     libsmio_handle_t *handle,
+int libsmdev_handle_get_error_flags(
+     libsmdev_handle_t *handle,
      int *error_flags,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_get_error_flags";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_error_flags";
 
 	if( handle == NULL )
 	{
@@ -1562,19 +1522,8 @@ int libsmio_device_get_error_flags(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( error_flags == NULL )
 	{
 		liberror_error_set(
@@ -1594,13 +1543,13 @@ int libsmio_device_get_error_flags(
 /* Sets the the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-int libsmio_device_set_error_flags(
-     libsmio_handle_t *handle,
+int libsmdev_handle_set_error_flags(
+     libsmdev_handle_t *handle,
      int error_flags,
      liberror_error_t **error )
 {
-	libsmio_internal_handle_t *internal_handle = NULL;
-	static char *function                      = "libsmio_device_set_error_flags";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_set_error_flags";
 
 	if( handle == NULL )
 	{
@@ -1613,19 +1562,8 @@ int libsmio_device_set_error_flags(
 
 		return( -1 );
 	}
-	internal_handle = (libsmio_internal_handle_t *) handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( error_flags & ~( LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) ) != 0 )
 	{
 		liberror_error_set(
@@ -1642,133 +1580,90 @@ int libsmio_device_set_error_flags(
 	return( 1 );
 }
 
-#ifdef TODO
-
-/* Retrieves the amount of read errors
- * Returns 1 if successful, 0 if no read errors are present or -1 on error
+/* Retrieves the amount of read/write errors
+ * Returns 1 if successful or -1 on error
  */
-int libsmio_device_get_amount_of_read_errors(
-     intptr_t *io_handle,
+int libsmdev_handle_get_amount_of_errors(
+     libsmdev_handle_t *handle,
      int *amount_of_errors,
      liberror_error_t **error )
 {
-	libsmio_device_io_handle_t *device_io_handle = NULL;
-	static char *function                        = "libsmio_device_get_amount_of_read_errors";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_amount_of_errors";
 
-	if( io_handle == NULL )
+	if( handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
 	}
-	device_io_handle = (libsmio_device_io_handle_t *) io_handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( amount_of_errors == NULL )
+	if( libsmdev_list_get_amount_of_elements(
+	     internal_handle->errors_list,
+	     amount_of_errors,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of errors.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of errors.",
 		 function );
 
 		return( -1 );
 	}
-	/* TODO */
-	*amount_of_errors = 0;
-
 	return( 1 );
 }
 
-/* Retrieves the information of a read error
- * Returns 1 if successful, 0 if no read error could be found or -1 on error
+/* Retrieves the information of a read/write error
+ * Returns 1 if successful or -1 on error
  */
-int libsmio_device_get_read_error(
-     intptr_t *io_handle,
+int libsmdev_handle_get_error(
+     libsmdev_handle_t *handle,
      int index,
      off64_t *offset,
      size64_t *size,
      liberror_error_t **error )
 {
-	libsmio_device_io_handle_t *device_io_handle = NULL;
-	static char *function                        = "libsmio_device_get_read_error";
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_error";
 
-	if( io_handle == NULL )
+	if( handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
 	}
-	device_io_handle = (libsmio_device_io_handle_t *) io_handle;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( offset == NULL )
+	if( libsmdev_offset_list_get_offset(
+	     internal_handle->errors_list,
+	     index,
+	     offset,
+	     size,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid offset.",
-		 function );
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve error: %d.",
+		 function,
+		 index );
 
 		return( -1 );
 	}
-	if( size == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid size.",
-		 function );
-
-		return( -1 );
-	}
-	/* TODO */
-	*offset = 0;
-	*size   = 0;
-
 	return( 1 );
 }
-
-/* Add a read error
- * Returns 1 if successful or -1 on error
- */
-int libsmio_device_add_read_error(
-     intptr_t *io_handle,
-     off64_t offset,
-     size64_t size,
-     liberror_error_t **error )
-{
-	libsmio_device_io_handle_t *device_io_handle = NULL;
-	static char *function                        = "libsmio_device_add_read_error";
-
-	if( io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	device_io_handle = (libsmio_device_io_handle_t *) io_handle;
-
-	/* TODO */
-
-	return( 1 );
-}
-
-#endif /* TODO */
 

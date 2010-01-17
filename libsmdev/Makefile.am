@@ -21,6 +21,7 @@ libsmdev_la_SOURCES = \
 	libsmdev_list_type.c libsmdev_list_type.h \
 	libsmdev_metadata.c libsmdev_metadata.h \
 	libsmdev_notify.c libsmdev_notify.h \
+	libsmdev_offset_list.c libsmdev_offset_list.h \
 	libsmdev_optical_disk.c libsmdev_optical_disk.h \
 	libsmdev_scsi.c libsmdev_scsi.h \
 	libsmdev_string.c libsmdev_string.h \

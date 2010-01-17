@@ -124,11 +124,9 @@ struct libsmdev_internal_handle
 	 */
 	uint8_t error_flags;
 
-	/* TODO */
-
-	/* The read error offset list
+	/* The read/write errors offset list
 	 */
-	libsmdev_list_t *read_errors;
+	libsmdev_list_t *errors_list;
 
 	/* Value to indicate if abort was signalled
 	 */

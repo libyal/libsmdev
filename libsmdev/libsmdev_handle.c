@@ -48,6 +48,8 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_list_type.h"
+#include "libsmdev_offset_list.h"
 #include "libsmdev_system_string.h"
 #include "libsmdev_types.h"
 
@@ -105,6 +107,22 @@ int libsmdev_handle_initialize(
 
 			return( -1 );
 		}
+		if( libsmdev_list_initialize(
+		     &( internal_handle->errors_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create errors list.",
+			 function );
+
+			memory_free(
+			 internal_handle );
+
+			return( -1 );
+		}
 #if defined( WINAPI )
 		internal_handle->file_handle             = INVALID_HANDLE_VALUE;
 #else
@@ -148,6 +166,20 @@ int libsmdev_handle_free(
 		{
 			memory_free(
 			 internal_handle->filename );
+		}
+		if( libsmdev_list_free(
+		     &( internal_handle->errors_list ),
+		     &libsmdev_offset_list_values_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free errors list.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 internal_handle );
@@ -703,6 +735,7 @@ ssize_t libsmdev_handle_read_buffer(
 	off64_t current_offset                      = 0;
 	size_t buffer_offset                        = 0;
 	size_t error_granularity_buffer_offset      = 0;
+	size_t error_granularity_size               = 0;
 	size_t error_granularity_skip_size          = 0;
 	size_t read_error_size                      = 0;
 	size_t read_size                            = 0;
@@ -819,10 +852,24 @@ ssize_t libsmdev_handle_read_buffer(
 		{
 			break;
 		}
+		if( read_size == 0 )
+		{
+			break;
+		}
+#if defined( HAVE_VERBOSE_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: reading buffer at offset: %" PRIu64 " of size: %" PRIzd ".\n",
+			 function,
+			 internal_handle->offset + (off64_t) buffer_offset,
+			 read_size );
+		}
+#endif
 #if defined( WINAPI )
 		if( ReadFile(
 		     internal_handle->file_handle,
-		     &( buffer[ buffer_offset ] ),
+		     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
 		     read_size,
 		     (LPDWORD) &read_count,
 		     NULL ) == 0 )
@@ -852,7 +899,7 @@ ssize_t libsmdev_handle_read_buffer(
 #else
 		read_count = read(
 			      internal_handle->file_descriptor,
-			      &( buffer[ buffer_offset ] ),
+			      &( ( (uint8_t *) buffer )[ buffer_offset ] ),
 			      read_size );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
@@ -885,7 +932,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
 						 function,
 						 internal_handle->filename,
 						 error_string );
@@ -896,7 +943,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM ".",
 						 function,
 						 internal_handle->filename );
 					}
@@ -913,7 +960,7 @@ ssize_t libsmdev_handle_read_buffer(
 						     error ) != 0 )
 						{
 							libnotify_printf(
-							 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+							 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "\n",
 							 function,
 							 internal_handle->filename,
 							 error_string );
@@ -921,7 +968,7 @@ ssize_t libsmdev_handle_read_buffer(
 						else
 						{
 							libnotify_printf(
-							 "%s: unable to open file: %" PRIs_LIBSMDEV_SYSTEM ".",
+							 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM ".\n",
 							 function,
 							 internal_handle->filename );
 						}
@@ -936,14 +983,31 @@ ssize_t libsmdev_handle_read_buffer(
 
 			if( current_offset < 0 )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_SEEK_FAILED,
-				 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
-				 function,
-				 internal_handle->filename );
-
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     128,
+				     errno,
+				     error ) == 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_SEEK_FAILED,
+					 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_SEEK_FAILED,
+					 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 function,
+					 internal_handle->filename );
+				}
 				return( -1 );
 			}
 			calculated_current_offset = internal_handle->offset + (off64_t) buffer_offset;
@@ -976,41 +1040,40 @@ ssize_t libsmdev_handle_read_buffer(
 				read_count = (ssize_t) ( current_offset - calculated_current_offset );
 			}
 		}
-#endif
-		else
+#endif /* defined( WINAPI ) */
+		if( read_count > (ssize_t) read_size )
 		{
-			/* Check if the last read was alright determine the total read count
-			 */
-			if( read_count == (ssize_t) read_size )
-			{
-				read_count = buffer_offset + read_size;
-			}
-			/* Check if the entire buffer was read
-			 */
-			if( read_count == (ssize_t) read_size )
-			{
-				break;
-			}
-			/* No bytes were read
-			 */
-			if( read_count == 0 )
-			{
-				return( 0 );
-			}
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: invalid read count value exceeds read size.",
+			 function );
+
+			return( -1 );
 		}
-		if( read_count > 0 )
+		if( read_count == 0 )
+		{
+			return( 0 );
+		}
+		else if( read_count > 0 )
 		{
 			buffer_offset += read_count;
 			read_size     -= read_count;
+
+			if( read_size == 0 )
+			{
+				break;
+			}
 		}
-		/* There was a read error
+		/* Not all data have been read or there was an error
 		 */
 		amount_of_read_errors++;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
-		if( libsystem_notify_verbose != 0 )
+		if( libnotify_verbose != 0 )
 		{
-			libsystem_notify_printf(
+			libnotify_printf(
 			 "%s: read error: %" PRIi16 " at offset %" PRIu64 ".\n",
 			 function,
 			 amount_of_read_errors,
@@ -1019,26 +1082,40 @@ ssize_t libsmdev_handle_read_buffer(
 #endif
 		if( amount_of_read_errors > (int16_t) internal_handle->amount_of_error_retries )
 		{
-			error_granularity_buffer_offset = ( buffer_offset / internal_handle->error_granularity ) * internal_handle->error_granularity;
-			error_granularity_skip_size     = ( error_granularity_buffer_offset + internal_handle->error_granularity ) - buffer_offset;
+			if( internal_handle->error_granularity > 0 )
+			{
+				error_granularity_size = internal_handle->error_granularity;
+			}
+			else
+			{
+				error_granularity_size = buffer_size;
+			}
+			error_granularity_buffer_offset = ( buffer_offset / error_granularity_size ) * error_granularity_size;
+			error_granularity_skip_size     = ( error_granularity_buffer_offset + error_granularity_size ) - buffer_offset;
 
+			/* Check if error granularity skip is still within range of the buffer
+			 */
+			if( error_granularity_skip_size > read_size )
+			{
+				error_granularity_skip_size = read_size;
+			}
 			if( ( internal_handle->error_flags & LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) != 0 )
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libsystem_notify_verbose != 0 )
+				if( libnotify_verbose != 0 )
 				{
-					libsystem_notify_printf(
-					 "%s: zero-ing buffer of size: %" PRIzd " bytes at offset %" PRIu32 ".\n",
+					libnotify_printf(
+					 "%s: zero-ing buffer of size: %" PRIzd " bytes at offset %" PRIzd ".\n",
 					 function,
-					 internal_handle->error_granularity,
+					 error_granularity_size,
 					 error_granularity_buffer_offset );
 				}
 #endif
 
 				if( memory_set(
-				     &( buffer[ error_granularity_buffer_offset ] ),
+				     &( ( (uint8_t *) buffer )[ error_granularity_buffer_offset ] ),
 				     0,
-				     internal_handle->error_granularity ) == NULL )
+				     error_granularity_size ) == NULL )
 				{
 					liberror_error_set(
 					 error,
@@ -1049,15 +1126,15 @@ ssize_t libsmdev_handle_read_buffer(
 
 					return( -1 );
 				}
-				read_error_size = internal_handle->error_granularity;
+				read_error_size = error_granularity_size;
 			}
 			else
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libsystem_notify_verbose != 0 )
+				if( libnotify_verbose != 0 )
 				{
-					libsystem_notify_printf(
-					 "%s: zero-ing remainder of buffer of size: %" PRIu32 " bytes at offset %" PRIzd ".\n",
+					libnotify_printf(
+					 "%s: zero-ing remainder of buffer of size: %" PRIzd " bytes at offset %" PRIzd ".\n",
 					 function,
 					 error_granularity_skip_size,
 					 buffer_offset );
@@ -1065,7 +1142,7 @@ ssize_t libsmdev_handle_read_buffer(
 #endif
 
 				if( memory_set(
-				     &( buffer[ buffer_offset ] ),
+				     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
 				     0,
 				     error_granularity_skip_size ) == NULL )
 				{
@@ -1081,9 +1158,9 @@ ssize_t libsmdev_handle_read_buffer(
 				read_error_size = error_granularity_skip_size;
 			}
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libsystem_notify_verbose != 0 )
+			if( libnotify_verbose != 0 )
 			{
-				libsystem_notify_printf(
+				libnotify_printf(
 				 "%s: adding read error at offset: %" PRIu64 ", amount of bytes: %" PRIzd ".\n",
 				 function,
 				 current_offset,
@@ -1091,8 +1168,8 @@ ssize_t libsmdev_handle_read_buffer(
 			}
 #endif
 
-			if( imaging_handle_add_read_error(
-			     imaging_handle,
+			if( libsmdev_offset_list_add_offset(
+			     internal_handle->errors_list,
 			     current_offset,
 			     read_error_size,
 			     error ) != 1 )
@@ -1106,96 +1183,61 @@ ssize_t libsmdev_handle_read_buffer(
 
 				return( -1 );
 			}
-			/* At the end of the input
-			 */
-			if( ( current_offset + (off64_t) read_size ) >= (off64_t) internal_handle->media_size )
-			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libsystem_notify_verbose != 0 )
-				{
-					libsystem_notify_printf(
-					 "%s: at end of input no remaining bytes to read from chunk.\n",
-					 function );
-				}
-#endif
-
-				read_count = (ssize_t) read_size;
-
-				break;
-			}
-#if defined( HAVE_VERBOSE_OUTPUT )
-			if( libsystem_notify_verbose != 0 )
+			if( libnotify_verbose != 0 )
 			{
-				libsystem_notify_printf(
+				libnotify_printf(
 				 "%s: skipping %" PRIu32 " bytes.\n",
 				 function,
 				 error_granularity_skip_size );
 			}
 #endif
 
-			if( device_handle_seek_offset(
-			     device_handle,
+#if defined( WINAPI )
+			/* TODO implement windows seek */
+#else
+			if( lseek(
+			     internal_handle->file_descriptor,
 			     error_granularity_skip_size,
-			     SEEK_CUR,
-			     error ) == -1 )
+			     SEEK_CUR ) == -1 )
 			{
-				if( libsystem_error_copy_to_string(
-				     errno,
+				if( libsmdev_error_string_copy_from_error_number(
 				     error_string,
 				     128,
+				     errno,
 				     error ) == 1 )
 				{
-					libsystem_notify_printf(
-					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBSYSTEM ".",
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_SEEK_FAILED,
+					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBSMDEV_SYSTEM ".",
 					 function,
 					 error_granularity_skip_size,
 					 error_string );
 				}
 				else
 				{
-					libsystem_notify_printf(
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_SEEK_FAILED,
 					 "%s: unable to skip %" PRIu32 " bytes after sector.",
 					 function,
 					 error_granularity_skip_size );
 				}
 				return( -1 );
 			}
-			/* If error granularity skip is still within the chunk
-			 */
-			if( read_size > byte_error_granularity )
-			{
-				read_size             -= error_granularity_skip_size;
-				buffer_offset         += error_granularity_skip_size;
-				amount_of_read_errors  = 0;
+#endif /* defined( WINAPI ) */
 
-#if defined( HAVE_VERBOSE_OUTPUT )
-				if( libsystem_notify_verbose != 0 )
-				{
-					libsystem_notify_printf(
-					 "%s: %" PRIzd " bytes remaining to read.\n",
-					 function,
-					 buffer_size );
-				}
-#endif
-			}
-			else
-			{
-				read_count = (ssize_t) read_size;
-
-#if defined( HAVE_VERBOSE_OUTPUT )
-				if( libsystem_notify_verbose != 0 )
-				{
-					libsystem_notify_printf(
-					 "%s: no bytes remaining to read.\n",
-					 function );
-				}
-#endif
-
-				break;
-			}
+			read_size            -= error_granularity_skip_size;
+			buffer_offset        += error_granularity_skip_size;
+			amount_of_read_errors = 0;
 		}
 	}
-	return( read_count );
+	internal_handle->offset += buffer_offset;
+
+	return( (ssize_t) buffer_offset );
 }
 
 /* Writes a buffer

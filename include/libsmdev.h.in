@@ -42,7 +42,7 @@ extern "C" {
 
 /* Returns the library version
  */
-LIBSMDEV_EXTERN const char *libsmdev_get_version(
+LIBSMDEV_EXTERN const char *libsmdev_handle_get_version(
                              void );
 
 /* Determines if a file is a device
@@ -283,50 +283,52 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_bytes_per_sector(
 /* Retrieves the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_get_amount_of_error_retries(
-                    libsmio_handle_t *handle,
-                    uint8_t *amount_of_error_retries,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t *amount_of_error_retries,
+                     libsmdev_error_t **error );
 
 /* Sets the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_set_amount_of_error_retries(
-                    libsmio_handle_t *handle,
-                    uint8_t amount_of_error_retries,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t amount_of_error_retries,
+                     libsmdev_error_t **error );
 
 /* Retrieves the read/write error granularity
+ * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_get_error_granularity(
-                    libsmio_handle_t *handle,
-                    size_t *error_granularity,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_error_granularity(
+                     libsmdev_handle_t *handle,
+                     size_t *error_granularity,
+                     libsmdev_error_t **error );
 
 /* Sets the read/write error granularity
+ * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_set_error_granularity(
-                    libsmio_handle_t *handle,
-                    size_t error_granularity,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_error_granularity(
+                     libsmdev_handle_t *handle,
+                     size_t error_granularity,
+                     libsmdev_error_t **error );
 
 /* Retrieves the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_get_error_flags(
-                    libsmio_handle_t *handle,
-                    uint8_t *error_flags,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_get_error_flags(
+                     libsmdev_handle_t *handle,
+                     uint8_t *error_flags,
+                     libsmdev_error_t **error );
 
 /* Sets the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMIO_EXTERN int libsmio_device_set_error_flags(
-                    libsmio_handle_t *handle,
-                    uint8_t error_flags,
-                    libsmdev_error_t **error );
+LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
+                     libsmdev_handle_t *handle,
+                     uint8_t error_flags,
+                     libsmdev_error_t **error );
 
 #if defined( __cplusplus )
 }
