@@ -84,7 +84,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_error_granularity(
 
 LIBSMDEV_EXTERN int libsmdev_handle_set_error_granularity(
                      libsmdev_handle_t *handle,
-                     size_t *error_granularity,
+                     size_t error_granularity,
                      liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_handle_get_error_flags(

@@ -18,6 +18,9 @@ Library
 * determine USB serial number
 * add read/write error logging
 
+20100118
+* worked on error listing
+
 20100117
 * worked on read error retries
 
