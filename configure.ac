@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20100118],
+  [20100120],
   [forensics@hoffmannbv.nl])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libsmdev],
- [20100118])
+ [20100120])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -445,6 +445,9 @@ AC_CHECK_FUNCS(
  [AC_MSG_FAILURE(
   [Missing function: fstat],
   [1]) ])
+
+dnl System functions
+AC_CHECK_FUNCS([posix_fadvise])
 
 dnl Check for printf conversion specifier support
 LIBSMDEV_CHECK_PRINTF_JD

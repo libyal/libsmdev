@@ -604,6 +604,26 @@ int libsmdev_handle_open(
 			}
 			return( -1 );
 		}
+#if defined( HAVE_POSIX_FADVISE )
+		/* Use this function to double the read-ahead system buffer
+		 * This provides for some additional performance
+		 */
+		if( posix_fadvise(
+		     internal_handle->file_descriptor,
+		     0,
+		     0,
+		     POSIX_FADV_SEQUENTIAL ) != 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_GENERIC,
+			 "%s: unable to advice file handle.",
+			 function );
+
+			return( -1 );
+		}
+#endif
 	}
 #endif
 	return( 1 );
