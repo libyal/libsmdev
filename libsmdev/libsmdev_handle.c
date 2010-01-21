@@ -910,7 +910,7 @@ ssize_t libsmdev_handle_read_buffer(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: invalid read count: %" PRIzd " returned.".
+			 "%s: invalid read count: %" PRIzd " returned.",
 			 function,
 			 read_count );
 
@@ -1368,7 +1368,7 @@ ssize_t libsmdev_handle_write_buffer(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: invalid write count: %" PRIzd " returned.".
+		 "%s: invalid write count: %" PRIzd " returned.",
 		 function,
 		 write_count );
 

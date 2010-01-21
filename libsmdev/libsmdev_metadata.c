@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <memory.h>
 #include <types.h>
 
 #include <liberror.h>
@@ -30,7 +31,10 @@
 #include <sys/ioctl.h>
 #endif
 
-#if defined( HAVE_CYGWIN_FS_H )
+#if defined( WINAPI )
+#include <io.h>
+
+#elif defined( HAVE_CYGWIN_FS_H )
 #include <cygwin/fs.h>
 
 #elif defined( HAVE_LINUX_FS_H )
@@ -75,7 +79,7 @@ int libsmdev_handle_get_media_size(
 #if defined( WINAPI )
 	GET_LENGTH_INFORMATION length_information;
 
-	DWORD result_count                          = 0;
+	DWORD response_count                        = 0;
 #else
 #if !defined( DIOCGMEDIASIZE ) && defined( DIOCGDINFO )
 	struct disklabel disk_label;
@@ -649,20 +653,20 @@ int libsmdev_internal_handle_determine_media_information(
 			switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
 			{
 				case BusTypeScsi:
-					internal_handle->bus_type = IO_BUS_TYPE_SCSI;
+					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_SCSI;
 					break;
 
 				case BusTypeAtapi:
 				case BusTypeAta:
-					internal_handle->bus_type = IO_BUS_TYPE_ATA;
+					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_ATA;
 					break;
 
 				case BusType1394:
-					internal_handle->bus_type = IO_BUS_TYPE_FIREWIRE;
+					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
 					break;
 
 				case BusTypeUsb:
-					internal_handle->bus_type = IO_BUS_TYPE_USB;
+					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_USB;
 					break;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -928,7 +932,7 @@ int libsmdev_internal_handle_determine_media_information(
 	}
 #endif
 #if defined( HDIO_GET_IDENTITY )
-	if( internal_handle->bus_type == IO_BUS_TYPE_ATA )
+	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_ATA )
 	{
 		if( io_ata_get_device_configuration(
 		     internal_handle->file_descriptor,
@@ -1019,7 +1023,7 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 /* Disabled for now
 #if defined( HAVE_LINUX_USB_CH9_H )
-	if( internal_handle->bus_type == IO_BUS_TYPE_USB )
+	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_USB )
 	{
 		if( io_usb_test(
 		     internal_handle->file_descriptor,
@@ -1505,7 +1509,7 @@ int libsmdev_handle_set_error_granularity(
  */
 int libsmdev_handle_get_error_flags(
      libsmdev_handle_t *handle,
-     int *error_flags,
+     uint8_t *error_flags,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
@@ -1545,7 +1549,7 @@ int libsmdev_handle_get_error_flags(
  */
 int libsmdev_handle_set_error_flags(
      libsmdev_handle_t *handle,
-     int error_flags,
+     uint8_t error_flags,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;

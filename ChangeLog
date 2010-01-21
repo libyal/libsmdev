@@ -1,5 +1,6 @@
 TODO
 * implement libsmdev_check_device_wide
+* implement libsmdev_open_wide
 * libsmdev_handle_get_offset
 * work on libsmdev_metadata
 
@@ -16,6 +17,9 @@ Library
 * detect bus type
 * determine USB serial number
 * add read/write error logging
+
+20100121
+* worked on winapi support
 
 20100120
 * added posix_fadvice
