@@ -1,4 +1,4 @@
-.Dd January 17, 2010
+.Dd January 23, 2010
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -12,6 +12,10 @@
 Support functions
 .Ft const char *
 .Fn libsmdev_get_version "void"
+.Ft int
+.Fn libsmdev_get_codepage "int *codepage, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_set_codepage "int codepage, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_check_device "const char *filename, libsmdev_error_t **error"
 .Pp

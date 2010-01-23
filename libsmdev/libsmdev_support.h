@@ -37,13 +37,21 @@ extern "C" {
 LIBSMDEV_EXTERN const char *libsmdev_get_version(
                             void );
 
+LIBSMDEV_EXTERN int libsmdev_get_codepage(
+                     int *codepage,
+                     liberror_error_t **error );
+
+LIBSMDEV_EXTERN int libsmdev_set_codepage(
+                     int codepage,
+                     liberror_error_t **error );
+
 LIBSMDEV_EXTERN int libsmdev_check_device(
                      const char *filename,
                      liberror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBSMDEV_EXTERN int libsmdev_check_device_wide(
-                     const char *filename,
+                     const wchar_t *filename,
                      liberror_error_t **error );
 #endif
 

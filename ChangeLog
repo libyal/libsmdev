@@ -1,22 +1,25 @@
 TODO
-* implement libsmdev_check_device_wide
 * implement libsmdev_open_wide
 * libsmdev_handle_get_offset
 * work on libsmdev_metadata
 
 Library
+* add glib support
+* move fstat to file_io ?
+Read:
 * windows read error retry support
-* support for floppy devices
+Media information:
 * add Windows support for accessing memory device
 * detect removable disk
 * detect optical disk
 * determine optical disk sessions
 * detect floppy
-* move fstat to file_io ?
-* improve error detection and output (refactor error string like libbfio)
 * detect bus type
 * determine USB serial number
-* add read/write error logging
+
+20100123
+* worked on wide character functions
+  - added system codepage support
 
 20100121
 * worked on winapi support
