@@ -61,8 +61,14 @@ typedef libuna_utf8_character_t libsmdev_character_t;
 #define libsmdev_string_search_reverse( string, character, size ) \
 	(libsmdev_character_t *) narrow_string_search_reverse( (char *) string, (int) character, size )
 
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define libsmdev_string_snprintf \
+	narrow_string_snprintf
+
+#else
 #define libsmdev_string_snprintf( target, size, format, ... ) \
 	narrow_string_snprintf( (char *) target, size, format, __VA_ARGS__ )
+#endif
 
 #define libsmdev_string_to_int64( string, end_of_string, base ) \
 	narrow_string_to_signed_long_long( (char *) string, (char **) end_of_string, base )

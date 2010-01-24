@@ -16,10 +16,12 @@ Media information:
 * detect floppy
 * detect bus type
 * determine USB serial number
+* use pre windows XP io control codes as fallback ?
 
 20100123
 * worked on wide character functions
   - added system codepage support
+* update for missing varadic macro support in Borland C++ Builder 5.5
 
 20100121
 * worked on winapi support

@@ -68,6 +68,99 @@ typedef size_t u64;
 #include "libsmdev_scsi.h"
 #include "libsmdev_types.h"
 
+#if defined( WINAPI )
+
+#if !defined( IOCTL_DISK_GET_LENGTH_INFO )
+#define IOCTL_DISK_GET_LENGTH_INFO \
+	CTL_CODE( IOCTL_DISK_BASE, 0x0017, METHOD_BUFFERED, FILE_READ_ACCESS )
+
+typedef struct
+{
+	LARGE_INTEGER Length;
+}
+GET_LENGTH_INFORMATION;
+
+#endif /* !defined( IOCTL_DISK_GET_LENGTH_INFO ) */
+
+#if !defined( IOCTL_DISK_GET_DRIVE_GEOMETRY_EX )
+#define IOCTL_DISK_GET_DRIVE_GEOMETRY_EX \
+	CTL_CODE( IOCTL_DISK_BASE, 0x0028, METHOD_BUFFERED, FILE_ANY_ACCESS )
+
+typedef struct _DISK_GEOMETRY_EX
+{
+	DISK_GEOMETRY Geometry;
+	LARGE_INTEGER DiskSize;
+	UCHAR Data[ 1 ];
+}
+DISK_GEOMETRY_EX, *PDISK_GEOMETRY_EX;
+
+#endif /* !defined( IOCTL_DISK_GET_DRIVE_GEOMETRY_EX ) */
+
+#if !defined( IOCTL_STORAGE_QUERY_PROPERTY )
+#define IOCTL_STORAGE_QUERY_PROPERTY \
+	CTL_CODE( IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS )
+
+typedef enum _STORAGE_PROPERTY_ID
+{
+	StorageDeviceProperty = 0,
+	StorageAdapterProperty,
+	StorageDeviceIdProperty,
+	StorageDeviceUniqueIdProperty,
+	StorageDeviceWriteCacheProperty,
+	StorageMiniportProperty,
+	StorageAccessAlignmentProperty,
+	StorageDeviceSeekPenaltyProperty,
+	StorageDeviceTrimProperty,
+	StorageDeviceWriteAggregationProperty
+}
+STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
+
+typedef enum _STORAGE_QUERY_TYPE
+{
+	PropertyStandardQuery = 0, 
+	PropertyExistsQuery, 
+	PropertyMaskQuery, 
+	PropertyQueryMaxDefined 
+}
+STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
+
+typedef struct _STORAGE_PROPERTY_QUERY
+{
+	STORAGE_PROPERTY_ID PropertyId;
+	STORAGE_QUERY_TYPE QueryType;
+	UCHAR AdditionalParameters[ 1 ];
+}
+STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
+
+typedef struct _STORAGE_DEVICE_DESCRIPTOR
+{
+	ULONG Version;
+	ULONG Size;
+	UCHAR DeviceType;
+	UCHAR DeviceTypeModifier;
+	BOOLEAN RemovableMedia;
+	BOOLEAN CommandQueueing;
+	ULONG VendorIdOffset;
+	ULONG ProductIdOffset;
+	ULONG ProductRevisionOffset;
+	ULONG SerialNumberOffset;
+	STORAGE_BUS_TYPE BusType;
+	ULONG RawPropertiesLength;
+	UCHAR RawDeviceProperties[ 1 ];
+}
+STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
+
+typedef struct _STORAGE_DESCRIPTOR_HEADER
+{
+	ULONG Version;
+	ULONG Size;
+}
+STORAGE_DESCRIPTOR_HEADER, *PSTORAGE_DESCRIPTOR_HEADER;
+
+#endif /* !defined( IOCTL_STORAGE_QUERY_PROPERTY ) */
+
+#endif /* defined( WINAPI ) */
+
 /* Retrieves the media size
  * Returns the 1 if succesful or -1 on error
  */

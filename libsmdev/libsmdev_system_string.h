@@ -66,8 +66,14 @@ typedef wchar_t libsmdev_system_character_t;
 #define libsmdev_system_string_length( string ) \
 	wide_string_length( string )
 
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define libsmdev_system_string_snprintf \
+	wide_string_swprintf
+
+#else
 #define libsmdev_system_string_snprintf( target, size, ... ) \
 	wide_string_swprintf( target, size, __VA_ARGS__ )
+#endif
 
 /* The system string type is either UTF-8 or extended ASCII with a codepage
  */
@@ -87,8 +93,14 @@ typedef char libsmdev_system_character_t;
 #define libsmdev_system_string_length( string ) \
 	narrow_string_length( string )
 
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define libsmdev_system_string_snprintf \
+	narrow_string_swprintf
+
+#else
 #define libsmdev_system_string_snprintf( target, size, ... ) \
 	narrow_string_snprintf( target, size, __VA_ARGS__ )
+#endif
 
 #endif
 
