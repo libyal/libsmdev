@@ -46,35 +46,11 @@ typedef libuna_utf8_character_t libsmdev_character_t;
 #define _LIBSMDEV_STRING( string ) \
 	(libsmdev_character_t *) string
 
-#define libsmdev_string_compare( string1, string2, size ) \
-	narrow_string_compare( (char *) string1, (char *) string2, size )
-
 #define libsmdev_string_copy( destination, source, size ) \
 	narrow_string_copy( (char *) destination, (char *) source, size )
 
 #define libsmdev_string_length( string ) \
 	narrow_string_length( (char *) string )
-
-#define libsmdev_string_search( string, character, size ) \
-	(libsmdev_character_t *) narrow_string_search( (char *) string, (int) character, size )
-
-#define libsmdev_string_search_reverse( string, character, size ) \
-	(libsmdev_character_t *) narrow_string_search_reverse( (char *) string, (int) character, size )
-
-#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
-#define libsmdev_string_snprintf \
-	narrow_string_snprintf
-
-#else
-#define libsmdev_string_snprintf( target, size, format, ... ) \
-	narrow_string_snprintf( (char *) target, size, format, __VA_ARGS__ )
-#endif
-
-#define libsmdev_string_to_int64( string, end_of_string, base ) \
-	narrow_string_to_signed_long_long( (char *) string, (char **) end_of_string, base )
-
-#define libsmdev_string_to_uint64( string, end_of_string, base ) \
-	narrow_string_to_unsigned_long_long( (char *) string, (char **) end_of_string, base )
 
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
          libsmdev_character_t *string,

@@ -18,6 +18,10 @@ Media information:
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
 
+20100124
+* removed unused string and system macros
+* updated common, liberror (snwprintf fix)
+
 20100123
 * worked on wide character functions
   - added system codepage support
