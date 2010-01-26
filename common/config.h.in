@@ -122,7 +122,7 @@
 /* Define to 1 if you have the `open' function. */
 #undef HAVE_OPEN
 
-/* Define to 1 if you have the `posix_fadvise' function. */
+/* Define to 1 if you have the posix_fadvise unction. */
 #undef HAVE_POSIX_FADVISE
 
 /* Define to 1 whether printf supports the conversion specifier "%jd". */

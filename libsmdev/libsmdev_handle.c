@@ -53,6 +53,13 @@
 #include "libsmdev_system_string.h"
 #include "libsmdev_types.h"
 
+/* The definition of POSIX_FADV_SEQUENTIAL seems to be missing from fcntl.h
+ * on some versions of Linux
+ */
+#if defined( HAVE_POSIX_FADVISE ) && !defined( POSIX_FADV_SEQUENTIAL ) 
+#define POSIX_FADV_SEQUENTIAL		2
+#endif
+
 /* Initializes the handle
  * Returns 1 if successful or -1 on error
  */

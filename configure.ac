@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20100124],
+  [20100126],
   [forensics@hoffmannbv.nl])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libsmdev],
- [20100124])
+ [20100126])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -447,7 +447,7 @@ AC_CHECK_FUNCS(
   [1]) ])
 
 dnl System functions
-AC_CHECK_FUNCS([posix_fadvise])
+LIBSMDEV_CHECK_FUNC_POSIX_FADVISE
 
 dnl Check for printf conversion specifier support
 LIBSMDEV_CHECK_PRINTF_JD
