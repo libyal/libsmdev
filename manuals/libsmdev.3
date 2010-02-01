@@ -1,4 +1,4 @@
-.Dd January 23, 2010
+.Dd February 1, 2010
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -122,14 +122,12 @@ The
 function signals the handle to aborts it current activity.
 .Pp
 The
-.Fn libsmdev_open ,
-.Fn libsmdev_open_wide ,
-.Fn libsmdev_seek_offset ,
-.Fn libsmdev_read_buffer ,
-.Fn libsmdev_read_random ,
-.Fn libsmdev_write_buffer ,
-.Fn libsmdev_write_random ,
-.Fn libsmdev_close
+.Fn libsmdev_handle_open ,
+.Fn libsmdev_handle_open_wide ,
+.Fn libsmdev_handle_close ,
+.Fn libsmdev_handle_read_buffer ,
+.Fn libsmdev_handle_write_buffer ,
+.Fn libsmdev_handle_seek_offset
 functions can be used to open, seek in, read from, write to and close storage media devices.
 .Pp
 The

@@ -1,7 +1,6 @@
 TODO
-* implement libsmdev_open_wide
-* libsmdev_handle_get_offset
 * work on libsmdev_metadata
+  - add information values functions (libsmio)
 
 Library
 * add glib support
@@ -17,6 +16,10 @@ Media information:
 * detect bus type
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
+
+20100201
+* worked on metadata functions for libsmio
+* completed libsmdev_handle_get_offset
 
 20100126
 * worked on solution for Debian 4.0 posix_fadvise break

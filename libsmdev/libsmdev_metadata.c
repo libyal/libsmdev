@@ -1310,7 +1310,9 @@ int libsmdev_handle_get_bus_type(
 	return( 1 );
 }
 
-/* Retrieves the information value by identifier
+/* Retrieves an information value specified by the identifier
+ * The strings are encoded in UTF-8
+ * The value size should include the end of string character
  * Returns 1 if successful, 0 if value not present or -1 on error
  */
 int libsmdev_handle_get_information_value(

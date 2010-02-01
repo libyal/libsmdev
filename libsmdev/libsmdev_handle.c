@@ -1818,7 +1818,7 @@ ssize_t libsmdev_handle_write_buffer(
 		return( -1 );
 	}
 #endif
-	/* TODO update internal_handle->offset */
+	internal_handle->offset += write_count;
 
 	return( write_count );
 }
@@ -1979,7 +1979,7 @@ off64_t libsmdev_handle_seek_offset(
 		return( -1 );
 	}
 #endif
-	/* TODO update internal_handle->offset */
+	internal_handle->offset = offset;
 
 	return( offset );
 }
@@ -2019,8 +2019,7 @@ int libsmdev_handle_get_offset(
 
 		return( -1 );
 	}
-	/* TODO */
-	*offset = 0;
+	*offset = internal_handle->offset;
 
 	return( 1 );
 }
