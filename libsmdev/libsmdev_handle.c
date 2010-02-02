@@ -49,6 +49,7 @@
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_list_type.h"
+#include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
 #include "libsmdev_system_string.h"
 #include "libsmdev_types.h"
@@ -233,6 +234,7 @@ int libsmdev_handle_open(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_open";
+	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 
 #if defined( WINAPI )
@@ -553,6 +555,20 @@ int libsmdev_handle_open(
 #endif
 	}
 #endif
+	if( libsmdev_handle_get_media_size(
+	     handle,
+	     &media_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve media size.",
+		 function );
+
+		return( -1 );
+	}
 	return( 1 );
 }
 
@@ -572,6 +588,7 @@ int libsmdev_handle_open_wide(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_open";
+	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 
 #if defined( WINAPI )
@@ -1017,6 +1034,20 @@ int libsmdev_handle_open_wide(
 #endif
 	}
 #endif
+	if( libsmdev_handle_get_media_size(
+	     handle,
+	     &media_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve media size.",
+		 function );
+
+		return( -1 );
+	}
 	return( 1 );
 }
 
@@ -1230,24 +1261,25 @@ ssize_t libsmdev_handle_read_buffer(
 		return( -1 );
 	}
 #endif
-	/* TODO what if media_size_set is not set */
-
-	if( internal_handle->offset >= (off64_t) internal_handle->media_size )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: offset exceeds media size.",
-		 function );
-
-		return( -1 );
-	}
 	read_size = buffer_size;
 
-	if( ( internal_handle->offset + (off64_t) read_size ) > (off64_t) internal_handle->media_size )
+	if( internal_handle->media_size != 0 )
 	{
-		read_size = (size_t) ( internal_handle->media_size - internal_handle->offset );
+		if( internal_handle->offset >= (off64_t) internal_handle->media_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: offset exceeds media size.",
+			 function );
+
+			return( -1 );
+		}
+		if( ( internal_handle->offset + (off64_t) read_size ) > (off64_t) internal_handle->media_size )
+		{
+			read_size = (size_t) ( internal_handle->media_size - internal_handle->offset );
+		}
 	}
 	while( amount_of_read_errors <= (int16_t) internal_handle->amount_of_error_retries )
 	{
