@@ -29,6 +29,10 @@
 #include <liberror.h>
 #include <libnotify.h>
 
+#if defined( HAVE_SYS_IOCTL_H )
+#include <sys/ioctl.h>
+#endif
+
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
 #endif
@@ -45,6 +49,17 @@
 #include <errno.h>
 #endif
 
+#if defined( HAVE_LINUX_FS_H )
+/* Required for Linux platforms that use a sizeof( u64 )
+ * in linux/fs.h but have no typedef of it
+ */
+#if !defined( HAVE_U64 )
+typedef size_t u64;
+#endif
+
+#include <linux/fs.h>
+#endif
+
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
@@ -59,6 +74,13 @@
  */
 #if defined( HAVE_POSIX_FADVISE ) && !defined( POSIX_FADV_SEQUENTIAL ) 
 #define POSIX_FADV_SEQUENTIAL		2
+#endif
+
+/* The definition of O_DIRECT seems to be missing from fcntl.h
+ * on some versions of Linux
+ */
+#if defined( HAVE_FCNTL_H ) && !defined( O_DIRECT ) 
+#define O_DIRECT			040000
 #endif
 
 /* Initializes the handle
@@ -470,6 +492,10 @@ int libsmdev_handle_open(
 	{
 		file_io_flags |= O_TRUNC;
 	}
+	if( ( flags & LIBSMDEV_FLAG_DIRECT_IO ) == LIBSMDEV_FLAG_DIRECT_IO )
+	{
+		file_io_flags |= O_DIRECT;
+	}
 	if( internal_handle->file_descriptor == -1 )
 	{
 		internal_handle->file_descriptor = open(
@@ -548,6 +574,22 @@ int libsmdev_handle_open(
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_GENERIC,
 			 "%s: unable to advice file handle.",
+			 function );
+
+			return( -1 );
+		}
+#endif
+#if !defined( BLKRASET )
+		if( ioctl(
+		     internal_handle->file_descriptor,
+		     BLKRASET,
+		     4096 ) == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: BLKRASET.",
 			 function );
 
 			return( -1 );
@@ -948,6 +990,10 @@ int libsmdev_handle_open_wide(
 
 			return( -1 );
 		}
+		if( ( flags & LIBSMDEV_FLAG_DIRECT_IO ) == LIBSMDEV_FLAG_DIRECT_IO )
+		{
+			file_io_flags |= O_DIRECT;
+		}
 		internal_handle->file_descriptor = open(
 		                                    narrow_filename,
 		                                    file_io_flags,
@@ -1027,6 +1073,22 @@ int libsmdev_handle_open_wide(
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_GENERIC,
 			 "%s: unable to advice file handle.",
+			 function );
+
+			return( -1 );
+		}
+#endif
+#if !defined( BLKRASET )
+		if( ioctl(
+		     internal_handle->file_descriptor,
+		     BLKRASET,
+		     4096 ) == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: BLKRASET.",
 			 function );
 
 			return( -1 );
