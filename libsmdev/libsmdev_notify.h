@@ -27,7 +27,6 @@
 #include <types.h>
 
 #include <liberror.h>
-#include <libnotify.h>
 
 #include <stdio.h>
 
@@ -37,19 +36,23 @@
 extern "C" {
 #endif
 
+#if !defined( HAVE_LOCAL_LIBSMDEV )
+
 LIBSMDEV_EXTERN void libsmdev_notify_set_verbose(
-                     int verbose );
+                      int verbose );
 
 LIBSMDEV_EXTERN int libsmdev_notify_set_stream(
-                    FILE *stream,
-                    liberror_error_t **error );
+                     FILE *stream,
+                     liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_notify_stream_open(
-                    const char *filename,
-                    liberror_error_t **error );
+                     const char *filename,
+                     liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_notify_stream_close(
-                    liberror_error_t **error );
+                     liberror_error_t **error );
+
+#endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 
 #if defined( __cplusplus )
 }

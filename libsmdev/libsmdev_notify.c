@@ -34,6 +34,8 @@
 
 #include "libsmdev_notify.h"
 
+#if !defined( HAVE_LOCAL_LIBSMDEV )
+
 /* Set the verbose notification
  */
 void libsmdev_notify_set_verbose(
@@ -117,3 +119,4 @@ int libsmdev_notify_stream_close(
 	return( 0 );
 }
 
+#endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */

@@ -17,8 +17,8 @@ Media information:
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
 
-20100209
-* worked on direct IO
+20100211
+* worked on local use of libsmdev
 
 20100202
 * worked on retrieving media size when not set for read

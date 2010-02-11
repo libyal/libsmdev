@@ -46,15 +46,11 @@
  * bit 1        set to 1 for read access
  * bit 2        set to 1 for write access
  * bit 3        set to 1 to truncate an existing file on write
- * bit 4-5      not used
- * bit 6        set to 1 to use direct IO
- * bit 7-8      not used
- *
+ * bit 4-8      not used
  */
 #define LIBSMDEV_FLAG_READ				(uint8_t) 0x01
 #define LIBSMDEV_FLAG_WRITE				(uint8_t) 0x02
 #define LIBSMDEV_FLAG_TRUNCATE				(uint8_t) 0x04
-#define LIBSMDEV_FLAG_DIRECT_IO				(uint8_t) 0x20
 
 /* The libsmdev file access macros
  */
