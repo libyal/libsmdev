@@ -45,6 +45,7 @@
 #include "libsmdev_codepage.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
+#include "libsmdev_handle.h"
 #include "libsmdev_support.h"
 #include "libsmdev_system_string.h"
 
@@ -776,3 +777,372 @@ int libsmdev_check_device_wide(
 
 #endif
 
+/* Globs the files according to device naming schemas
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_glob(
+     const char *filename,
+     size_t filename_length,
+     char **filenames[],
+     int *amount_of_filenames,
+     liberror_error_t **error )
+{
+	void *reallocation             = NULL;
+	char *segment_filename         = NULL;
+	static char *function          = "libsmdev_glob";
+	size_t segment_filename_length = 0;
+	int result                     = 0;
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filenames.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid amount of filenames.",
+		 function );
+
+		return( -1 );
+	}
+	/* Test if the full filename was provided
+	 */
+	segment_filename_length = filename_length + 1;
+
+	segment_filename = (char *) memory_allocate(
+	                             sizeof( char ) * segment_filename_length );
+
+	if( segment_filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create segment filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( narrow_string_copy(
+	     segment_filename,
+	     filename,
+	     filename_length ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set segment filename.",
+		 function );
+
+		memory_free(
+		 segment_filename );
+
+		return( -1 );
+	}
+	segment_filename[ filename_length ] = 0;
+
+	result = libsmdev_file_exists(
+	          segment_filename,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: unable to determine if file: %s exists.",
+		 function,
+		 segment_filename );
+
+		memory_free(
+		 segment_filename );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		reallocation = memory_reallocate(
+		                *filenames,
+		                ( sizeof( char * ) * 1 ) );
+
+		if( reallocation == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable reallocate filenames.",
+			 function );
+
+			memory_free(
+			 segment_filename );
+
+			return( -1 );
+		}
+		*filenames = reallocation;
+
+		( *filenames )[ 0 ] = segment_filename;
+
+		*amount_of_filenames = 1;
+
+		return( 1 );
+	}
+	return( 1 );
+}
+
+/* Frees the globbed filenames
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_glob_free(
+     char *filenames[],
+     int amount_of_filenames,
+     liberror_error_t **error )
+{
+	static char *function = "libsmdev_glob_free";
+	int filename_iterator = 0;
+
+	if( filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filenames.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
+		 "%s: invalid amount of filenames value less than zero.",
+		 function );
+
+		return( -1 );
+	}
+	for( filename_iterator = 0;
+	     filename_iterator < amount_of_filenames;
+	     filename_iterator++ )
+	{
+		memory_free(
+		 filenames[ filename_iterator ] );
+
+	}
+	memory_free(
+	 filenames );
+
+	return( 1 );
+}
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Globs the files according to device naming schemas
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_glob_wide(
+     const wchar_t *filename,
+     size_t filename_length,
+     wchar_t **filenames[],
+     int *amount_of_filenames,
+     liberror_error_t **error )
+{
+	void *reallocation             = NULL;
+	wchar_t *segment_filename      = NULL;
+	static char *function          = "libsmdev_glob_wide";
+	size_t segment_filename_length = 0;
+	int result                     = 0;
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filenames.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid amount of filenames.",
+		 function );
+
+		return( -1 );
+	}
+	/* Test if the full filename was provided
+	 */
+	segment_filename_length = filename_length + 1;
+
+	segment_filename = (wchar_t *) memory_allocate(
+	                                sizeof( wchar_t ) * segment_filename_length );
+
+	if( segment_filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create segment filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( wide_string_copy(
+	     segment_filename,
+	     filename,
+	     filename_length ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set segment filename.",
+		 function );
+
+		memory_free(
+		 segment_filename );
+
+		return( -1 );
+	}
+	segment_filename[ filename_length ] = 0;
+
+	result = libsmdev_file_exists_wide(
+	          segment_filename,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: unable to determine if file: %s exists.",
+		 function,
+		 segment_filename );
+
+		memory_free(
+		 segment_filename );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		reallocation = memory_reallocate(
+		                *filenames,
+		                ( sizeof( wchar_t * ) * 1 ) );
+
+		if( reallocation == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable reallocate filenames.",
+			 function );
+
+			memory_free(
+			 segment_filename );
+
+			return( -1 );
+		}
+		*filenames = reallocation;
+
+		( *filenames )[ 0 ] = segment_filename;
+
+		*amount_of_filenames = 1;
+
+		return( 1 );
+	}
+	return( 1 );
+}
+
+/* Frees the globbed wide filenames
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_glob_wide_free(
+     wchar_t *filenames[],
+     int amount_of_filenames,
+     liberror_error_t **error )
+{
+	static char *function = "libsmdev_glob_wide_free";
+	int filename_iterator = 0;
+
+	if( filenames == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filenames.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_filenames < 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
+		 "%s: invalid amount of filenames value less than zero.",
+		 function );
+
+		return( -1 );
+	}
+	for( filename_iterator = 0;
+	     filename_iterator < amount_of_filenames;
+	     filename_iterator++ )
+	{
+		memory_free(
+		 filenames[ filename_iterator ] );
+
+	}
+	memory_free(
+	 filenames );
+
+	return( 1 );
+}
+
+#endif

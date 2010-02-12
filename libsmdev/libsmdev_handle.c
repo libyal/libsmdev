@@ -1,5 +1,5 @@
 /*
- * libsmdev main handle
+ * Handle functions
  *
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
@@ -1051,9 +1051,9 @@ int libsmdev_handle_open_wide(
 	return( 1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Closes a RAW handle
+/* Closes a device handle
  * Returns the 0 if succesful or -1 on error
  */
 int libsmdev_handle_close(
@@ -3132,6 +3132,535 @@ int libsmdev_handle_set_filename_wide(
 #endif /* defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	return( 1 );
+}
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+/* Function to determine if a file exists
+ * Return 1 if file exists, 0 if not or -1 on error
+ */
+int libsmdev_file_exists(
+     const char *filename,
+     liberror_error_t **error )
+{
+	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+
+	static char *function = "libsmdev_file_exists";
+	int result            = 1;
+
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+	HANDLE file_handle    = INVALID_HANDLE_VALUE;
+	DWORD error_code      = 0;
+#else
+	int file_descriptor   = -1;
+#endif
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+	/* Must use CreateFileA here because filename is a 
+	 * narrow character string and CreateFile is dependent
+	 * on UNICODE directives
+	 */
+	file_handle = CreateFileA(
+	               (LPCSTR) filename,
+	               GENERIC_READ,
+	               FILE_SHARE_READ,
+	               NULL,
+	               OPEN_EXISTING,
+	               FILE_ATTRIBUTE_NORMAL,
+	               NULL );
+
+	if( file_handle == INVALID_HANDLE_VALUE )
+	{
+		error_code = GetLastError();
+
+		switch( error_code )
+		{
+			case ERROR_ACCESS_DENIED:
+				result = 1;
+
+				break;
+
+			case ERROR_FILE_NOT_FOUND:
+			case ERROR_PATH_NOT_FOUND:
+				result = 0;
+
+				break;
+
+			default:
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+				     error_code,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 function,
+					 filename,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %s.",
+					 function,
+					 filename );
+				}
+				result = -1;
+
+				break;
+		}
+	}
+	else if( CloseHandle(
+	          file_handle ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %s.",
+		 function,
+		 filename );
+
+		return( -1 );
+	}
+#else
+/* The system string is a narrow character string */
+#if defined( _MSC_VER )
+	if( _sopen_s(
+	     &file_descriptor,
+	     (char *) filename,
+	     _O_RDONLY | _O_BINARY,
+	     _SH_DENYWR,
+	     0 ) != 0 )
+	{
+		file_descriptor = -1;
+	}
+#elif defined( WINAPI )
+	file_descriptor = _sopen(
+	                   filename,
+	                   _O_RDONLY | _O_BINARY,
+	                   0 );
+#else
+	file_descriptor = open(
+	                   filename,
+	                   O_RDONLY,
+	                   0644 );
+#endif
+
+	if( file_descriptor == -1 )
+	{
+		switch( errno )
+		{
+			case EACCES:
+				result = 1;
+
+				break;
+
+			case ENOENT:
+				result = 0;
+
+				break;
+
+			default:
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+				     errno,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 function,
+					 filename,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %s.",
+					 function,
+					 filename );
+				}
+				result = -1;
+
+				break;
+		}
+	}
+#if defined( WINAPI )
+	else if( _close(
+		  file_descriptor ) != 0 )
+#else
+	else if( close(
+		  file_descriptor ) != 0 )
+#endif
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %s.",
+		 function,
+		 filename );
+
+		return( -1 );
+	}
+#endif
+	return( result );
+}
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Function to determine if a file exists
+ * Return 1 if file exists, 0 if not or -1 on error
+ */
+int libsmdev_file_exists_wide(
+     const wchar_t *filename,
+     liberror_error_t **error )
+{
+	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+
+	static char *function       = "libsmdev_file_exists_wide";
+	size_t filename_length      = 0;
+	int result                  = 1;
+
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+	HANDLE file_handle          = INVALID_HANDLE_VALUE;
+	DWORD error_code            = 0;
+#else
+	int file_descriptor         = -1;
+#endif
+
+#if !defined( WINAPI )
+	char *narrow_filename       = NULL;
+	size_t narrow_filename_size = 0;
+#endif
+
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+	/* Must use CreateFileW here because filename is a 
+	 * wide character string and CreateFile is dependent
+	 * on UNICODE directives
+	 */
+	file_handle = CreateFileW(
+	               (LPCWSTR) filename,
+	               GENERIC_READ,
+	               FILE_SHARE_READ,
+	               NULL,
+	               OPEN_EXISTING,
+	               FILE_ATTRIBUTE_NORMAL,
+	               NULL );
+
+	if( file_handle == INVALID_HANDLE_VALUE )
+	{
+		error_code = GetLastError();
+
+		switch( error_code )
+		{
+			case ERROR_ACCESS_DENIED:
+				result = 1;
+
+				break;
+
+			case ERROR_FILE_NOT_FOUND:
+			case ERROR_PATH_NOT_FOUND:
+				result = 0;
+
+				break;
+
+			default:
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+				     error_code,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 function,
+					 filename,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %ls.",
+					 function,
+					 filename );
+				}
+				result = -1;
+
+				break;
+		}
+	}
+	else if( CloseHandle(
+	          file_handle ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %ls.",
+		 function,
+		 filename );
+
+		return( -1 );
+	}
+#else
+#if defined( _MSC_VER )
+	if( _wsopen_s(
+	     &file_descriptor,
+	     filename,
+	     _O_RDONLY | _O_BINARY,
+	     _SH_DENYWR,
+	     0 ) != 0 )
+	{
+		file_descriptor = -1;
+	}
+#elif defined( WINAPI )
+	file_descriptor = _wsopen(
+	                   filename,
+	                   _O_RDONLY | _O_BINARY,
+	                   0 );
+#else
+	filename_length = wide_string_length(
+	                   filename );
+
+	/* Convert the filename to a narrow string
+	 * if the platform has no wide character open function
+	 */
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          libsmdev_system_narrow_string_codepage,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine narrow character filename size.",
+		 function );
+
+		return( -1 );
+	}
+	narrow_filename = (char *) memory_allocate(
+	                            sizeof( char ) * narrow_filename_size );
+
+	if( narrow_filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create narrow character filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_system_narrow_string_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_copy_from_utf32(
+		          (libuna_utf8_character_t *) narrow_filename,
+		          narrow_filename_size,
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_copy_from_utf16(
+		          (libuna_utf8_character_t *) narrow_filename,
+		          narrow_filename_size,
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_copy_from_utf32(
+		          (uint8_t *) narrow_filename,
+		          narrow_filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf32_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_copy_from_utf16(
+		          (uint8_t *) narrow_filename,
+		          narrow_filename_size,
+		          libsmdev_system_narrow_string_codepage,
+		          (libuna_utf16_character_t *) filename,
+		          filename_length + 1,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set narrow character filename.",
+		 function );
+
+		memory_free(
+		 narrow_filename );
+
+		return( -1 );
+	}
+	file_descriptor = open(
+	                   narrow_filename,
+	                   O_RDONLY,
+	                   0644 );
+
+	memory_free(
+	 narrow_filename );
+#endif
+
+	if( file_descriptor == -1 )
+	{
+		switch( errno )
+		{
+			case EACCES:
+				result = 1;
+
+				break;
+
+			case ENOENT:
+				result = 0;
+
+				break;
+
+			default:
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+				     errno,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 function,
+					 filename,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to open file: %ls.",
+					 function,
+					 filename );
+				}
+				result = -1;
+
+				break;
+		}
+	}
+#if defined( WINAPI )
+	else if( _close(
+		  file_descriptor ) != 0 )
+#else
+	else if( close(
+		  file_descriptor ) != 0 )
+#endif
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close file: %s.",
+		 function,
+		 filename );
+
+		return( -1 );
+	}
+#endif
+	return( result );
 }
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */

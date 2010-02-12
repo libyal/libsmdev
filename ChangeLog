@@ -17,6 +17,9 @@ Media information:
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
 
+20100212
+* worked on glob function
+
 20100211
 * worked on local use of libsmdev
 

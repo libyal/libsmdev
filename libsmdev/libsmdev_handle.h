@@ -1,5 +1,5 @@
 /*
- * libsmdev main handle
+ * Handle functions
  *
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
@@ -221,6 +221,16 @@ int libsmdev_handle_set_filename_wide(
      libsmdev_handle_t *handle,
      const wchar_t *filename,
      size_t filename_length,
+     liberror_error_t **error );
+#endif
+
+int libsmdev_file_exists(
+     const char *filename,
+     liberror_error_t **error );
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+int libsmdev_file_exists_wide(
+     const wchar_t *filename,
      liberror_error_t **error );
 #endif
 

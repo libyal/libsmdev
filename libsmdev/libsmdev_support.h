@@ -55,6 +55,32 @@ LIBSMDEV_EXTERN int libsmdev_check_device_wide(
                      liberror_error_t **error );
 #endif
 
+LIBSMDEV_EXTERN int libsmdev_glob(
+                     const char *filename,
+                     size_t filename_length,
+                     char **filenames[],
+                     int *amount_of_filenames,
+                     liberror_error_t **error );
+
+LIBSMDEV_EXTERN int libsmdev_glob_free(
+                     char *filenames[],
+                     int amount_of_filenames,
+                     liberror_error_t **error );
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+LIBSMDEV_EXTERN int libsmdev_glob_wide(
+                     const wchar_t *filename,
+                     size_t filename_length,
+                     wchar_t **filenames[],
+                     int *amount_of_filenames,
+                     liberror_error_t **error );
+
+LIBSMDEV_EXTERN int libsmdev_glob_wide_free(
+                     wchar_t *filenames[],
+                     int amount_of_filenames,
+                     liberror_error_t **error );
+#endif
+
 #if defined( __cplusplus )
 }
 #endif
