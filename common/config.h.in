@@ -3,9 +3,6 @@
 /* Define to 1 if you have the `atoll' function. */
 #undef HAVE_ATOLL
 
-/* Define to 1 if you have the `btowc' function. */
-#undef HAVE_BTOWC
-
 /* Define to 1 if you have the `close' function. */
 #undef HAVE_CLOSE
 
@@ -161,6 +158,9 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
+/* Define to 1 if you have the `strcasecmp' function. */
+#undef HAVE_STRCASECMP
+
 /* Define to 1 if you have the `strchr' function. */
 #undef HAVE_STRCHR
 
@@ -181,6 +181,9 @@
 
 /* Define to 1 if you have the `strlen' function. */
 #undef HAVE_STRLEN
+
+/* Define to 1 if you have the `strncasecmp' function. */
+#undef HAVE_STRNCASECMP
 
 /* Define to 1 if you have the `strncmp' function. */
 #undef HAVE_STRNCMP
@@ -215,6 +218,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define to 1 if you have the `towlower' function. */
+#undef HAVE_TOWLOWER
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -229,9 +235,6 @@
 
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
-
-/* Define to 1 if you have the `vswprintf' function. */
-#undef HAVE_VSWPRINTF
 
 /* Define to 1 if you have the <wchar.h> header file. */
 #undef HAVE_WCHAR_H
@@ -268,9 +271,6 @@
 
 /* Define to 1 if you have the `wcstoull' function. */
 #undef HAVE_WCSTOULL
-
-/* Define to 1 if you have the `wctob' function. */
-#undef HAVE_WCTOB
 
 /* Define to 1 if wide character type should be used. */
 #undef HAVE_WIDE_CHARACTER_TYPE

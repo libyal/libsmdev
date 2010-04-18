@@ -1,6 +1,7 @@
 /*
  * Character type string functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -24,36 +25,17 @@
 #define _LIBSMDEV_STRING_H
 
 #include <common.h>
-#include <narrow_string.h>
 #include <types.h>
-#include <wide_string.h>
 
+#include <libcstring.h>
 #include <liberror.h>
-
-#include "libsmdev_libuna.h"
 
 #if defined( _cplusplus )
 extern "C" {
 #endif
 
-/* The internal string type contains UTF-8
- */
-typedef libuna_utf8_character_t libsmdev_character_t;
-
-#define PRIc_LIBSMDEV	"c"
-#define PRIs_LIBSMDEV	"s"
-
-#define _LIBSMDEV_STRING( string ) \
-	(libsmdev_character_t *) string
-
-#define libsmdev_string_copy( destination, source, size ) \
-	narrow_string_copy( (char *) destination, (char *) source, size )
-
-#define libsmdev_string_length( string ) \
-	narrow_string_length( (char *) string )
-
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
-         libsmdev_character_t *string,
+         libcstring_character_t *string,
          size_t string_size,
          const uint8_t *byte_stream,
          size_t byte_stream_size,

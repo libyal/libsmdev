@@ -1,6 +1,7 @@
 /*
  * libsmdev support functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -21,10 +22,11 @@
  */
 
 #include <common.h>
-#include <narrow_string.h>
 #include <memory.h>
-#include <wide_string.h>
 #include <types.h>
+
+#include <libcstring.h>
+#include <liberror.h>
 
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
@@ -46,8 +48,8 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libuna.h"
 #include "libsmdev_support.h"
-#include "libsmdev_system_string.h"
 
 /* Returns the library version
  */
@@ -78,7 +80,7 @@ int libsmdev_get_codepage(
 
 		return( -1 );
 	}
-	*codepage = libsmdev_system_narrow_string_codepage;
+	*codepage = libcstring_narrow_system_string_codepage;
 
 	return( 1 );
 }
@@ -129,7 +131,7 @@ int libsmdev_set_codepage(
 
 		return( -1 );
 	}
-	libsmdev_system_narrow_string_codepage = codepage;
+	libcstring_narrow_system_string_codepage = codepage;
 
 	return( 1 );
 }
@@ -141,7 +143,7 @@ int libsmdev_check_device(
      const char *filename,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 #if defined( WINAPI )
 	HANDLE file_handle    = NULL;
@@ -220,7 +222,7 @@ int libsmdev_check_device(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -330,7 +332,7 @@ int libsmdev_check_device(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -396,7 +398,7 @@ int libsmdev_check_device_wide(
      const wchar_t *filename,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 #if defined( WINAPI )
 	HANDLE file_handle          = NULL;
@@ -479,7 +481,7 @@ int libsmdev_check_device_wide(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -542,10 +544,10 @@ int libsmdev_check_device_wide(
 	/* Convert the filename to a narrow string
 	 * if the platform has no wide character open function
 	 */
-	filename_length = wide_string_length(
+	filename_length = libcstring_wide_string_length(
 	                   filename );
 
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -569,14 +571,14 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -608,7 +610,7 @@ int libsmdev_check_device_wide(
 
 		return( -1 );
 	}
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -634,7 +636,7 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -642,7 +644,7 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -717,7 +719,7 @@ int libsmdev_check_device_wide(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -844,7 +846,7 @@ int libsmdev_glob(
 
 		return( -1 );
 	}
-	if( narrow_string_copy(
+	if( libcstring_narrow_string_copy(
 	     segment_filename,
 	     filename,
 	     filename_length ) == NULL )
@@ -1029,7 +1031,7 @@ int libsmdev_glob_wide(
 
 		return( -1 );
 	}
-	if( wide_string_copy(
+	if( libcstring_wide_string_copy(
 	     segment_filename,
 	     filename,
 	     filename_length ) == NULL )

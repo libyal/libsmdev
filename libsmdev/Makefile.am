@@ -1,6 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
+	-I$(top_srcdir)/libcstring \
 	-I$(top_srcdir)/liberror \
 	-I$(top_srcdir)/libnotify \
 	@LIBUNA_CPPFLAGS@ \
@@ -26,11 +27,11 @@ libsmdev_la_SOURCES = \
 	libsmdev_scsi.c libsmdev_scsi.h \
 	libsmdev_string.c libsmdev_string.h \
 	libsmdev_support.c libsmdev_support.h \
-	libsmdev_system_string.c libsmdev_system_string.h \
 	libsmdev_types.h \
 	libsmdev_usb.c libsmdev_usb.h
 
 libsmdev_la_LIBADD = \
+	../libcstring/libcstring.la \
 	../liberror/liberror.la \
 	../libnotify/libnotify.la \
 	@LIBUNA_LIBADD@

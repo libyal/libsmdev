@@ -1,6 +1,7 @@
 /*
  * ATA/ATAPI functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -22,9 +23,9 @@
 
 #include <common.h>
 #include <memory.h>
-#include <narrow_string.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -46,7 +47,6 @@
 
 #include "libsmdev_ata.h"
 #include "libsmdev_error_string.h"
-#include "libsmdev_system_string.h"
 
 #if defined( HDIO_GET_IDENTITY )
 
@@ -58,7 +58,7 @@ int libsmdev_ata_get_device_configuration(
      struct hd_driveid *device_configuration,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	static char *function = "libsmdev_ata_get_device_configuration";
 
@@ -100,7 +100,7 @@ int libsmdev_ata_get_device_configuration(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: HDIO_GET_IDENTITY with error: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 "%s: unable to query device for: HDIO_GET_IDENTITY with error: %" PRIs_LIBCSTRING_SYSTEM ".",
 			 function,
 			 error_string );
 		}

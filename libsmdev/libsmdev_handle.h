@@ -1,6 +1,7 @@
 /*
  * Handle functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -26,12 +27,11 @@
 #include <common.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 
 #include "libsmdev_extern.h"
 #include "libsmdev_list_type.h"
-#include "libsmdev_string.h"
-#include "libsmdev_system_string.h"
 #include "libsmdev_types.h"
 
 #if defined( __cplusplus )
@@ -44,7 +44,7 @@ struct libsmdev_internal_handle
 {
 	/* The device filename
 	 */
-	libsmdev_system_character_t *filename;
+	libcstring_system_character_t *filename;
 
 	/* The device filename size
 	 */
@@ -94,15 +94,15 @@ struct libsmdev_internal_handle
 
 	/* The vendor string
 	 */
-	libsmdev_character_t vendor[ 64 ];
+	libcstring_character_t vendor[ 64 ];
 
 	/* The model string
 	 */
-	libsmdev_character_t model[ 64 ];
+	libcstring_character_t model[ 64 ];
 
 	/* The serial number string
 	 */
-	libsmdev_character_t serial_number[ 64 ];
+	libcstring_character_t serial_number[ 64 ];
 
 	/* The amount of sessions for an optical disc
 	 */

@@ -1,6 +1,7 @@
 /*
  * Handle functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -22,10 +23,9 @@
 
 #include <common.h>
 #include <memory.h>
-#include <narrow_string.h>
 #include <types.h>
-#include <wide_string.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -48,10 +48,10 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libuna.h"
 #include "libsmdev_list_type.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
-#include "libsmdev_system_string.h"
 #include "libsmdev_types.h"
 
 /* The definition of POSIX_FADV_SEQUENTIAL seems to be missing from fcntl.h
@@ -230,7 +230,7 @@ int libsmdev_handle_open(
      int flags,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_open";
@@ -313,7 +313,7 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	filename_length = narrow_string_length(
+	filename_length = libcstring_narrow_string_length(
 	                   filenames[ 0 ] );
 
 	if( libsmdev_handle_set_filename(
@@ -420,7 +420,7 @@ int libsmdev_handle_open(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 filenames[ 0 ],
 						 error_string );
@@ -514,7 +514,7 @@ int libsmdev_handle_open(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 filenames[ 0 ],
 						 error_string );
@@ -584,7 +584,7 @@ int libsmdev_handle_open_wide(
      int flags,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_open";
@@ -670,7 +670,7 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	filename_length = wide_string_length(
+	filename_length = libcstring_wide_string_length(
 	                   filenames[ 0 ] );
 
 	if( libsmdev_handle_set_filename_wide(
@@ -777,7 +777,7 @@ int libsmdev_handle_open_wide(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 filenames[ 0 ],
 						 error_string );
@@ -829,7 +829,7 @@ int libsmdev_handle_open_wide(
 	}
 	if( internal_handle->file_descriptor == -1 )
 	{
-		if( libsmdev_system_narrow_string_codepage == 0 )
+		if( libcstring_narrow_system_string_codepage == 0 )
 		{
 #if SIZEOF_WCHAR_T == 4
 			result = libuna_utf8_string_size_from_utf32(
@@ -853,14 +853,14 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_size_from_utf32(
 				  (libuna_utf32_character_t *) filenames[ 0 ],
 				  filename_length + 1,
-				  libsmdev_system_narrow_string_codepage,
+				  libcstring_narrow_system_string_codepage,
 				  &narrow_filename_size,
 				  error );
 #elif SIZEOF_WCHAR_T == 2
 			result = libuna_byte_stream_size_from_utf16(
 				  (libuna_utf16_character_t *) filenames[ 0 ],
 				  filename_length + 1,
-				  libsmdev_system_narrow_string_codepage,
+				  libcstring_narrow_system_string_codepage,
 				  &narrow_filename_size,
 				  error );
 #else
@@ -892,7 +892,7 @@ int libsmdev_handle_open_wide(
 
 			return( -1 );
 		}
-		if( libsmdev_system_narrow_string_codepage == 0 )
+		if( libcstring_narrow_system_string_codepage == 0 )
 		{
 #if SIZEOF_WCHAR_T == 4
 			result = libuna_utf8_string_copy_from_utf32(
@@ -918,7 +918,7 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_copy_from_utf32(
 				  (uint8_t *) narrow_filename,
 				  narrow_filename_size,
-				  libsmdev_system_narrow_string_codepage,
+				  libcstring_narrow_system_string_codepage,
 				  (libuna_utf32_character_t *) filenames[ 0 ],
 				  filename_length + 1,
 				  error );
@@ -926,7 +926,7 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_copy_from_utf16(
 				  (uint8_t *) narrow_filename,
 				  narrow_filename_size,
-				  libsmdev_system_narrow_string_codepage,
+				  libcstring_narrow_system_string_codepage,
 				  (libuna_utf16_character_t *) filenames[ 0 ],
 				  filename_length + 1,
 				  error );
@@ -993,7 +993,7 @@ int libsmdev_handle_open_wide(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 filenames[ 0 ],
 						 error_string );
@@ -1106,7 +1106,7 @@ int libsmdev_handle_close(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to close file: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 internal_handle->filename );
 
@@ -1134,7 +1134,7 @@ int libsmdev_handle_close(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to close file: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 internal_handle->filename );
 
@@ -1154,7 +1154,7 @@ ssize_t libsmdev_handle_read_buffer(
          size_t buffer_size,
          liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_read_buffer";
@@ -1329,7 +1329,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 internal_handle->filename,
 						 error_string );
@@ -1340,7 +1340,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM ".",
 						 function,
 						 internal_handle->filename );
 					}
@@ -1396,7 +1396,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "",
+						 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
 						 internal_handle->filename,
 						 error_string );
@@ -1407,7 +1407,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM ".",
+						 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM ".",
 						 function,
 						 internal_handle->filename );
 					}
@@ -1424,7 +1424,7 @@ ssize_t libsmdev_handle_read_buffer(
 						     error ) != 0 )
 						{
 							libnotify_printf(
-							 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM "\n",
+							 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 internal_handle->filename,
 							 error_string );
@@ -1432,7 +1432,7 @@ ssize_t libsmdev_handle_read_buffer(
 						else
 						{
 							libnotify_printf(
-							 "%s: unable to read from file: %" PRIs_LIBSMDEV_SYSTEM ".\n",
+							 "%s: unable to read from file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 							 function,
 							 internal_handle->filename );
 						}
@@ -1457,7 +1457,7 @@ ssize_t libsmdev_handle_read_buffer(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM " with error: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 "%s: unable to seek current offset in file: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM ".",
 					 function,
 					 internal_handle->filename,
 					 error_string );
@@ -1468,7 +1468,7 @@ ssize_t libsmdev_handle_read_buffer(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 "%s: unable to seek current offset in file: %" PRIs_LIBCSTRING_SYSTEM ".",
 					 function,
 					 internal_handle->filename );
 				}
@@ -1675,7 +1675,7 @@ ssize_t libsmdev_handle_read_buffer(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBSMDEV_SYSTEM ".",
+					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBCSTRING_SYSTEM ".",
 					 function,
 					 error_granularity_skip_size,
 					 error_string );
@@ -1802,7 +1802,7 @@ ssize_t libsmdev_handle_write_buffer(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write to device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 internal_handle->filename );
 
@@ -1843,7 +1843,7 @@ ssize_t libsmdev_handle_write_buffer(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write to device: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 internal_handle->filename );
 
@@ -1971,7 +1971,7 @@ off64_t libsmdev_handle_seek_offset(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to find offset: %" PRIi64 " in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to find offset: %" PRIi64 " in file: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 offset,
 		 internal_handle->filename );
@@ -2004,7 +2004,7 @@ off64_t libsmdev_handle_seek_offset(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek offset in file: %" PRIs_LIBSMDEV_SYSTEM ".",
+		 "%s: unable to seek offset in file: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 internal_handle->filename );
 
@@ -2068,7 +2068,7 @@ int libsmdev_handle_get_filename_size(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size";
 
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2107,8 +2107,8 @@ int libsmdev_handle_get_filename_size(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_narrow_string_codepage == 0 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -2132,14 +2132,14 @@ int libsmdev_handle_get_filename_size(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          filename_size,
 		          error );
 #else
@@ -2177,7 +2177,7 @@ int libsmdev_handle_get_filename(
 	static char *function                       = "libsmdev_handle_get_filename";
 	size_t narrow_filename_size                 = 0;
 
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2216,8 +2216,8 @@ int libsmdev_handle_get_filename(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_narrow_string_codepage == 0 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -2241,14 +2241,14 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -2280,8 +2280,8 @@ int libsmdev_handle_get_filename(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_narrow_string_codepage == 0 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -2307,7 +2307,7 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) filename,
 		          filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          error );
@@ -2315,7 +2315,7 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) filename,
 		          filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          error );
@@ -2335,7 +2335,7 @@ int libsmdev_handle_get_filename(
 		return( -1 );
 	}
 #else
-	if( libsmdev_system_string_copy(
+	if( libcstring_system_string_copy(
 	     filename,
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
@@ -2366,7 +2366,7 @@ int libsmdev_handle_set_filename(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                      = "libsmdev_handle_set_filename";
 
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                 = 0;
 #endif
 
@@ -2428,7 +2428,7 @@ int libsmdev_handle_set_filename(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-			 "%s: filename already set: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 "%s: filename already set: %" PRIs_LIBCSTRING_SYSTEM ".",
 			 function,
 			 internal_handle->filename );
 
@@ -2440,8 +2440,8 @@ int libsmdev_handle_set_filename(
 		 internal_handle->filename      = NULL;
 		 internal_handle->filename_size = 0;
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_narrow_string_codepage == 0 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -2465,14 +2465,14 @@ int libsmdev_handle_set_filename(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -2493,8 +2493,8 @@ int libsmdev_handle_set_filename(
 #else
 	internal_handle->filename_size = filename_length + 1;
 #endif
-	internal_handle->filename = (libsmdev_system_character_t *) memory_allocate(
-	                                                             sizeof( libsmdev_system_character_t ) * internal_handle->filename_size );
+	internal_handle->filename = (libcstring_system_character_t *) memory_allocate(
+	                                                               sizeof( libcstring_system_character_t ) * internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
 	{
@@ -2507,8 +2507,8 @@ int libsmdev_handle_set_filename(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_narrow_string_codepage == 0 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_copy_from_utf8(
@@ -2536,7 +2536,7 @@ int libsmdev_handle_set_filename(
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_copy_from_byte_stream(
@@ -2544,7 +2544,7 @@ int libsmdev_handle_set_filename(
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -2568,7 +2568,7 @@ int libsmdev_handle_set_filename(
 		return( -1 );
 	}
 #else
-	if( libsmdev_system_string_copy(
+	if( libcstring_system_string_copy(
 	     internal_handle->filename,
 	     filename,
 	     filename_length + 1 ) == NULL )
@@ -2607,7 +2607,7 @@ int libsmdev_handle_get_filename_size_wide(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size_wide";
 
-#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2646,10 +2646,10 @@ int libsmdev_handle_get_filename_size_wide(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	*filename_size = internal_handle->filename_size;
 #else
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -2673,14 +2673,14 @@ int libsmdev_handle_get_filename_size_wide(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          filename_size,
 		          error );
 #else
@@ -2716,7 +2716,7 @@ int libsmdev_handle_get_filename_wide(
 	static char *function                       = "libsmdev_handle_get_filename_wide";
 	size_t wide_filename_size                   = 0;
 
-#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2755,10 +2755,10 @@ int libsmdev_handle_get_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	wide_filename_size = internal_handle->filename_size;
 #else
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -2782,14 +2782,14 @@ int libsmdev_handle_get_filename_wide(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &wide_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &wide_filename_size,
 		          error );
 #else
@@ -2819,8 +2819,8 @@ int libsmdev_handle_get_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_string_copy(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_system_string_copy(
 	     filename,
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
@@ -2836,7 +2836,7 @@ int libsmdev_handle_get_filename_wide(
 	}
 	filename[ internal_handle->filename_size - 1 ] = 0;
 #else
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_copy_from_utf8(
@@ -2864,7 +2864,7 @@ int libsmdev_handle_get_filename_wide(
 		          filename_size,
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_copy_from_byte_stream(
@@ -2872,7 +2872,7 @@ int libsmdev_handle_get_filename_wide(
 		          filename_size,
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -2905,7 +2905,7 @@ int libsmdev_handle_set_filename_wide(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_filename_wide";
 
-#if !defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2967,7 +2967,7 @@ int libsmdev_handle_set_filename_wide(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-			 "%s: filename already set: %" PRIs_LIBSMDEV_SYSTEM ".",
+			 "%s: filename already set: %" PRIs_LIBCSTRING_SYSTEM ".",
 			 function,
 			 internal_handle->filename );
 
@@ -2979,10 +2979,10 @@ int libsmdev_handle_set_filename_wide(
 		 internal_handle->filename      = NULL;
 		 internal_handle->filename_size = 0;
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	internal_handle->filename_size = filename_length + 1;
 #else
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -3006,14 +3006,14 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -3031,10 +3031,10 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#endif /* defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
-	internal_handle->filename = (libsmdev_system_character_t *) memory_allocate(
-	                                                             sizeof( libsmdev_system_character_t ) * internal_handle->filename_size );
+	internal_handle->filename = (libcstring_system_character_t *) memory_allocate(
+	                                                               sizeof( libcstring_system_character_t ) * internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
 	{
@@ -3047,8 +3047,8 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libsmdev_system_string_copy(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcstring_system_string_copy(
 	     internal_handle->filename,
 	     filename,
 	     filename_length + 1 ) == NULL )
@@ -3070,7 +3070,7 @@ int libsmdev_handle_set_filename_wide(
 	}
 	internal_handle->filename[ filename_length ] = 0;
 #else
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -3096,7 +3096,7 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3104,7 +3104,7 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3129,7 +3129,7 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#endif /* defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	return( 1 );
 }
@@ -3143,7 +3143,7 @@ int libsmdev_file_exists(
      const char *filename,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	static char *function = "libsmdev_file_exists";
 	int result            = 1;
@@ -3208,7 +3208,7 @@ int libsmdev_file_exists(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -3290,7 +3290,7 @@ int libsmdev_file_exists(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -3341,7 +3341,7 @@ int libsmdev_file_exists_wide(
      const wchar_t *filename,
      liberror_error_t **error )
 {
-	libsmdev_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	static char *function       = "libsmdev_file_exists_wide";
 	size_t filename_length      = 0;
@@ -3412,7 +3412,7 @@ int libsmdev_file_exists_wide(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );
@@ -3462,13 +3462,13 @@ int libsmdev_file_exists_wide(
 	                   _O_RDONLY | _O_BINARY,
 	                   0 );
 #else
-	filename_length = wide_string_length(
+	filename_length = libcstring_wide_string_length(
 	                   filename );
 
 	/* Convert the filename to a narrow string
 	 * if the platform has no wide character open function
 	 */
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -3492,14 +3492,14 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -3531,7 +3531,7 @@ int libsmdev_file_exists_wide(
 
 		return( -1 );
 	}
-	if( libsmdev_system_narrow_string_codepage == 0 )
+	if( libcstring_narrow_system_string_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -3557,7 +3557,7 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3565,7 +3565,7 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libsmdev_system_narrow_string_codepage,
+		          libcstring_narrow_system_string_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3621,7 +3621,7 @@ int libsmdev_file_exists_wide(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBSMDEV_SYSTEM "",
+					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
 					 filename,
 					 error_string );

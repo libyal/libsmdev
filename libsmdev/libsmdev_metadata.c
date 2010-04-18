@@ -1,6 +1,7 @@
 /*
  * Meta data functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -24,6 +25,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -66,6 +68,7 @@ typedef size_t u64;
 #include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disk.h"
 #include "libsmdev_scsi.h"
+#include "libsmdev_string.h"
 #include "libsmdev_types.h"
 
 #if defined( WINAPI )
@@ -670,7 +673,7 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
 			{
-				string_length = narrow_string_length(
+				string_length = libcstring_narrow_string_length(
 				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ) );
 
 				result = libsmdev_string_trim_copy_from_byte_stream(
@@ -694,7 +697,7 @@ int libsmdev_internal_handle_determine_media_information(
 			}
 			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
 			{
-				string_length = narrow_string_length(
+				string_length = libcstring_narrow_string_length(
 				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ) );
 
 				result = libsmdev_string_trim_copy_from_byte_stream(
@@ -718,7 +721,7 @@ int libsmdev_internal_handle_determine_media_information(
 			}
 			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
 			{
-				string_length = narrow_string_length(
+				string_length = libcstring_narrow_string_length(
 				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ) );
 
 				result = libsmdev_string_trim_copy_from_byte_stream(
@@ -1380,7 +1383,7 @@ int libsmdev_handle_get_information_value(
 		}
 	}
 	if( ( information_value_identifier_length == 5 )
-	 && ( narrow_string_compare(
+	 && ( libcstring_narrow_string_compare(
 	       "model",
 	       (char *) information_value_identifier,
 	       information_value_identifier_length ) == 0 ) )
@@ -1388,7 +1391,7 @@ int libsmdev_handle_get_information_value(
 		internal_information_value = (uint8_t *) internal_handle->model;
 	}
 	else if( ( information_value_identifier_length == 6 )
-	      && ( narrow_string_compare(
+	      && ( libcstring_narrow_string_compare(
 		    "vendor",
 		    (char *) information_value_identifier,
 		    information_value_identifier_length ) == 0 ) )
@@ -1396,7 +1399,7 @@ int libsmdev_handle_get_information_value(
 		internal_information_value = (uint8_t *) internal_handle->vendor;
 	}
 	else if( ( information_value_identifier_length == 13 )
-	      && ( narrow_string_compare(
+	      && ( libcstring_narrow_string_compare(
 		    "serial_number",
 		    (char *) information_value_identifier,
 		    information_value_identifier_length ) == 0 ) )
@@ -1415,7 +1418,7 @@ int libsmdev_handle_get_information_value(
 		}
 		/* Determine the header value size
 		 */
-		internal_information_value_size = 1 + libsmdev_string_length(
+		internal_information_value_size = 1 + libcstring_string_length(
 		                                       (char *) internal_information_value );
 
 		if( information_value_size < internal_information_value_size )
@@ -1429,7 +1432,7 @@ int libsmdev_handle_get_information_value(
 
 			return( -1 );
 		}
-		if( libsmdev_string_copy(
+		if( libcstring_string_copy(
 		     information_value,
 		     internal_information_value,
 		     internal_information_value_size ) == NULL )

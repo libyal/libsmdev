@@ -1,6 +1,7 @@
 /*
  * Error string functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -26,9 +27,8 @@
 #include <common.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
-
-#include "libsmdev_system_string.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -37,7 +37,7 @@ extern "C" {
 #define LIBSMDEV_ERROR_STRING_DEFAULT_SIZE	128
 
 int libsmdev_error_string_copy_from_error_number(
-     libsmdev_system_character_t *error_string,
+     libcstring_system_character_t *error_string,
      size_t error_string_size,
      int error_number,
      liberror_error_t **error );

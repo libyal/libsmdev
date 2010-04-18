@@ -1,6 +1,7 @@
 /*
  * System character type string functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -23,6 +24,9 @@
 #include <common.h>
 #include <types.h>
 
+#include <libcstring.h>
+#include <liberror.h>
+
 #include "libsmdev_string.h"
 
 #if defined( _cplusplus )
@@ -33,7 +37,7 @@ extern "C" {
  * Returns the amount of bytes copied or -1 on error
  */
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
-         libsmdev_character_t *string,
+         libcstring_character_t *string,
          size_t string_size,
          const uint8_t *byte_stream,
          size_t byte_stream_size,
@@ -123,7 +127,7 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 		}
 		while( first_character <= last_character )
 		{
-			string[ string_iterator++ ] = (libsmdev_character_t) byte_stream[ first_character++ ];
+			string[ string_iterator++ ] = (libcstring_character_t) byte_stream[ first_character++ ];
 		}
 	}
 	string[ string_iterator ] = 0;

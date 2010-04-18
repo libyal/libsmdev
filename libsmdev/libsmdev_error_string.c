@@ -1,6 +1,7 @@
 /*
  * Error string functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -24,6 +25,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
@@ -31,14 +33,12 @@
 #endif
 
 #include "libsmdev_error_string.h"
-#include "libsmdev_libuna.h"
-#include "libsmdev_system_string.h"
 
 /* Retrieves a descriptive string of the error number
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_error_string_copy_from_error_number(
-     libsmdev_system_character_t *string,
+     libcstring_system_character_t *string,
      size_t string_size,
      int error_number,
      liberror_error_t **error )
@@ -46,7 +46,7 @@ int libsmdev_error_string_copy_from_error_number(
 	static char *function              = "libsmdev_error_string_copy_from_error_number";
 
 #if ( defined( HAVE_STRERROR ) && !defined( HAVE_STRERROR_R ) ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) && !defined( _MSC_VER ) )
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *static_error_string = NULL;
 #else
 	const char *static_error_string    = NULL;
@@ -79,7 +79,7 @@ int libsmdev_error_string_copy_from_error_number(
 /* Use the WINAPI error string function
  */
 #if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( FormatMessageW(
 	     FORMAT_MESSAGE_FROM_SYSTEM,
 	     NULL,
@@ -116,7 +116,7 @@ int libsmdev_error_string_copy_from_error_number(
 /* Use MSVSC++ specific CRT error string functions
  */
 #elif defined( USE_CRT_FUNCTIONS ) && defined( _MSC_VER )
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( _wcserror_s(
 	     string,
 	     string_size,
@@ -143,7 +143,7 @@ int libsmdev_error_string_copy_from_error_number(
 #elif defined( HAVE_STRERROR_R )
 /* Sanity check
  */
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 #error Missing wide character strerror_r function
 #endif
 
@@ -175,11 +175,11 @@ int libsmdev_error_string_copy_from_error_number(
 
 /* Sanity check
  */
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER ) && !defined( WINAPI )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && !defined( WINAPI )
 #error Missing wide character strerror function
 #endif
 
-#if defined( LIBSMDEV_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	static_error_string = _wcserror(
 	                       error_number );
 #else
@@ -198,10 +198,10 @@ int libsmdev_error_string_copy_from_error_number(
 
 		return( -1 );
 	}
-	static_error_string_length = libsmdev_system_string_length(
+	static_error_string_length = libcstring_system_string_length(
 	                              static_error_string );
 
-	if( libsmdev_system_string_copy(
+	if( libcstring_system_string_copy(
 	     string,
 	     static_error_string,
 	     static_error_string_length ) == NULL )

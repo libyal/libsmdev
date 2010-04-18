@@ -17,6 +17,16 @@ Media information:
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
 
+Deployment
+* add msvscpp files
+* add borlandc files
+* add macosx files
+
+20100418
+* added libcstring
+* updated common, liberror, libnotify, libuna
+* email change
+
 20100212
 * worked on glob function
 

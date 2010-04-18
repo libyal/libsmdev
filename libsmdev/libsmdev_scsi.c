@@ -1,6 +1,7 @@
 /*
  * SCSI functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -22,9 +23,9 @@
 
 #include <common.h>
 #include <memory.h>
-#include <narrow_string.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -536,7 +537,7 @@ int libsmdev_scsi_get_bus_type(
 	}
 	sg_probe_host.buffer[ 127 ] = 0;
 
-	sg_probe_host_length = narrow_string_length(
+	sg_probe_host_length = libcstring_narrow_string_length(
 	                        sg_probe_host.buffer );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -551,21 +552,21 @@ int libsmdev_scsi_get_bus_type(
 
 	if( sg_probe_host_length >= 4 )
 	{
-		if( narrow_string_compare(
+		if( libcstring_narrow_string_compare(
 		     sg_probe_host.buffer,
 		     "ahci",
 		     4 ) == 0 )
 		{
 			*bus_type = LIBSMDEV_BUS_TYPE_ATA;
 		}
-		else if( narrow_string_compare(
+		else if( libcstring_narrow_string_compare(
 		          sg_probe_host.buffer,
 		          "pata",
 		          4 ) == 0 )
 		{
 			*bus_type = LIBSMDEV_BUS_TYPE_ATA;
 		}
-		else if( narrow_string_compare(
+		else if( libcstring_narrow_string_compare(
 		          sg_probe_host.buffer,
 		          "sata",
 		          4 ) == 0 )
@@ -576,7 +577,7 @@ int libsmdev_scsi_get_bus_type(
 	/* Serial Bus Protocol (SBP-2)
 	 */
 	else if( ( sg_probe_host_length == 15 )
-	      && ( narrow_string_compare(
+	      && ( libcstring_narrow_string_compare(
 	            sg_probe_host.buffer,
 	            "SBP-2 IEEE-1394",
 	            15 ) == 0 ) )
@@ -584,7 +585,7 @@ int libsmdev_scsi_get_bus_type(
 		*bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
 	}
 	else if( ( sg_probe_host_length == 43 )
-	      && ( narrow_string_compare(
+	      && ( libcstring_narrow_string_compare(
 	            sg_probe_host.buffer,
 	            "SCSI emulation for USB Mass Storage devices",
 	            43 ) == 0 ) )
