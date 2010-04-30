@@ -99,6 +99,9 @@ enum LIBSMDEV_BUS_TYPES
 #elif defined( __BORLANDC__ )
 #define LIBSMDEV_LARGE_INTEGER_ZERO			{ 0 }
 
+#elif defined( __MINGW32_VERSION )
+#define LIBSMDEV_LARGE_INTEGER_ZERO			{ { 0, 0 } }
+
 #endif
 
 #endif

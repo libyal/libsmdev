@@ -32,6 +32,10 @@
 #include <stdlib.h>
 #endif
 
+#if defined( HAVE_STRING_H ) || defined( WINAPI )
+#include <string.h>
+#endif
+
 #include "libsmdev_error_string.h"
 
 /* Retrieves a descriptive string of the error number
@@ -45,7 +49,7 @@ int libsmdev_error_string_copy_from_error_number(
 {
 	static char *function              = "libsmdev_error_string_copy_from_error_number";
 
-#if ( defined( HAVE_STRERROR ) && !defined( HAVE_STRERROR_R ) ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) && !defined( _MSC_VER ) )
+#if ( defined( HAVE_STRERROR ) && !defined( HAVE_STRERROR_R ) && !defined( WINAPI ) ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) && !defined( _MSC_VER ) )
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	const wchar_t *static_error_string = NULL;
 #else

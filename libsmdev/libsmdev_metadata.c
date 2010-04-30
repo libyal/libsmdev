@@ -33,7 +33,7 @@
 #include <sys/ioctl.h>
 #endif
 
-#if defined( WINAPI )
+#if defined( HAVE_IO_H ) || defined( WINAPI )
 #include <io.h>
 
 #elif defined( HAVE_CYGWIN_FS_H )
@@ -59,6 +59,10 @@ typedef size_t u64;
 #include <sys/disklabel.h>
 #endif
 
+#endif
+
+#if defined( HAVE_WINIOCTL_H )
+#include <winioctl.h>
 #endif
 
 #include "libsmdev_definitions.h"
@@ -126,6 +130,26 @@ typedef enum _STORAGE_QUERY_TYPE
 	PropertyQueryMaxDefined 
 }
 STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
+
+#if defined( __MINGW32_VERSION )
+typedef enum _STORAGE_BUS_TYPE
+{
+	BusTypeUnknown		= 0x00,
+	BusTypeScsi		= 0x01,
+	BusTypeAtapi		= 0x02,
+	BusTypeAta		= 0x03,
+	BusType1394		= 0x04,
+	BusTypeSsa		= 0x05,
+	BusTypeFibre		= 0x06,
+	BusTypeUsb		= 0x07,
+	BusTypeRAID		= 0x08,
+	BusTypeiSCSI		= 0x09,
+	BusTypeSas		= 0x0a,
+	BusTypeSata		= 0x0b,
+	BusTypeMaxReserved	= 0x7f 
+}
+STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
+#endif
 
 typedef struct _STORAGE_PROPERTY_QUERY
 {
@@ -763,6 +787,9 @@ int libsmdev_internal_handle_determine_media_information(
 
 				case BusTypeUsb:
 					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_USB;
+					break;
+
+				default:
 					break;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )

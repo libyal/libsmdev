@@ -3344,7 +3344,6 @@ int libsmdev_file_exists_wide(
 	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
 
 	static char *function       = "libsmdev_file_exists_wide";
-	size_t filename_length      = 0;
 	int result                  = 1;
 
 #if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
@@ -3355,6 +3354,7 @@ int libsmdev_file_exists_wide(
 #endif
 
 #if !defined( WINAPI )
+	size_t filename_length      = 0;
 	char *narrow_filename       = NULL;
 	size_t narrow_filename_size = 0;
 #endif

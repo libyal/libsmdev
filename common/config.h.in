@@ -56,6 +56,9 @@
 /* Define to 1 if you have the `fseeko' function. */
 #undef HAVE_FSEEKO
 
+/* Define to 1 if you have the `fseeko64' function. */
+#undef HAVE_FSEEKO64
+
 /* Define to 1 if you have the `fstat' function. */
 #undef HAVE_FSTAT
 
@@ -170,6 +173,9 @@
 /* Define to 1 if you have the `strcpy' function. */
 #undef HAVE_STRCPY
 
+/* Define to 1 if you have the `strerror' function. */
+#undef HAVE_STRERROR
+
 /* Define to 1 if you have the `strerror_r' function. */
 #undef HAVE_STRERROR_R
 
@@ -274,6 +280,12 @@
 
 /* Define to 1 if wide character type should be used. */
 #undef HAVE_WIDE_CHARACTER_TYPE
+
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
+
+/* Define to 1 if you have the <winioctl.h> header file. */
+#undef HAVE_WINIOCTL_H
 
 /* Define to 1 if you have the `wmemchr' function. */
 #undef HAVE_WMEMCHR
