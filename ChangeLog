@@ -22,6 +22,9 @@ Deployment
 * add borlandc files
 * add macosx files
 
+20100501
+* updated common. libcstring
+
 20100430
 * worked on mingw support
 * updated common, libcstring

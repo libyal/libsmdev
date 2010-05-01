@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20100430],
+  [20100501],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libsmdev],
- [20100430])
+ [20100501])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -122,7 +122,7 @@ dnl Headers included in libsmdev/libsmdev_handle.c and libsmdev/libsmdev_support
 AC_CHECK_HEADERS([fcntl.h sys/stat.h unistd.h])
 
 dnl Headers included in libsmdev/libsmdev_metadata.c
-AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h winioctl.h])
+AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h])
 
 dnl Headers included in libsmdev/libsmdev_ata.c
 AC_CHECK_HEADERS([cygwin/hdreg.h linux/hdreg.h])

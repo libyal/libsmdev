@@ -33,8 +33,9 @@
 #include <sys/ioctl.h>
 #endif
 
-#if defined( HAVE_IO_H ) || defined( WINAPI )
+#if defined( WINAPI )
 #include <io.h>
+#include <winioctl.h>
 
 #elif defined( HAVE_CYGWIN_FS_H )
 #include <cygwin/fs.h>
@@ -59,10 +60,6 @@ typedef size_t u64;
 #include <sys/disklabel.h>
 #endif
 
-#endif
-
-#if defined( HAVE_WINIOCTL_H )
-#include <winioctl.h>
 #endif
 
 #include "libsmdev_definitions.h"
