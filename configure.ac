@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20100501],
+  [20100502],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libsmdev],
- [20100501])
+ [20100502])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -25,6 +25,11 @@ LIBSMDEV_TEST_ENABLE(
  [wide-character-type],
  [wide_character_type],
  [enable wide character type support],
+ [no])
+LIBSMDEV_TEST_ENABLE(
+ [winapi],
+ [winapi],
+ [enable WINAPI support for cross-compilation],
  [no])
 LIBSMDEV_TEST_ENABLE(
  [verbose-output],
@@ -94,7 +99,16 @@ AC_CHECK_HEADER(
   [0])])
 
 dnl Headers included in common/common.h
-AC_CHECK_HEADERS([windows.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xyes],
+ [AC_CHECK_HEADERS([windows.h])
+
+ AS_IF(
+  [test "x$ac_cv_header_windows_h" = xno],
+  [AC_MSG_FAILURE(
+   [Missing header: windows.h header is required to compile with winapi support],
+   [1]) ])
+ ])
 
 dnl Headers included in common/types.h
 AC_CHECK_HEADERS([limits.h])
@@ -122,19 +136,29 @@ dnl Headers included in libsmdev/libsmdev_handle.c and libsmdev/libsmdev_support
 AC_CHECK_HEADERS([fcntl.h sys/stat.h unistd.h])
 
 dnl Headers included in libsmdev/libsmdev_metadata.c
-AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h]) ])
 
 dnl Headers included in libsmdev/libsmdev_ata.c
-AC_CHECK_HEADERS([cygwin/hdreg.h linux/hdreg.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([cygwin/hdreg.h linux/hdreg.h]) ])
 
 dnl Headers included in libsmdev/libsmdev_scsi.c
-AC_CHECK_HEADERS([scsi/scsi.h scsi/scsi_ioctl.h scsi/sg.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([scsi/scsi.h scsi/scsi_ioctl.h scsi/sg.h]) ])
 
 dnl Headers included in libsmdev/libsmdev_optical_disk.c
-AC_CHECK_HEADERS([linux/cdrom.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([linux/cdrom.h]) ])
 
 dnl Headers included in libsmdev/libsmdev_usb.c
-AC_CHECK_HEADERS([linux/usbdevice_fs.h linux/usb/ch9.h])
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([linux/usbdevice_fs.h linux/usb/ch9.h]) ])
 
 dnl Other headers
 
@@ -350,13 +374,13 @@ AC_CHECK_FUNCS(
  [ac_libsmdev_have_memrchr=no])
 
 AS_IF(
-	[test "x$ac_libsmdev_have_memrchr" = xno],
-	[AC_CHECK_FUNCS(
-	 [strrchr],
-	 [],
-	 [AC_MSG_FAILURE(
-	  [Missing functions: strrchr and memrchr],
-	  [1]) ]) ])
+ [test "x$ac_libsmdev_have_memrchr" = xno],
+ [AC_CHECK_FUNCS(
+ [strrchr],
+ [],
+ [AC_MSG_FAILURE(
+ [Missing functions: strrchr and memrchr],
+ [1]) ]) ])
 
 AC_CHECK_FUNCS(
  [snprintf],
@@ -476,319 +500,63 @@ dnl System functions
 LIBSMDEV_CHECK_FUNC_POSIX_FADVISE
 
 dnl Check for printf conversion specifier support
-LIBSMDEV_CHECK_PRINTF_JD
-LIBSMDEV_CHECK_PRINTF_ZD
+LIBSMDEV_CHECK_FUNC_PRINTF_JD
+LIBSMDEV_CHECK_FUNC_PRINTF_ZD
 
 dnl Checks for libraries and library functions
 dnl ac_libsmdev_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
 
 dnl Check for enabling libuna for Unicode string support
-AC_CHECK_HEADERS(
- [libuna.h],
- [],
- [ac_libsmdev_have_libuna=no])
+LIBSMDEV_CHECK_LIBUNA
 
 AS_IF(
-	[test "x$ac_libsmdev_have_libuna" != xno],
-	[ac_libsmdev_have_libuna=yes
-	AC_CHECK_LIB(
-	 una,
-	 libuna_get_version,
-	 [],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl Byte stream functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_size_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_copy_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_size_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_copy_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_size_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_copy_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_size_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_copy_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_size_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_copy_from_byte_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_size_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_byte_stream_copy_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl UTF-8 stream functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_size_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_copy_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_size_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_copy_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_size_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_copy_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_size_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_copy_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_size_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_copy_from_utf8_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_size_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_stream_copy_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl UTF-16 stream functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_size_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_copy_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_size_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_copy_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_size_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_copy_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_size_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_copy_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_size_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_copy_from_utf16_stream,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_size_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_stream_copy_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl UTF-8 string functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_size_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_copy_from_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_size_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf8_string_copy_from_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl UTF-16 string functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_size_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf16_string_copy_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl UTF-32 string functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_size_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_utf32_string_copy_from_utf8,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-
-	dnl compare string functions
-	AC_CHECK_LIB(
-	 una,
-	 libuna_compare_utf8_with_utf16,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	AC_CHECK_LIB(
-	 una,
-	 libuna_compare_utf8_with_utf32,
-	 [ac_libsmdev_dummy=yes],
-	 [ac_libsmdev_have_libuna=no])
-	])
-
-AS_IF(
-	[test "x$ac_libsmdev_have_libuna" = xyes],
-	[AC_SUBST(
-	 [libsmdev_pc_libs_private_libuna],
-	 [-luna])
-	AC_SUBST(
-	 [libsmdev_spec_requires],
-	 [Requires:])
-	AC_SUBST(
-	 [libsmdev_spec_requires_libuna],
-	 [libuna])
-	AC_SUBST(
-	 [libsmdev_spec_build_requires],
-	 [BuildRequires:])
-	AC_SUBST(
-	 [libsmdev_spec_build_requires_libuna],
-	 [libuna-devel]) ],
-	[dnl If libuna is not available use the (local) version that came with libsmdev
-	AC_DEFINE(
-	 [HAVE_LOCAL_LIBUNA],
-	 [1],
-	 [Define to 1 if the local version of libuna is used.])
-	AC_SUBST(
-	 [HAVE_LOCAL_LIBUNA],
-	 [1])
-	AC_SUBST(
-	 [libsmdev_pc_libs_private_libuna],
-	 [])
-	AC_SUBST(
-	 [libsmdev_spec_requires],
-	 [])
-	AC_SUBST(
-	 [libsmdev_spec_requires_libuna],
-	 [])
-	AC_SUBST(
-	 [libsmdev_spec_build_requires],
-	 [])
-	AC_SUBST(
-	 [libsmdev_spec_build_requires_libuna],
-	 [])
-	AC_SUBST(
-	 [LIBUNA_CPPFLAGS],
-	 [-I../libuna])
-	AC_SUBST(
-	 [LIBUNA_LIBADD],
-	 [../libuna/libuna.la])
-	ac_libsmdev_have_libuna=local])
+ [test "x$ac_libsmdev_have_libuna" = xyes],
+ [dnl libuna is available
+ AC_SUBST(
+  [libsmdev_pc_libs_private_libuna],
+  [-luna])
+ AC_SUBST(
+  [libsmdev_spec_requires],
+  [Requires:])
+ AC_SUBST(
+  [libsmdev_spec_requires_libuna],
+  [libuna])
+ AC_SUBST(
+  [libsmdev_spec_build_requires],
+  [BuildRequires:])
+ AC_SUBST(
+  [libsmdev_spec_build_requires_libuna],
+  [libuna-devel]) ],
+ [dnl libuna is not available, using the (local) version that came with the source package
+ AC_DEFINE(
+  [HAVE_LOCAL_LIBUNA],
+  [1],
+  [Define to 1 if the local version of libuna is used.])
+ AC_SUBST(
+  [HAVE_LOCAL_LIBUNA],
+  [1])
+ AC_SUBST(
+  [libsmdev_pc_libs_private_libuna],
+  [])
+ AC_SUBST(
+  [libsmdev_spec_requires],
+  [])
+ AC_SUBST(
+  [libsmdev_spec_requires_libuna],
+  [])
+ AC_SUBST(
+  [libsmdev_spec_build_requires],
+  [])
+ AC_SUBST(
+  [libsmdev_spec_build_requires_libuna],
+  [])
+ AC_SUBST(
+  [LIBUNA_CPPFLAGS],
+  [-I../libuna])
+ AC_SUBST(
+  [LIBUNA_LIBADD],
+  [../libuna/libuna.la])
+ ac_libsmdev_have_libuna=local])
 
 AM_CONDITIONAL(
  [HAVE_LOCAL_LIBUNA],
@@ -934,33 +702,33 @@ AS_IF(
 
 dnl Check if libsmdev should be build with verbose output
 AS_IF(
-	[test "x$ac_cv_libsmdev_enable_verbose_output" != xno],
-	[AC_DEFINE(
-	 [HAVE_VERBOSE_OUTPUT],
-	 [1],
-	 [Define to 1 if verbose output should be used] )
-	ac_cv_libsmdev_enable_verbose_output=yes])
+ [test "x$ac_cv_libsmdev_enable_verbose_output" != xno],
+ [AC_DEFINE(
+ [HAVE_VERBOSE_OUTPUT],
+ [1],
+ [Define to 1 if verbose output should be used] )
+ ac_cv_libsmdev_enable_verbose_output=yes])
 
 dnl Check if libsmdev should be build with debug output
 AS_IF(
-	[test "x$ac_cv_libsmdev_enable_debug_output" != xno],
-	[AC_DEFINE(
-	 [HAVE_DEBUG_OUTPUT],
-	 [1],
-	 [Define to 1 if debug output should be used] )
-	ac_cv_libsmdev_enable_debug_output=yes])
+ [test "x$ac_cv_libsmdev_enable_debug_output" != xno],
+ [AC_DEFINE(
+ [HAVE_DEBUG_OUTPUT],
+ [1],
+ [Define to 1 if debug output should be used] )
+ ac_cv_libsmdev_enable_debug_output=yes])
 
 dnl Set memwatch support
 ac_libsmdev_have_memwatch=no
 
 AS_IF(
-	[test "x$ac_libsmdev_have_memwatch" != xno ],
-	[AC_SUBST(
-	 [MEMWATCH_CPPFLAGS],
-	 ["-DMEMWATCH -DMEMWATCH_STDIO"])
-	AC_SUBST(
-	 [MEMWATCH_LIBADD],
-	 [../common/libmemwatch.la]) ])
+ [test "x$ac_libsmdev_have_memwatch" != xno ],
+ [AC_SUBST(
+ [MEMWATCH_CPPFLAGS],
+ ["-DMEMWATCH -DMEMWATCH_STDIO"])
+ AC_SUBST(
+ [MEMWATCH_LIBADD],
+ [../common/libmemwatch.la]) ])
 
 AM_CONDITIONAL(
  [HAVE_MEMWATCH],
@@ -971,15 +739,15 @@ CFLAGS="$CFLAGS -Wall";
 
 dnl Check if DLL support is needed in smdevtools
 AS_IF(
-	[test x"$enable_shared" = xyes],
-	[AS_CASE(
-		[$host],
-		[*cygwin* | *mingw*],
-		[AC_SUBST(
-		 [LIBSMDEV_DLL_IMPORT],
-		 ["-DLIBSMDEV_DLL_IMPORT"])
-		])
-	])
+ [test x"$enable_shared" = xyes],
+ [AS_CASE(
+  [$host],
+  [*cygwin* | *mingw*],
+  [AC_SUBST(
+   [LIBSMDEV_DLL_IMPORT],
+   ["-DLIBSMDEV_DLL_IMPORT"])
+  ])
+ ])
 
 dnl Have configure make the Makefiles
 AC_CONFIG_FILES([Makefile])

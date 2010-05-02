@@ -18,6 +18,7 @@ libsmdev_la_SOURCES = \
 	libsmdev_error_string.c libsmdev_error_string.h \
 	libsmdev_extern.h \
 	libsmdev_handle.c libsmdev_handle.h \
+	libsmdev_legacy.c libsmdev_legacy.h \
 	libsmdev_libuna.h \
 	libsmdev_list_type.c libsmdev_list_type.h \
 	libsmdev_metadata.c libsmdev_metadata.h \

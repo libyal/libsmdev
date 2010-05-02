@@ -30,6 +30,7 @@
 #include <liberror.h>
 
 #include "libsmdev_extern.h"
+#include "libsmdev_handle.h"
 #include "libsmdev_types.h"
 
 #if defined( __cplusplus )
@@ -68,14 +69,14 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      size_t information_value_size,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
+LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_error_retries(
                      libsmdev_handle_t *handle,
-                     uint8_t *amount_of_error_retries,
+                     uint8_t *number_of_error_retries,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
+LIBSMDEV_EXTERN int libsmdev_handle_set_number_of_error_retries(
                      libsmdev_handle_t *handle,
-                     uint8_t amount_of_error_retries,
+                     uint8_t number_of_error_retries,
                      liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_handle_get_error_granularity(
@@ -98,9 +99,9 @@ LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
                      uint8_t error_flags,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_errors(
+LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_errors(
                      libsmdev_handle_t *handle,
-                     int *amount_of_errors,
+                     int *number_of_errors,
                      liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_handle_get_error(

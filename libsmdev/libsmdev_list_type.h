@@ -61,9 +61,9 @@ typedef struct libsmdev_list libsmdev_list_t;
 
 struct libsmdev_list
 {
-	/* The amount of elements
+	/* The number of elements
 	 */
-	int amount_of_elements;
+	int number_of_elements;
 
 	/* The first list element
 	 */
@@ -112,9 +112,9 @@ int libsmdev_list_clone(
             liberror_error_t **error ),
      liberror_error_t **error );
 
-int libsmdev_list_get_amount_of_elements(
+int libsmdev_list_get_number_of_elements(
      libsmdev_list_t *list,
-     int *amount_of_elements,
+     int *number_of_elements,
      liberror_error_t **error );
 
 int libsmdev_list_get_element(

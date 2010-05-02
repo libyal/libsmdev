@@ -34,6 +34,15 @@
 #include "libsmdev_list_type.h"
 #include "libsmdev_types.h"
 
+#if defined( _MSC_VER ) || defined( __BORLANDC__ )
+
+/* This inclusion is needed otherwise some linkers
+ * mess up exporting the legacy and metadata functions
+ */
+#include "libbfio_legacy.h"
+#include "libbfio_metadata.h"
+#endif
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
@@ -64,7 +73,7 @@ struct libsmdev_internal_handle
 	 */
 	off64_t offset;
 
-	/* The amount of bytes per sector
+	/* The number of bytes per sector
 	 */
 	uint32_t bytes_per_sector;
 
@@ -104,17 +113,17 @@ struct libsmdev_internal_handle
 	 */
 	libcstring_character_t serial_number[ 64 ];
 
-	/* The amount of sessions for an optical disc
+	/* The number of sessions for an optical disc
 	 */
-	uint16_t amount_of_sessions;
+	uint16_t number_of_sessions;
 
 	/* Value to indicate the media information values were set
 	 */
 	uint8_t media_information_set;
 
-	/* The amount of read/write error retries
+	/* The number of read/write error retries
 	 */
-	uint8_t amount_of_error_retries;
+	uint8_t number_of_error_retries;
 
 	/* The error granularity
 	 */
@@ -148,7 +157,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_signal_abort(
 LIBSMDEV_EXTERN int libsmdev_handle_open(
                      libsmdev_handle_t *handle,
                      char * const filenames[],
-                     int amount_of_filenames,
+                     int number_of_filenames,
                      int flags,
                      liberror_error_t **error );
 
@@ -156,7 +165,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_open(
 LIBSMDEV_EXTERN int libsmdev_handle_open_wide(
                      libsmdev_handle_t *handle,
                      wchar_t * const filenames[],
-                     int amount_of_filenames,
+                     int number_of_filenames,
                      int flags,
                      liberror_error_t **error );
 #endif

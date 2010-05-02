@@ -17,10 +17,17 @@ Media information:
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
 
+Beta release
+* remove deprecated functions in libsmdev_legacy.[ch]
+
 Deployment
 * add msvscpp files
 * add borlandc files
 * add macosx files
+
+20100502
+* updated common. libcstring, liberror, libnotify, libuna
+* changed amount of to number of
 
 20100501
 * updated common. libcstring

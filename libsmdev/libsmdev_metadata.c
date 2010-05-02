@@ -409,7 +409,7 @@ int libsmdev_handle_get_media_size(
 	return( 1 );
 }
 
-/* Retrieves the amount of bytes per sector
+/* Retrieves the number of bytes per sector
  * Returns the 1 if succesful or -1 on error
  */
 int libsmdev_handle_get_bytes_per_sector(
@@ -1475,16 +1475,16 @@ int libsmdev_handle_get_information_value(
 	return( 1 );
 }
 
-/* Retrieves the amount of read/write error retries
+/* Retrieves the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-int libsmdev_handle_get_amount_of_error_retries(
+int libsmdev_handle_get_number_of_error_retries(
      libsmdev_handle_t *handle,
-     int *amount_of_error_retries,
+     uint8_t *number_of_error_retries,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libsmdev_handle_get_amount_of_error_retries";
+	static char *function                       = "libsmdev_handle_get_number_of_error_retries";
 
 	if( handle == NULL )
 	{
@@ -1499,32 +1499,32 @@ int libsmdev_handle_get_amount_of_error_retries(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( amount_of_error_retries == NULL )
+	if( number_of_error_retries == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of error retries.",
+		 "%s: invalid number of error retries.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_error_retries = internal_handle->amount_of_error_retries;
+	*number_of_error_retries = internal_handle->number_of_error_retries;
 
 	return( 1 );
 }
 
-/* Sets the amount of read/write error retries
+/* Sets the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-int libsmdev_handle_set_amount_of_error_retries(
+int libsmdev_handle_set_number_of_error_retries(
      libsmdev_handle_t *handle,
-     uint8_t amount_of_error_retries,
+     uint8_t number_of_error_retries,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libsmdev_handle_set_amount_of_error_retries";
+	static char *function                       = "libsmdev_handle_set_number_of_error_retries";
 
 	if( handle == NULL )
 	{
@@ -1539,7 +1539,7 @@ int libsmdev_handle_set_amount_of_error_retries(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	internal_handle->amount_of_error_retries = amount_of_error_retries;
+	internal_handle->number_of_error_retries = number_of_error_retries;
 
 	return( 1 );
 }
@@ -1706,16 +1706,16 @@ int libsmdev_handle_set_error_flags(
 	return( 1 );
 }
 
-/* Retrieves the amount of read/write errors
+/* Retrieves the number of read/write errors
  * Returns 1 if successful or -1 on error
  */
-int libsmdev_handle_get_amount_of_errors(
+int libsmdev_handle_get_number_of_errors(
      libsmdev_handle_t *handle,
-     int *amount_of_errors,
+     int *number_of_errors,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libsmdev_handle_get_amount_of_errors";
+	static char *function                       = "libsmdev_handle_get_number_of_errors";
 
 	if( handle == NULL )
 	{
@@ -1730,16 +1730,16 @@ int libsmdev_handle_get_amount_of_errors(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_list_get_amount_of_elements(
+	if( libsmdev_list_get_number_of_elements(
 	     internal_handle->errors_list,
-	     amount_of_errors,
+	     number_of_errors,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of errors.",
+		 "%s: unable to retrieve number of errors.",
 		 function );
 
 		return( -1 );

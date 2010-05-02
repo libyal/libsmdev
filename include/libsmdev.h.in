@@ -118,14 +118,14 @@ LIBSMDEV_EXTERN void libsmdev_error_free(
                       libsmdev_error_t **error );
 
 /* Prints a descriptive string of the error to the stream
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_fprint(
                      libsmdev_error_t *error,
                      FILE *stream );
 
 /* Prints a descriptive string of the error to the string
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_sprint(
                      libsmdev_error_t *error,
@@ -133,14 +133,14 @@ LIBSMDEV_EXTERN int libsmdev_error_sprint(
                      size_t size );
 
 /* Prints a backtrace of the error to the stream
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_backtrace_fprint(
                      libsmdev_error_t *error,
                      FILE *stream );
 
 /* Prints a backtrace of the error to the string
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_backtrace_sprint(
                      libsmdev_error_t *error,
@@ -179,7 +179,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_signal_abort(
 LIBSMDEV_EXTERN int libsmdev_handle_open(
                      libsmdev_handle_t *handle,
                      char * const filenames[],
-                     int amount_of_filenames,
+                     int number_of_filenames,
                      int flags,
                      libsmdev_error_t **error );
 
@@ -190,7 +190,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_open(
 LIBSMDEV_EXTERN int libsmdev_handle_open_wide(
                      libsmdev_handle_t *handle,
                      wchar_t * const filenames[],
-                     int amount_of_filenames,
+                     int number_of_filenames,
                      int flags,
                      libsmdev_error_t **error );
 #endif
@@ -203,7 +203,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_close(
                      libsmdev_error_t **error );
 
 /* Reads a buffer from the handle
- * Returns the amount of bytes read or -1 on error
+ * Returns the number of bytes read or -1 on error
  */
 LIBSMDEV_EXTERN ssize_t libsmdev_handle_read_buffer(
                          libsmdev_handle_t *handle,
@@ -212,7 +212,7 @@ LIBSMDEV_EXTERN ssize_t libsmdev_handle_read_buffer(
                          libsmdev_error_t **error );
 
 /* Writes a buffer to the handle
- * Returns the amount of bytes written or -1 on error
+ * Returns the number of bytes written or -1 on error
  */
 LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
                          libsmdev_handle_t *handle,
@@ -221,7 +221,7 @@ LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
                          libsmdev_error_t **error );
 
 /* Seeks an offset in the handle
- * Returns the amount of bytes in the buffer or -1 on error
+ * Returns the offset if seek is successful or -1 on error
  */
 LIBSMDEV_EXTERN off64_t libsmdev_handle_seek_offset(
                          libsmdev_handle_t *handle,
@@ -289,7 +289,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_media_size(
                      size64_t *media_size,
                      libsmdev_error_t **error );
 
-/* Retrieves the amount of bytes per sector
+/* Retrieves the number of bytes per sector
  * Returns the 1 if succesful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_handle_get_bytes_per_sector(
@@ -326,9 +326,28 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      size_t information_value_size,
                      libsmdev_error_t **error );
 
-/* Retrieves the amount of read/write error retries
+/* Retrieves the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
+LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t *number_of_error_retries,
+                     libsmdev_error_t **error );
+
+/* Sets the number of read/write error retries
+ * Returns the 1 if succesful or -1 on error
+ */
+LIBSMDEV_EXTERN int libsmdev_handle_set_number_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t number_of_error_retries,
+                     libsmdev_error_t **error );
+
+/* Retrieves the amount of read/write error retries
+ * Returns the 1 if succesful or -1 on error
+ *
+ * This function is deprecated use libsmdev_handle_get_number_of_error_retries instead
+ */
+LIBSMDEV_DEPRECATED \
 LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
                      libsmdev_handle_t *handle,
                      uint8_t *amount_of_error_retries,
@@ -336,7 +355,10 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
 
 /* Sets the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
+ *
+ * This function is deprecated use libsmdev_handle_set_number_of_error_retries instead
  */
+LIBSMDEV_DEPRECATED \
 LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
                      libsmdev_handle_t *handle,
                      uint8_t amount_of_error_retries,

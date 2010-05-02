@@ -122,7 +122,7 @@
 /* Define to 1 if you have the `open' function. */
 #undef HAVE_OPEN
 
-/* Define to 1 if you have the posix_fadvise unction. */
+/* Define to 1 if you have the posix_fadvise function. */
 #undef HAVE_POSIX_FADVISE
 
 /* Define to 1 whether printf supports the conversion specifier "%jd". */
@@ -283,9 +283,6 @@
 
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
-
-/* Define to 1 if you have the <winioctl.h> header file. */
-#undef HAVE_WINIOCTL_H
 
 /* Define to 1 if you have the `wmemchr' function. */
 #undef HAVE_WMEMCHR

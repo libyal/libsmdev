@@ -304,7 +304,7 @@ int libsmdev_scsi_ioctrl(
 }
 
 /* Sends a SCSI inquiry to the file descriptor
- * Returns the amount of bytes read if successful or -1 on error
+ * Returns the number of bytes read if successful or -1 on error
  */
 ssize_t libsmdev_scsi_inquiry(
          int file_descriptor,

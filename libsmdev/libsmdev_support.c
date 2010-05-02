@@ -786,7 +786,7 @@ int libsmdev_glob(
      const char *filename,
      size_t filename_length,
      char **filenames[],
-     int *amount_of_filenames,
+     int *number_of_filenames,
      liberror_error_t **error )
 {
 	void *reallocation             = NULL;
@@ -817,13 +817,13 @@ int libsmdev_glob(
 
 		return( -1 );
 	}
-	if( amount_of_filenames == NULL )
+	if( number_of_filenames == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of filenames.",
+		 "%s: invalid number of filenames.",
 		 function );
 
 		return( -1 );
@@ -908,7 +908,7 @@ int libsmdev_glob(
 
 		( *filenames )[ 0 ] = segment_filename;
 
-		*amount_of_filenames = 1;
+		*number_of_filenames = 1;
 
 		return( 1 );
 	}
@@ -920,7 +920,7 @@ int libsmdev_glob(
  */
 int libsmdev_glob_free(
      char *filenames[],
-     int amount_of_filenames,
+     int number_of_filenames,
      liberror_error_t **error )
 {
 	static char *function = "libsmdev_glob_free";
@@ -937,19 +937,19 @@ int libsmdev_glob_free(
 
 		return( -1 );
 	}
-	if( amount_of_filenames < 0 )
+	if( number_of_filenames < 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid amount of filenames value less than zero.",
+		 "%s: invalid number of filenames value less than zero.",
 		 function );
 
 		return( -1 );
 	}
 	for( filename_iterator = 0;
-	     filename_iterator < amount_of_filenames;
+	     filename_iterator < number_of_filenames;
 	     filename_iterator++ )
 	{
 		memory_free(
@@ -971,7 +971,7 @@ int libsmdev_glob_wide(
      const wchar_t *filename,
      size_t filename_length,
      wchar_t **filenames[],
-     int *amount_of_filenames,
+     int *number_of_filenames,
      liberror_error_t **error )
 {
 	void *reallocation             = NULL;
@@ -1002,13 +1002,13 @@ int libsmdev_glob_wide(
 
 		return( -1 );
 	}
-	if( amount_of_filenames == NULL )
+	if( number_of_filenames == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of filenames.",
+		 "%s: invalid number of filenames.",
 		 function );
 
 		return( -1 );
@@ -1093,7 +1093,7 @@ int libsmdev_glob_wide(
 
 		( *filenames )[ 0 ] = segment_filename;
 
-		*amount_of_filenames = 1;
+		*number_of_filenames = 1;
 
 		return( 1 );
 	}
@@ -1105,7 +1105,7 @@ int libsmdev_glob_wide(
  */
 int libsmdev_glob_wide_free(
      wchar_t *filenames[],
-     int amount_of_filenames,
+     int number_of_filenames,
      liberror_error_t **error )
 {
 	static char *function = "libsmdev_glob_wide_free";
@@ -1122,19 +1122,19 @@ int libsmdev_glob_wide_free(
 
 		return( -1 );
 	}
-	if( amount_of_filenames < 0 )
+	if( number_of_filenames < 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid amount of filenames value less than zero.",
+		 "%s: invalid number of filenames value less than zero.",
 		 function );
 
 		return( -1 );
 	}
 	for( filename_iterator = 0;
-	     filename_iterator < amount_of_filenames;
+	     filename_iterator < number_of_filenames;
 	     filename_iterator++ )
 	{
 		memory_free(

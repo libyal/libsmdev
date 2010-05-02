@@ -136,7 +136,7 @@ int libsmdev_handle_initialize(
 #else
 		internal_handle->file_descriptor         = -1;
 #endif
-		internal_handle->amount_of_error_retries = 2;
+		internal_handle->number_of_error_retries = 2;
 
 		*handle = (libsmdev_handle_t *) internal_handle;
 	}
@@ -226,7 +226,7 @@ int libsmdev_handle_signal_abort(
 int libsmdev_handle_open(
      libsmdev_handle_t *handle,
      char * const filenames[],
-     int amount_of_filenames,
+     int number_of_filenames,
      int flags,
      liberror_error_t **error )
 {
@@ -280,18 +280,18 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( amount_of_filenames <= 0 )
+	if( number_of_filenames <= 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid amount of filenames value out of range.",
+		 "%s: invalid number of filenames value out of range.",
 		 function );
 
 		return( -1 );
 	}
-	if( amount_of_filenames != 1 )
+	if( number_of_filenames != 1 )
 	{
 		liberror_error_set(
 		 error,
@@ -580,7 +580,7 @@ int libsmdev_handle_open(
 int libsmdev_handle_open_wide(
      libsmdev_handle_t *handle,
      wchar_t * const filenames[],
-     int amount_of_filenames,
+     int number_of_filenames,
      int flags,
      liberror_error_t **error )
 {
@@ -637,18 +637,18 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( amount_of_filenames <= 0 )
+	if( number_of_filenames <= 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid amount of filenames value out of range.",
+		 "%s: invalid number of filenames value out of range.",
 		 function );
 
 		return( -1 );
 	}
-	if( amount_of_filenames != 1 )
+	if( number_of_filenames != 1 )
 	{
 		liberror_error_set(
 		 error,
@@ -1146,7 +1146,7 @@ int libsmdev_handle_close(
 }
 
 /* Reads a buffer
- * Returns the amount of bytes read or -1 on error
+ * Returns the number of bytes read or -1 on error
  */
 ssize_t libsmdev_handle_read_buffer(
          libsmdev_handle_t *handle,
@@ -1166,7 +1166,7 @@ ssize_t libsmdev_handle_read_buffer(
 	size_t read_error_size                      = 0;
 	size_t read_size                            = 0;
 	ssize_t read_count                          = 0;
-	int16_t amount_of_read_errors               = 0;
+	int16_t number_of_read_errors               = 0;
 
 #if defined( WINAPI )
 	DWORD error_code                            = 0;
@@ -1281,7 +1281,7 @@ ssize_t libsmdev_handle_read_buffer(
 			read_size = (size_t) ( internal_handle->media_size - internal_handle->offset );
 		}
 	}
-	while( amount_of_read_errors <= (int16_t) internal_handle->amount_of_error_retries )
+	while( number_of_read_errors <= (int16_t) internal_handle->number_of_error_retries )
 	{
 		if( internal_handle->abort != 0 )
 		{
@@ -1532,7 +1532,7 @@ ssize_t libsmdev_handle_read_buffer(
 		}
 		/* Not all data have been read or there was an error
 		 */
-		amount_of_read_errors++;
+		number_of_read_errors++;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -1540,11 +1540,11 @@ ssize_t libsmdev_handle_read_buffer(
 			libnotify_printf(
 			 "%s: read error: %" PRIi16 " at offset %" PRIu64 ".\n",
 			 function,
-			 amount_of_read_errors,
+			 number_of_read_errors,
 			 internal_handle->offset + buffer_offset );
 		}
 #endif
-		if( amount_of_read_errors > (int16_t) internal_handle->amount_of_error_retries )
+		if( number_of_read_errors > (int16_t) internal_handle->number_of_error_retries )
 		{
 			if( internal_handle->error_granularity > 0 )
 			{
@@ -1625,7 +1625,7 @@ ssize_t libsmdev_handle_read_buffer(
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: adding read error at offset: %" PRIu64 ", amount of bytes: %" PRIzd ".\n",
+				 "%s: adding read error at offset: %" PRIu64 ", number of bytes: %" PRIzd ".\n",
 				 function,
 				 current_offset,
 				 read_error_size );
@@ -1696,7 +1696,7 @@ ssize_t libsmdev_handle_read_buffer(
 
 			read_size            -= error_granularity_skip_size;
 			buffer_offset        += error_granularity_skip_size;
-			amount_of_read_errors = 0;
+			number_of_read_errors = 0;
 		}
 	}
 	internal_handle->offset += buffer_offset;
@@ -1705,7 +1705,7 @@ ssize_t libsmdev_handle_read_buffer(
 }
 
 /* Writes a buffer
- * Returns the amount of bytes written or -1 on error
+ * Returns the number of bytes written or -1 on error
  */
 ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
@@ -1856,7 +1856,7 @@ ssize_t libsmdev_handle_write_buffer(
 }
 
 /* Seeks a certain offset
- * Returns the offset or -1 on error
+ * Returns the offset if seek is successful or -1 on error
  */
 off64_t libsmdev_handle_seek_offset(
          libsmdev_handle_t *handle,

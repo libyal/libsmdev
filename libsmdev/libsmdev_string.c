@@ -34,7 +34,7 @@ extern "C" {
 #endif
 
 /* Copies and trims the string from the byte stream
- * Returns the amount of bytes copied or -1 on error
+ * Returns the number of bytes copied or -1 on error
  */
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
          libcstring_character_t *string,
