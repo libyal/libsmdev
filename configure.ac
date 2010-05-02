@@ -588,7 +588,7 @@ AS_IF(
 
  dnl Check for wide character string functions
 
- dnl Wide character string functions used in libcstring/libcstring_wide_string.h
+dnl Wide character string functions used in common/file_stream.h
  AC_CHECK_FUNCS(
   [fgetws],
   [],
@@ -596,6 +596,7 @@ AS_IF(
    [Missing function: fgetws],
    [1]) ])
 
+ dnl Wide character string functions used in libcstring/libcstring_wide_string.h
  AC_CHECK_FUNCS(
   [swprintf],
   [],

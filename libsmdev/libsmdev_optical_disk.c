@@ -89,7 +89,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 		libnotify_printf(
 		 "Table of contents (TOC):\n" );
 		libnotify_printf(
-		 "\tAmount of entries:\t%d\n",
+		 "\tNumber of entries:\t%d\n",
 		 last_entry );
 	}
 #endif
