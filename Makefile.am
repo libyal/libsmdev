@@ -18,6 +18,9 @@ EXTRA_DIST = \
         $(REDHAT_FILES) \
 	libsmdev.pc.in
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 pkgconfigdir = $(libdir)/pkgconfig
 
 pkgconfig_DATA = \

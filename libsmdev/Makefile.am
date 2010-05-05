@@ -39,7 +39,14 @@ libsmdev_la_LIBADD = \
 
 libsmdev_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
+EXTRA_DIST = \
+	libsmdev_definitions.h.in
+
+MAINTAINERCLEANFILES = \
+        Makefile.in
+
 distclean: clean
+	/bin/rm -f libsmdev_definitions.h
 	/bin/rm -f Makefile
 
 splint:

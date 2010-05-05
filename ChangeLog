@@ -1,4 +1,5 @@
 TODO
+* configure validate libuna and libbfio check
 * work on libsmdev_metadata
   - add information values functions (libsmio)
 
@@ -24,6 +25,14 @@ Deployment
 * add msvscpp files
 * add borlandc files
 * add macosx files
+
+Test:
+* add autoconf/make test suite
+
+20100505
+* updated configure.ac and Makefile.am files
+* update libuna
+* added missing libsmdev_definitions.h.in
 
 20100502
 * updated common. libcstring, liberror, libnotify, libuna

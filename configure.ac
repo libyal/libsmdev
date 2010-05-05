@@ -2,15 +2,13 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20100502],
+  [20100505],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
  [include/libsmdev.h.in])
 
-AM_INIT_AUTOMAKE(
- [libsmdev],
- [20100502])
+AM_INIT_AUTOMAKE([gnu 1.6])
 
 AC_CONFIG_MACRO_DIR([m4])
 

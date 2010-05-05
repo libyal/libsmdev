@@ -4,6 +4,9 @@ EXTRA_DIST = \
 man_MANS = \
 	libsmdev.3
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 distclean: clean
 	/bin/rm -f Makefile
 

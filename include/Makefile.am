@@ -15,6 +15,9 @@ EXTRA_DIST = \
 	libsmdev/features.h.in \
 	libsmdev/types.h.in
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 distclean: clean
 	/bin/rm -f libsmdev.h
 	/bin/rm -f libsmdev/definitions.h
