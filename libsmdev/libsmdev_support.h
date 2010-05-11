@@ -1,5 +1,5 @@
 /*
- * libsmdev support functions
+ * Support functions
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
