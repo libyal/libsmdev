@@ -1,7 +1,7 @@
-EXTRA_DIST = \
+man_MANS = \
 	libsmdev.3
 
-man_MANS = \
+EXTRA_DIST = \
 	libsmdev.3
 
 MAINTAINERCLEANFILES = \

@@ -29,6 +29,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20100628
+* updated common, libcstring, liberror, libnotify, libuna
+* clean up
+
 20100505
 * updated configure.ac and Makefile.am files
 * update libuna
