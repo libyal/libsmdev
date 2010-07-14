@@ -33,9 +33,9 @@
 extern "C" {
 #endif
 
-typedef struct libsmdev_offset_list_values libsmdev_offset_list_values_t;
+typedef struct libsmdev_offset_list_value libsmdev_offset_list_value_t;
 
-struct libsmdev_offset_list_values
+struct libsmdev_offset_list_value
 {
 	/* The offset
 	 */
@@ -46,37 +46,70 @@ struct libsmdev_offset_list_values
 	size64_t size;
 };
 
-int libsmdev_offset_list_values_free(
-     intptr_t *values,
+typedef struct libsmdev_offset_list libsmdev_offset_list_t;
+
+struct libsmdev_offset_list
+{
+	/* The number of elements
+	 */
+	int number_of_elements;
+
+	/* The first element
+	 */
+	libsmdev_list_element_t *first_element;
+
+	/* The last element
+	 */
+	libsmdev_list_element_t *last_element;
+
+	/* The current list element
+	 */
+	libsmdev_list_element_t *current_element;
+
+	/* The current list element index
+	 */
+	int current_element_index;
+};
+
+int libsmdev_offset_list_value_free(
+     intptr_t *offset_list_value,
      liberror_error_t **error );
 
-int libsmdev_offset_list_values_compare(
-     intptr_t *first,
-     intptr_t *second,
+int libsmdev_offset_list_initialize(
+     libsmdev_offset_list_t **offset_list,
+     liberror_error_t **error );
+
+int libsmdev_offset_list_free(
+     libsmdev_offset_list_t **offset_list,
+     liberror_error_t **error );
+
+int libsmdev_offset_list_get_number_of_elements(
+     libsmdev_offset_list_t *offset_list,
+     int *number_of_elements,
      liberror_error_t **error );
 
 int libsmdev_offset_list_add_offset(
-     libsmdev_list_t *offset_list,
+     libsmdev_offset_list_t *offset_list,
      off64_t offset,
      size64_t size,
      liberror_error_t **error );
 
 int libsmdev_offset_list_get_offset(
-     libsmdev_list_t *offset_list,
+     libsmdev_offset_list_t *offset_list,
      int index,
      off64_t *offset,
      size64_t *size,
      liberror_error_t **error );
 
 int libsmdev_offset_list_get_offset_by_value(
-     libsmdev_list_t *offset_list,
+     libsmdev_offset_list_t *offset_list,
      off64_t offset_value,
      off64_t *offset,
      size64_t *size,
      liberror_error_t **error );
 
 int libsmdev_offset_list_range_is_present(
-     libsmdev_list_t *offset_list,
+     libsmdev_offset_list_t *offset_list,
      off64_t offset,
      size64_t size,
      liberror_error_t **error );

@@ -47,7 +47,6 @@
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
-#include "libsmdev_list_type.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
 #include "libsmdev_types.h"
@@ -113,15 +112,15 @@ int libsmdev_handle_initialize(
 
 			return( -1 );
 		}
-		if( libsmdev_list_initialize(
-		     &( internal_handle->errors_list ),
+		if( libsmdev_offset_list_initialize(
+		     &( internal_handle->error_ranges ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create errors list.",
+			 "%s: unable to create error ranges list.",
 			 function );
 
 			memory_free(
@@ -173,16 +172,15 @@ int libsmdev_handle_free(
 			memory_free(
 			 internal_handle->filename );
 		}
-		if( libsmdev_list_free(
-		     &( internal_handle->errors_list ),
-		     &libsmdev_offset_list_values_free,
+		if( libsmdev_offset_list_free(
+		     &( internal_handle->error_ranges ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free errors list.",
+			 "%s: unable to free error ranges list.",
 			 function );
 
 			result = -1;
@@ -283,8 +281,8 @@ int libsmdev_handle_open(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid number of filenames value out of range.",
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of filenames value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -640,8 +638,8 @@ int libsmdev_handle_open_wide(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid number of filenames value out of range.",
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of filenames value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -1268,7 +1266,7 @@ ssize_t libsmdev_handle_read_buffer(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: offset exceeds media size.",
 			 function );
 
@@ -1293,7 +1291,7 @@ ssize_t libsmdev_handle_read_buffer(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: reading buffer at offset: %" PRIu64 " of size: %" PRIzd ".\n",
+			 "%s: reading buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
 			 function,
 			 internal_handle->offset + (off64_t) buffer_offset,
 			 read_size );
@@ -1368,7 +1366,7 @@ ssize_t libsmdev_handle_read_buffer(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: read buffer at offset: %" PRIu64 " of size: %" PRIzd ".\n",
+			 "%s: read buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
 			 function,
 			 internal_handle->offset + (off64_t) buffer_offset,
 			 read_count );
@@ -1482,7 +1480,7 @@ ssize_t libsmdev_handle_read_buffer(
 				if( libnotify_verbose != 0 )
 				{
 					libnotify_printf(
-					 "%s: correcting offset drift (actual: %" PRIu64 ", calculated: %" PRIu64 ").\n",
+					 "%s: correcting offset drift (actual: %" PRIi64 ", calculated: %" PRIi64 ").\n",
 					 function,
 					 current_offset,
 					 calculated_current_offset );
@@ -1493,7 +1491,7 @@ ssize_t libsmdev_handle_read_buffer(
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: unable to to correct negative offset drift.",
 					 function );
 
@@ -1508,7 +1506,7 @@ ssize_t libsmdev_handle_read_buffer(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid read count value exceeds read size.",
 			 function );
 
@@ -1536,7 +1534,7 @@ ssize_t libsmdev_handle_read_buffer(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: read error: %" PRIi16 " at offset %" PRIu64 ".\n",
+			 "%s: read error: %" PRIi16 " at offset %" PRIi64 ".\n",
 			 function,
 			 number_of_read_errors,
 			 internal_handle->offset + buffer_offset );
@@ -1623,15 +1621,14 @@ ssize_t libsmdev_handle_read_buffer(
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: adding read error at offset: %" PRIu64 ", number of bytes: %" PRIzd ".\n",
+				 "%s: adding read error at offset: %" PRIi64 ", number of bytes: %" PRIzd ".\n",
 				 function,
 				 current_offset,
 				 read_error_size );
 			}
 #endif
-
 			if( libsmdev_offset_list_add_offset(
-			     internal_handle->errors_list,
+			     internal_handle->error_ranges,
 			     current_offset,
 			     read_error_size,
 			     error ) != 1 )

@@ -152,6 +152,9 @@
 /* Define to 1 if you have the `sscanf' function. */
 #undef HAVE_SSCANF
 
+/* Define to 1 if you have the `stat' function. */
+#undef HAVE_STAT
+
 /* Define to 1 if you have the <stdarg.h> header file. */
 #undef HAVE_STDARG_H
 

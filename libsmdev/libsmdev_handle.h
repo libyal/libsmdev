@@ -29,7 +29,7 @@
 #include <liberror.h>
 
 #include "libsmdev_extern.h"
-#include "libsmdev_list_type.h"
+#include "libsmdev_offset_list.h"
 #include "libsmdev_types.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
@@ -131,9 +131,9 @@ struct libsmdev_internal_handle
 	 */
 	uint8_t error_flags;
 
-	/* The read/write errors offset list
+	/* The read/write error ranges offset list
 	 */
-	libsmdev_list_t *errors_list;
+	libsmdev_offset_list_t *error_ranges;
 
 	/* Value to indicate if abort was signalled
 	 */

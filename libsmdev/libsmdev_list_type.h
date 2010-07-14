@@ -31,26 +31,49 @@
 extern "C" {
 #endif
 
+/* The array comparison definitions
+ */
 enum LIBSMDEV_LIST_COMPARE_DEFINITIONS
 {
-	LIBSMDEV_LIST_COMPARE_LESS,
-	LIBSMDEV_LIST_COMPARE_EQUAL,
-	LIBSMDEV_LIST_COMPARE_GREATER
+	/* The first value is less than the second value
+	 */
+        LIBSMDEV_LIST_COMPARE_LESS,
+
+	/* The first and second values are equal
+	 */
+        LIBSMDEV_LIST_COMPARE_EQUAL,
+
+	/* The first value is greater than the second value
+	 */
+        LIBSMDEV_LIST_COMPARE_GREATER
+};
+
+/* The array insert flag definitions
+ */
+enum LIBSMDEV_LIST_INSERT_FLAGS
+{
+	/* Allow duplicate entries
+	 */
+	LIBSMDEV_LIST_INSERT_FLAG_NON_UNIQUE_ENTRIES	= 0x00,
+
+	/* Only allow unique entries, no duplicates
+	 */
+	LIBSMDEV_LIST_INSERT_FLAG_UNIQUE_ENTRIES	= 0x01,
 };
 
 typedef struct libsmdev_list_element libsmdev_list_element_t;
 
 struct libsmdev_list_element
 {
-	/* The previous element
+	/* The previous list element
 	 */
-	libsmdev_list_element_t *previous;
+	libsmdev_list_element_t *previous_element;
 
-	/* The next element
+	/* The next list element
 	 */
-	libsmdev_list_element_t *next;
+	libsmdev_list_element_t *next_element;
 
-	/* The list element value
+	/* The value
 	 */
 	intptr_t *value;
 };
@@ -63,24 +86,34 @@ struct libsmdev_list
 	 */
 	int number_of_elements;
 
-	/* The first list element
+	/* The first element
 	 */
-	libsmdev_list_element_t *first;
+	libsmdev_list_element_t *first_element;
 
-	/* The last list element
+	/* The last element
 	 */
-	libsmdev_list_element_t *last;
+	libsmdev_list_element_t *last_element;
 };
 
 int libsmdev_list_element_initialize(
-     libsmdev_list_element_t **list_element,
+     libsmdev_list_element_t **element,
      liberror_error_t **error );
 
 int libsmdev_list_element_free(
-     libsmdev_list_element_t **list_element,
+     libsmdev_list_element_t **element,
      int (*value_free_function)(
             intptr_t *value,
             liberror_error_t **error ),
+     liberror_error_t **error );
+
+int libsmdev_list_element_get_value(
+     libsmdev_list_element_t *element,
+     intptr_t **value,
+     liberror_error_t **error );
+
+int libsmdev_list_element_set_value(
+     libsmdev_list_element_t *element,
+     intptr_t *value,
      liberror_error_t **error );
 
 int libsmdev_list_initialize(
@@ -102,8 +135,11 @@ int libsmdev_list_empty(
      liberror_error_t **error );
 
 int libsmdev_list_clone(
-     libsmdev_list_t **destination,
-     libsmdev_list_t *source,
+     libsmdev_list_t **destination_list,
+     libsmdev_list_t *source_list,
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,
             intptr_t *source,
@@ -115,15 +151,15 @@ int libsmdev_list_get_number_of_elements(
      int *number_of_elements,
      liberror_error_t **error );
 
-int libsmdev_list_get_element(
+int libsmdev_list_get_element_by_index(
      libsmdev_list_t *list,
-     int element_index,
+     int list_element_index,
      libsmdev_list_element_t **element,
      liberror_error_t **error );
 
-int libsmdev_list_get_value(
+int libsmdev_list_get_value_by_index(
      libsmdev_list_t *list,
-     int element_index,
+     int list_element_index,
      intptr_t **value,
      liberror_error_t **error );
 
@@ -154,6 +190,7 @@ int libsmdev_list_insert_element(
             intptr_t *first,
             intptr_t *second,
             liberror_error_t **error ),
+     uint8_t insert_flags,
      liberror_error_t **error );
 
 int libsmdev_list_insert_value(
@@ -163,6 +200,7 @@ int libsmdev_list_insert_value(
             intptr_t *first,
             intptr_t *second,
             liberror_error_t **error ),
+     uint8_t insert_flags,
      liberror_error_t **error );
 
 int libsmdev_list_remove_element(

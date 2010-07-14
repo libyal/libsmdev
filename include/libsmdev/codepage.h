@@ -24,6 +24,10 @@
 
 #include <libsmdev/types.h>
 
+#if defined( __cplusplus )
+extern "C" {
+#endif
+
 /* The codepage definitions
  */
 enum LIBSMDEV_CODEPAGE
@@ -101,6 +105,10 @@ enum LIBSMDEV_CODEPAGE
 #define LIBSMDEV_CODEPAGE_WINDOWS_ARABIC		LIBSMDEV_CODEPAGE_WINDOWS_1256
 #define LIBSMDEV_CODEPAGE_WINDOWS_BALTIC		LIBSMDEV_CODEPAGE_WINDOWS_1257
 #define LIBSMDEV_CODEPAGE_WINDOWS_VIETNAMESE		LIBSMDEV_CODEPAGE_WINDOWS_1258
+
+#if defined( __cplusplus )
+}
+#endif
 
 #endif
 

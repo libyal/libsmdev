@@ -63,7 +63,6 @@ typedef size_t u64;
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
-#include "libsmdev_list_type.h"
 #include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disk.h"
 #include "libsmdev_scsi.h"
@@ -1728,8 +1727,8 @@ int libsmdev_handle_get_number_of_errors(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_list_get_number_of_elements(
-	     internal_handle->errors_list,
+	if( libsmdev_offset_list_get_number_of_elements(
+	     internal_handle->error_ranges,
 	     number_of_errors,
 	     error ) != 1 )
 	{
@@ -1737,7 +1736,7 @@ int libsmdev_handle_get_number_of_errors(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of errors.",
+		 "%s: unable to retrieve number of error ranges.",
 		 function );
 
 		return( -1 );
@@ -1772,7 +1771,7 @@ int libsmdev_handle_get_error(
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
 	if( libsmdev_offset_list_get_offset(
-	     internal_handle->errors_list,
+	     internal_handle->error_ranges,
 	     index,
 	     offset,
 	     size,

@@ -29,6 +29,14 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20100714
+* updated configure.ac
+* updated include/error.h and liberror
+* updated include/codepage.h
+* updated list type
+* updated offset list
+* updated common, libuna
+
 20100628
 * updated common, libcstring, liberror, libnotify, libuna
 * clean up

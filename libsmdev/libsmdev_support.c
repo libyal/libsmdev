@@ -109,6 +109,8 @@ int libsmdev_set_codepage(
 	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_14 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_15 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_16 )
+	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_R )
+	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_U )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_874 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1250 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1251 )
