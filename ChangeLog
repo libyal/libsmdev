@@ -29,6 +29,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20100716
+* updated libuna
+
 20100714
 * updated configure.ac
 * updated include/error.h and liberror
