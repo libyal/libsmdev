@@ -1,4 +1,5 @@
 TODO
+* make sure error_ranges is cleared on open
 * configure validate libuna and libbfio check
 * work on libsmdev_metadata
   - add information values functions (libsmio)
@@ -28,6 +29,10 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20100719
+* updated include/error.h and liberror
+* updated common, libuna
 
 20100716
 * updated libuna
