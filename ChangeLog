@@ -30,6 +30,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20100801
+* update for mingw64
+
 20100719
 * updated include/error.h and liberror
 * updated common, libuna
