@@ -37,8 +37,8 @@
 /* This inclusion is needed otherwise some linkers
  * mess up exporting the legacy and metadata functions
  */
-#include "libbfio_legacy.h"
-#include "libbfio_metadata.h"
+#include "libsmdev_legacy.h"
+#include "libsmdev_metadata.h"
 #endif
 
 #if defined( __cplusplus )

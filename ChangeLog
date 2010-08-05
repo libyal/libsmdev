@@ -30,6 +30,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20100805
+* invalid inclusion in libsmdev_handle.h
+* updated libcstring, libuna
+* updated include/error.h and liberror
+
 20100801
 * update for mingw64
 

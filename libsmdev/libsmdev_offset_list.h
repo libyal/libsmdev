@@ -88,7 +88,7 @@ int libsmdev_offset_list_get_number_of_elements(
      int *number_of_elements,
      liberror_error_t **error );
 
-int libsmdev_offset_list_add_offset(
+int libsmdev_offset_list_append_offset(
      libsmdev_offset_list_t *offset_list,
      off64_t offset,
      size64_t size,

@@ -10,13 +10,14 @@ SUBDIRS = \
 	libsmdev \
 	manuals
 
-REDHAT_FILES = \
+SPEC_FILES = \
 	libsmdev.spec \
 	libsmdev.spec.in
 
 EXTRA_DIST = \
-        $(REDHAT_FILES) \
-	libsmdev.pc.in
+	README.mingw \
+	libsmdev.pc.in \
+        $(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

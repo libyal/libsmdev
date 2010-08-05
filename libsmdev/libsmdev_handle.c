@@ -167,6 +167,26 @@ int libsmdev_handle_free(
 		internal_handle = (libsmdev_internal_handle_t *) *handle;
 		*handle         = NULL;
 
+#if defined( WINAPI )
+		if( internal_handle->file_handle != INVALID_HANDLE_VALUE )
+#else
+		if( internal_handle->file_descriptor != -1 )
+#endif
+		{
+			if( libsmdev_handle_close(
+			     *handle,
+			     error ) != 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_CLOSE_FAILED,
+				 "%s: unable to close handle.",
+				 function );
+
+				result = -1;
+			}
+		}
 		if( internal_handle->filename != NULL )
 		{
 			memory_free(
@@ -328,18 +348,18 @@ int libsmdev_handle_open(
 		return( -1 );
 	}
 #if defined( WINAPI )
-	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
-	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_access_flags   = GENERIC_WRITE | GENERIC_READ;
 		file_io_creation_flags = OPEN_ALWAYS;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_READ;
 		file_io_creation_flags = OPEN_EXISTING;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_WRITE;
 		file_io_creation_flags = OPEN_ALWAYS;
@@ -355,8 +375,8 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
-	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
@@ -437,16 +457,16 @@ int libsmdev_handle_open(
 		}
 	}
 #else
-	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
-	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_flags = O_RDWR | O_CREAT;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_flags = O_RDONLY;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_flags = O_WRONLY | O_CREAT;
 	}
@@ -461,8 +481,8 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
-	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_flags |= O_TRUNC;
 	}
@@ -685,18 +705,18 @@ int libsmdev_handle_open_wide(
 		return( -1 );
 	}
 #if defined( WINAPI )
-	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
-	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_access_flags   = GENERIC_WRITE | GENERIC_READ;
 		file_io_creation_flags = OPEN_ALWAYS;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_READ;
 		file_io_creation_flags = OPEN_EXISTING;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_WRITE;
 		file_io_creation_flags = OPEN_ALWAYS;
@@ -712,8 +732,8 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
-	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
@@ -794,16 +814,16 @@ int libsmdev_handle_open_wide(
 		}
 	}
 #else
-	if( ( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
-	 && ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_flags = O_RDWR | O_CREAT;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_READ ) == LIBSMDEV_FLAG_READ )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_flags = O_RDONLY;
 	}
-	else if( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
+	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_flags = O_WRONLY | O_CREAT;
 	}
@@ -818,8 +838,8 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_FLAG_WRITE ) == LIBSMDEV_FLAG_WRITE )
-	 && ( ( flags & LIBSMDEV_FLAG_TRUNCATE ) == LIBSMDEV_FLAG_TRUNCATE ) )
+	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_flags |= O_TRUNC;
 	}
@@ -1072,17 +1092,6 @@ int libsmdev_handle_close(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( internal_handle->filename == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing filename.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
@@ -1102,9 +1111,8 @@ int libsmdev_handle_close(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 internal_handle->filename );
+		 "%s: unable to close handle.",
+		 function );
 
 		/* TODO use GetLastError to get detailed error information */
 
@@ -1130,9 +1138,8 @@ int libsmdev_handle_close(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 internal_handle->filename );
+		 "%s: unable to close handle.",
+		 function );
 
 		return( -1 );
 	}
@@ -1287,7 +1294,7 @@ ssize_t libsmdev_handle_read_buffer(
 		{
 			break;
 		}
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
@@ -1362,7 +1369,7 @@ ssize_t libsmdev_handle_read_buffer(
 			      &( ( (uint8_t *) buffer )[ buffer_offset ] ),
 			      read_size );
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
@@ -1627,7 +1634,7 @@ ssize_t libsmdev_handle_read_buffer(
 				 read_error_size );
 			}
 #endif
-			if( libsmdev_offset_list_add_offset(
+			if( libsmdev_offset_list_append_offset(
 			     internal_handle->error_ranges,
 			     current_offset,
 			     read_error_size,
@@ -1637,7 +1644,7 @@ ssize_t libsmdev_handle_read_buffer(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to add read errror.",
+				 "%s: unable to append read errror.",
 				 function );
 
 				return( -1 );
@@ -3132,7 +3139,7 @@ int libsmdev_handle_set_filename_wide(
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* Function to determine if a file exists
- * Return 1 if file exists, 0 if not or -1 on error
+ * Returns 1 if file exists, 0 if not or -1 on error
  */
 int libsmdev_file_exists(
      const char *filename,
@@ -3330,7 +3337,7 @@ int libsmdev_file_exists(
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
 /* Function to determine if a file exists
- * Return 1 if file exists, 0 if not or -1 on error
+ * Returns 1 if file exists, 0 if not or -1 on error
  */
 int libsmdev_file_exists_wide(
      const wchar_t *filename,
