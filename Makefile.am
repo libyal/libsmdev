@@ -8,7 +8,8 @@ SUBDIRS = \
 	libnotify \
 	libuna \
 	libsmdev \
-	manuals
+	manuals \
+	msvscpp
 
 SPEC_FILES = \
 	libsmdev.spec \

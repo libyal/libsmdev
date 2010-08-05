@@ -35,10 +35,9 @@
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
 
 /* This inclusion is needed otherwise some linkers
- * mess up exporting the legacy and metadata functions
+ * mess up exporting the legacy functions
  */
 #include "libsmdev_legacy.h"
-#include "libsmdev_metadata.h"
 #endif
 
 #if defined( __cplusplus )

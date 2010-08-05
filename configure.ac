@@ -548,14 +548,8 @@ AS_IF(
   [libsmdev_pc_libs_private_libuna],
   [-luna])
  AC_SUBST(
-  [libsmdev_spec_requires],
-  [Requires:])
- AC_SUBST(
   [libsmdev_spec_requires_libuna],
   [libuna])
- AC_SUBST(
-  [libsmdev_spec_build_requires],
-  [BuildRequires:])
  AC_SUBST(
   [libsmdev_spec_build_requires_libuna],
   [libuna-devel]) ],
@@ -571,13 +565,7 @@ AS_IF(
   [libsmdev_pc_libs_private_libuna],
   [])
  AC_SUBST(
-  [libsmdev_spec_requires],
-  [])
- AC_SUBST(
   [libsmdev_spec_requires_libuna],
-  [])
- AC_SUBST(
-  [libsmdev_spec_build_requires],
   [])
  AC_SUBST(
   [libsmdev_spec_build_requires_libuna],
@@ -758,6 +746,23 @@ AS_IF(
  [Define to 1 if debug output should be used] )
  ac_cv_libsmdev_enable_debug_output=yes])
 
+dnl Check if requires and build requires should be set in spec file
+AS_IF(
+ [test "x$ac_libsmdev_have_libuna" = xyes],
+ [AC_SUBST(
+  [libsmdev_spec_requires],
+  [Requires:])
+ AC_SUBST(
+  [libsmdev_spec_build_requires],
+  [BuildRequires:]) ],
+ [AC_SUBST(
+  [libsmdev_spec_requires],
+  [])
+ AC_SUBST(
+  [libsmdev_spec_build_requires],
+  [])
+ ac_libsmdev_dummy=yes])
+
 dnl Set memwatch support
 ac_libsmdev_have_memwatch=no
 
@@ -799,6 +804,7 @@ AC_CONFIG_FILES([libnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([manuals/Makefile])
+AC_CONFIG_FILES([msvscpp/Makefile])
 dnl Have configure make the include files
 AC_CONFIG_FILES([include/libsmdev.h])
 AC_CONFIG_FILES([include/libsmdev/definitions.h])

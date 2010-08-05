@@ -32,8 +32,11 @@ Test:
 
 20100805
 * invalid inclusion in libsmdev_handle.h
+* fixed includion loop
 * updated libcstring, libuna
 * updated include/error.h and liberror
+* build requires changes
+* added msvscpp project files
 
 20100801
 * update for mingw64
