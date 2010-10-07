@@ -116,6 +116,9 @@ int libsmdev_ata_get_device_configuration(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
+		libnotify_printf(
+		 "%s: HDIO_GET_IDENTITY:\n",
+		 function );
 		libnotify_print_data(
 		 (uint8_t *) device_configuration,
 		 sizeof( struct hd_driveid ) );

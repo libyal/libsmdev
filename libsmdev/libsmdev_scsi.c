@@ -414,6 +414,17 @@ ssize_t libsmdev_scsi_inquiry(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: response:\n",
+		 function );
+		libnotify_print_data(
+		 response,
+		 response_count );
+	}
+#endif
 	return( response_count );
 }
 
@@ -463,6 +474,9 @@ int libsmdev_scsi_get_identier(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
+		libnotify_printf(
+		 "%s: identifier:\n",
+		 function );
 		libnotify_print_data(
 		 (uint8_t *) &identifier,
 		 sizeof( identifier ) );
@@ -542,12 +556,15 @@ int libsmdev_scsi_get_bus_type(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "SCSI_IOCTL_PROBE_HOST (%d): %s\n",
+		 "%s: SCSI_IOCTL_PROBE_HOST (length: %d): %s\n",
+		 function,
 		 sg_probe_host_length,
 		 sg_probe_host.buffer );
+
+		libnotify_printf(
+		 "\n" );
 	}
 #endif
-
 	if( sg_probe_host_length >= 4 )
 	{
 		if( libcstring_narrow_string_compare(
@@ -688,8 +705,12 @@ int libsmdev_scsi_get_pci_bus_address(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "SCSI_IOCTL_GET_PCI: %s\n",
+		 "%s: SCSI_IOCTL_GET_PCI: %s\n",
+		 function,
 		 pci_bus_address );
+
+		libnotify_printf(
+		 "\n" );
 	}
 #endif
 #endif

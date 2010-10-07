@@ -183,6 +183,14 @@ LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
                          size_t buffer_size,
                          liberror_error_t **error );
 
+#if defined( WINAPI ) && ( WINVER < 0x0500 )
+BOOL SafeSetFilePointerEx(
+      HANDLE file_handle,
+      LARGE_INTEGER distance_to_move_large_integer,
+      LARGE_INTEGER *new_file_pointer_large_integer,
+      DWORD move_method );
+#endif
+
 LIBSMDEV_EXTERN off64_t libsmdev_handle_seek_offset(
                          libsmdev_handle_t *handle,
                          off64_t offset,

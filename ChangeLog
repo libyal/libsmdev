@@ -30,6 +30,13 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101007
+* updated offset list
+* updated liberror, libnotify
+* worked on WINAPI error skip
+* worked on detailed error reporting
+* fixed missing HDIO_GET_IDENTITY in libsmdev_metadata.c
+
 20100805
 * invalid inclusion in libsmdev_handle.h
 * fixed includion loop

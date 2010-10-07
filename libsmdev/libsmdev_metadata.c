@@ -60,6 +60,7 @@ typedef size_t u64;
 
 #endif
 
+#include "libsmdev_ata.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
@@ -597,6 +598,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
+	if( internal_handle->media_information_set != 0 )
+	{
+		return( 1 );
+	}
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
@@ -609,283 +614,266 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
-	if( internal_handle->media_information_set == 0 )
+	if( memset(
+	     &query,
+	     0,
+	     sizeof( STORAGE_PROPERTY_QUERY ) ) == NULL )
 	{
-		if( memset(
-		     &query,
-		     0,
-		     sizeof( STORAGE_PROPERTY_QUERY ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear storage property query.",
-			 function );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear storage property query.",
+		 function );
 
-			return( -1 );
-		}
-		query.PropertyId = StorageDeviceProperty;
-		query.QueryType  = PropertyStandardQuery;
+		return( -1 );
+	}
+	query.PropertyId = StorageDeviceProperty;
+	query.QueryType  = PropertyStandardQuery;
 
-		response         = (uint8_t *) memory_allocate(
-						response_size );
+	response         = (uint8_t *) memory_allocate(
+					response_size );
 
-		if( response == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to response.",
-			 function );
+	if( response == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to response.",
+		 function );
 
-			return( -1 );
-		}
-		if( DeviceIoControl(
-		     internal_handle->file_handle,
-		     IOCTL_STORAGE_QUERY_PROPERTY,
-		     &query,
-		     sizeof( STORAGE_PROPERTY_QUERY ),
-		     response,
-		     response_size,
-		     &response_count,
-		     NULL ) == 0 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: IOCTL_STORAGE_QUERY_PROPERTY.",
-			 function );
+		return( -1 );
+	}
+	if( DeviceIoControl(
+	     internal_handle->file_handle,
+	     IOCTL_STORAGE_QUERY_PROPERTY,
+	     &query,
+	     sizeof( STORAGE_PROPERTY_QUERY ),
+	     response,
+	     response_size,
+	     &response_count,
+	     NULL ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 "%s: unable to query device for: IOCTL_STORAGE_QUERY_PROPERTY.",
+		 function );
 
-			memory_free(
-			 response );
+		memory_free(
+		 response );
 
-			return( -1 );
-		}
-		if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > response_size )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-			 "%s: response buffer too small.\n",
-			 function );
+		return( -1 );
+	}
+	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > response_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: response buffer too small.\n",
+		 function );
 
-			memory_free(
-			 response );
+		memory_free(
+		 response );
 
-			return( -1 );
-		}
-		if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > sizeof( STORAGE_DEVICE_DESCRIPTOR ) )
-		{
+		return( -1 );
+	}
+	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > sizeof( STORAGE_DEVICE_DESCRIPTOR ) )
+	{
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_print_data(
-				 response,
-				 (size_t) response_count );
-			}
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_print_data(
+			 response,
+			 (size_t) response_count );
+		}
 #endif
 
-			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
+		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
+		{
+			string_length = libcstring_narrow_string_length(
+					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ) );
+
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->vendor,
+				  64,
+				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ),
+				  string_length,
+				  error );
+
+			if( result == -1 )
 			{
-				string_length = libcstring_narrow_string_length(
-				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ) );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set vendor.",
+				 function );
 
-				result = libsmdev_string_trim_copy_from_byte_stream(
-					  internal_handle->vendor,
-					  64,
-					  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ),
-					  string_length,
-					  error );
-
-				if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set vendor.",
-					 function );
-
-					return( -1 );
-				}
+				return( -1 );
 			}
-			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
+		}
+		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
+		{
+			string_length = libcstring_narrow_string_length(
+					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ) );
+
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->model,
+				  64,
+				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ),
+				  string_length,
+				  error );
+
+			if( result == -1 )
 			{
-				string_length = libcstring_narrow_string_length(
-				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ) );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set model.",
+				 function );
 
-				result = libsmdev_string_trim_copy_from_byte_stream(
-					  internal_handle->model,
-					  64,
-					  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ),
-					  string_length,
-					  error );
-
-				if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set model.",
-					 function );
-
-					return( -1 );
-				}
+				return( -1 );
 			}
-			if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
+		}
+		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
+		{
+			string_length = libcstring_narrow_string_length(
+					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ) );
+
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->serial_number,
+				  64,
+				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ),
+				  string_length,
+				  error );
+
+			if( result == -1 )
 			{
-				string_length = libcstring_narrow_string_length(
-				                 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ) );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set serial number.",
+				 function );
 
-				result = libsmdev_string_trim_copy_from_byte_stream(
-					  internal_handle->serial_number,
-					  64,
-					  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ),
-					  string_length,
-					  error );
-
-				if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set serial number.",
-					 function );
-
-					return( -1 );
-				}
+				return( -1 );
 			}
-			internal_handle->removable             = ( (STORAGE_DEVICE_DESCRIPTOR *) response )->RemovableMedia;
-			internal_handle->media_information_set = 1;
+		}
+		internal_handle->removable = ( (STORAGE_DEVICE_DESCRIPTOR *) response )->RemovableMedia;
 
-			switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
-			{
-				case BusTypeScsi:
-					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_SCSI;
-					break;
+		switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
+		{
+			case BusTypeScsi:
+				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_SCSI;
+				break;
 
-				case BusTypeAtapi:
-				case BusTypeAta:
-					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_ATA;
-					break;
+			case BusTypeAtapi:
+			case BusTypeAta:
+				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_ATA;
+				break;
 
-				case BusType1394:
-					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
-					break;
+			case BusType1394:
+				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
+				break;
 
-				case BusTypeUsb:
-					internal_handle->bus_type = LIBSMDEV_BUS_TYPE_USB;
-					break;
+			case BusTypeUsb:
+				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_USB;
+				break;
 
-				default:
-					break;
-			}
+			default:
+				break;
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
-			fprintf(
-			 stderr,
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
 			 "Bus type:\t\t" );
 
 			switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
 			{
 				case BusTypeScsi:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "SCSI" );
 					break;
 
 				case BusTypeAtapi:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "ATAPI" );
 					break;
 
 				case BusTypeAta:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "ATA" );
 					break;
 
 				case BusType1394:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "FireWire (IEEE1394)" );
 					break;
 
 				case BusTypeSsa:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "Serial Storage Architecture (SSA)" );
 					break;
 
 				case BusTypeFibre:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "Fibre Channel" );
 					break;
 
 				case BusTypeUsb:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "USB" );
 					break;
 
 				case BusTypeRAID:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "RAID" );
 					break;
 
 				case BusTypeiScsi:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "iSCSI" );
 					break;
 
 				case BusTypeSas:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "SAS" );
 					break;
 
 				case BusTypeSata:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "SATA" );
 					break;
 
 				case BusTypeSd:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "Secure Digital (SD)" );
 					break;
 
 				case BusTypeMmc:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "Multi Media Card (MMC)" );
 					break;
 
 				default:
-					fprintf(
-					 stderr,
+					libnotify_printf(
 					 "Unknown: %d",
 					 ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType );
 					break;
 			}
-			fprintf(
-			 stderr,
+			libnotify_printf(
 			 "\n" );
-#endif
 		}
-		memory_free(
-		 response );
+#endif
 	}
+	memory_free(
+	 response );
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
@@ -915,6 +903,226 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
+	response_count = libsmdev_scsi_inquiry(
+			  internal_handle->file_descriptor,
+			  0x00,
+			  0x00,
+			  response,
+			  255,
+			  NULL );
+
+	if( response_count >= 5 )
+	{
+		internal_handle->removable   = ( response[ 1 ] & 0x80 ) >> 7;
+		internal_handle->device_type = ( response[ 0 ] & 0x1f );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: removable\t\t: %" PRIu8 "\n",
+			 function,
+			 internal_handle->removable );
+
+			libnotify_printf(
+			 "%s: device type\t: 0x%" PRIx8 "\n",
+			 function,
+			 internal_handle->device_type );
+
+			libnotify_printf(
+			 "\n" );
+		}
+#endif
+	}
+	if( response_count >= 16 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_print_data(
+			 response,
+			 response_count );
+		}
+#endif
+		result = libsmdev_string_trim_copy_from_byte_stream(
+			  internal_handle->vendor,
+			  64,
+			  &( response[ 8 ] ),
+			  15 - 8,
+			  error );
+
+		if( result == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set vendor.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( response_count >= 32 )
+	{
+		result = libsmdev_string_trim_copy_from_byte_stream(
+			  internal_handle->model,
+			  64,
+			  &( response[ 16 ] ),
+			  31 - 16,
+			  error );
+
+		if( result == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set model.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	response_count = libsmdev_scsi_inquiry(
+			  internal_handle->file_descriptor,
+			  0x01,
+			  0x80,
+			  response,
+			  255,
+			  NULL );
+
+	if( response_count > 4 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_print_data(
+			 response,
+			 response_count );
+		}
+#endif
+		result = libsmdev_string_trim_copy_from_byte_stream(
+			  internal_handle->serial_number,
+			  64,
+			  &( response[ 4 ] ),
+			  response_count - 4,
+			  error );
+
+		if( result == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set serial number.",
+			 function );
+
+			return( -1 );
+		}
+	}
+#endif
+#if defined( HDIO_GET_IDENTITY )
+	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_ATA )
+	{
+		if( libsmdev_ata_get_device_configuration(
+		     internal_handle->file_descriptor,
+		     &device_configuration,
+		     error ) == -1 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libnotify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			liberror_error_free(
+			 error );
+		}
+		else
+		{
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->serial_number,
+				  64,
+				  device_configuration.serial_no,
+				  20,
+				  error );
+
+			if( result == -1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set serial number.",
+				 function );
+
+				return( -1 );
+			}
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->model,
+				  64,
+				  device_configuration.model,
+				  40,
+				  error );
+
+			if( result == -1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set model.",
+				 function );
+
+				return( -1 );
+			}
+			internal_handle->removable   = ( device_configuration.config & 0x0080 ) >> 7;
+			internal_handle->device_type = ( device_configuration.config & 0x1f00 ) >> 8;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: removable\t\t: %" PRIu8 "\n",
+				 function,
+				 internal_handle->removable );
+
+				libnotify_printf(
+				 "%s: device type\t: 0x%" PRIx8 "\n",
+				 function,
+				 internal_handle->device_type );
+
+				libnotify_printf(
+				 "\n" );
+			}
+#endif
+		}
+	}
+#endif
+#if defined( HAVE_LINUX_CDROM_H )
+	if( internal_handle->device_type == 0x05 )
+	{
+		if( libsmdev_optical_disk_get_table_of_contents(
+		     internal_handle->file_descriptor,
+		     error ) != 1 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libnotify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			liberror_error_free(
+			 error );
+		}
+	}
+#endif
+/* Disabled for now
 	if( libsmdev_scsi_get_identier(
 	     internal_handle->file_descriptor,
 	     error ) != 1 )
@@ -946,199 +1154,6 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
-	if( internal_handle->media_information_set == 0 )
-	{
-		response_count = libsmdev_scsi_inquiry(
-		                  internal_handle->file_descriptor,
-		                  0x00,
-		                  0x00,
-		                  response,
-		                  255,
-		                  NULL );
-
-		if( response_count > 32 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_print_data(
-				 response,
-				 response_count );
-			}
-#endif
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->vendor,
-				  64,
-				  &( response[ 8 ] ),
-				  15 - 8,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set vendor.",
-				 function );
-
-				return( -1 );
-			}
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->model,
-				  64,
-				  &( response[ 16 ] ),
-				  31 - 16,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set model.",
-				 function );
-
-				return( -1 );
-			}
-			internal_handle->removable             = ( response[ 1 ] & 0x80 ) >> 7;
-			internal_handle->device_type           = ( response[ 0 ] & 0x1f );
-			internal_handle->media_information_set = 1;
-		}
-	}
-	if( internal_handle->serial_number[ 0 ] == 0 )
-	{
-		response_count = libsmdev_scsi_inquiry(
-		                  internal_handle->file_descriptor,
-		                  0x01,
-		                  0x80,
-		                  response,
-		                  255,
-		                  NULL );
-
-		if( response_count > 4 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_print_data(
-				 response,
-				 response_count );
-			}
-#endif
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->serial_number,
-				  64,
-				  &( response[ 4 ] ),
-				  response_count - 4,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set serial number.",
-				 function );
-
-				return( -1 );
-			}
-		}
-	}
-#endif
-#if defined( HDIO_GET_IDENTITY )
-	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_ATA )
-	{
-		if( io_ata_get_device_configuration(
-		     internal_handle->file_descriptor,
-		     &device_configuration,
-		     error ) == -1 )
-		{
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				/* TODO remove */
-				libnotify_print_error_backtrace(
-				 *error );
-			}
-			liberror_error_free(
-			 error );
-		}
-		else
-		{
-			if( internal_handle->serial_number[ 0 ] == 0 )
-			{
-				result = libsmdev_string_trim_copy_from_byte_stream(
-					  internal_handle->serial_number,
-					  64,
-					  device_configuration.serial_no,
-					  20,
-					  error );
-
-				if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set serial number.",
-					 function );
-
-					return( -1 );
-				}
-			}
-			if( internal_handle->model[ 0 ] == 0 )
-			{
-				result = libsmdev_string_trim_copy_from_byte_stream(
-					  internal_handle->model,
-					  64,
-					  device_configuration.model,
-					  40,
-					  error );
-
-				if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set model.",
-					 function );
-
-					return( -1 );
-				}
-			}
-			if( internal_handle->media_information_set == 0 )
-			{
-				internal_handle->removable             = ( device_configuration.config & 0x0080 ) >> 7;
-				internal_handle->device_type           = ( device_configuration.config & 0x1f00 ) >> 8;
-				internal_handle->media_information_set = 1;
-			}
-		}
-	}
-#endif
-#if defined( HAVE_LINUX_CDROM_H )
-	if( internal_handle->device_type == 0x05 )
-	{
-		if( libsmdev_optical_disk_get_table_of_contents(
-		     internal_handle->file_descriptor,
-		     error ) != 1 )
-		{
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				/* TODO remove */
-				libnotify_print_error_backtrace(
-				 *error );
-			}
-			liberror_error_free(
-			 error );
-		}
-	}
-#endif
-/* Disabled for now
 #if defined( HAVE_LINUX_USB_CH9_H )
 	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_USB )
 	{
@@ -1159,6 +1174,8 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 */
 #endif
+	internal_handle->media_information_set = 1;
+
 	return( 1 );
 }
 

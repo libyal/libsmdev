@@ -1,4 +1,4 @@
-.Dd June 28, 2010
+.Dd October 7, 2010
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -144,7 +144,9 @@ libsmdev allows to be compiled with wide character support.
 To compile libsmdev with wide character support use
 .Ar ./configure --enable-wide-character-type=yes
 or pass the definition
-.Ar HAVE_WIDE_CHARACTER_TYPE
+.Ar _UNICODE
+ or
+.Ar UNICODE
  to the compiler (i.e. in case of Microsoft Visual Studio (MSVS) C++).
 
 To have other code to determine if libsmdev was compiled with wide character support it defines
