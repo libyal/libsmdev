@@ -110,9 +110,9 @@ struct libsmdev_internal_handle
 	 */
 	libcstring_character_t serial_number[ 64 ];
 
-	/* The number of sessions for an optical disc
+	/* The sessions
 	 */
-	uint16_t number_of_sessions;
+	libsmdev_offset_list_t *sessions;
 
 	/* Value to indicate the media information values were set
 	 */
@@ -130,9 +130,9 @@ struct libsmdev_internal_handle
 	 */
 	uint8_t error_flags;
 
-	/* The read/write error ranges offset list
+	/* The read/write errors offset list
 	 */
-	libsmdev_offset_list_t *error_ranges;
+	libsmdev_offset_list_t *errors;
 
 	/* Value to indicate if abort was signalled
 	 */

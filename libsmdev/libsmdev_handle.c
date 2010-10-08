@@ -113,16 +113,35 @@ int libsmdev_handle_initialize(
 			return( -1 );
 		}
 		if( libsmdev_offset_list_initialize(
-		     &( internal_handle->error_ranges ),
+		     &( internal_handle->sessions ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create error ranges list.",
+			 "%s: unable to create sessions.",
 			 function );
 
+			memory_free(
+			 internal_handle );
+
+			return( -1 );
+		}
+		if( libsmdev_offset_list_initialize(
+		     &( internal_handle->errors ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create errors offset list.",
+			 function );
+
+			libsmdev_offset_list_free(
+			 &( internal_handle->sessions ),
+			 NULL );
 			memory_free(
 			 internal_handle );
 
@@ -193,14 +212,27 @@ int libsmdev_handle_free(
 			 internal_handle->filename );
 		}
 		if( libsmdev_offset_list_free(
-		     &( internal_handle->error_ranges ),
+		     &( internal_handle->sessions ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free error ranges list.",
+			 "%s: unable to free sessions offset list.",
+			 function );
+
+			result = -1;
+		}
+		if( libsmdev_offset_list_free(
+		     &( internal_handle->errors ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free errors offset list.",
 			 function );
 
 			result = -1;
@@ -329,6 +361,32 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
+	if( libsmdev_offset_list_empty(
+	     internal_handle->sessions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty sessions offset list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_offset_list_empty(
+	     internal_handle->errors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty errors offset list.",
+		 function );
+
+		return( -1 );
+	}
 	filename_length = libcstring_narrow_string_length(
 	                   filenames[ 0 ] );
 
@@ -372,6 +430,12 @@ int libsmdev_handle_open(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags.",
 		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 
 		return( -1 );
 	}
@@ -453,6 +517,12 @@ int libsmdev_handle_open(
 					}
 					break;
 			}
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 	}
@@ -478,6 +548,12 @@ int libsmdev_handle_open(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags.",
 		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 
 		return( -1 );
 	}
@@ -547,6 +623,12 @@ int libsmdev_handle_open(
 					}
 					break;
 			}
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 #if defined( HAVE_POSIX_FADVISE )
@@ -566,6 +648,17 @@ int libsmdev_handle_open(
 			 "%s: unable to advice file descriptor.",
 			 function );
 
+			close(
+			 internal_handle->file_descriptor );
+
+			internal_handle->file_descriptor = -1;
+
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 #endif
@@ -582,6 +675,23 @@ int libsmdev_handle_open(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve media size.",
 		 function );
+
+#if defined( WINAPI )
+		CloseHandle(
+		 internal_handle->file_handle );
+
+		internal_handle->file_handle = INVALID_HANDLE_VALUE;
+#else
+		close(
+		 internal_handle->file_descriptor );
+
+		internal_handle->file_descriptor = -1;
+#endif
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 
 		return( -1 );
 	}
@@ -686,6 +796,32 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
+	if( libsmdev_offset_list_empty(
+	     internal_handle->sessions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty sessions offset list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_offset_list_empty(
+	     internal_handle->errors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty errors offset list.",
+		 function );
+
+		return( -1 );
+	}
 	filename_length = libcstring_wide_string_length(
 	                   filenames[ 0 ] );
 
@@ -730,6 +866,12 @@ int libsmdev_handle_open_wide(
 		 "%s: unsupported flags.",
 		 function );
 
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
+
 		return( -1 );
 	}
 	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
@@ -737,7 +879,6 @@ int libsmdev_handle_open_wide(
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
-
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
 		/* Must use CreateFileW here because filename is a 
@@ -810,6 +951,12 @@ int libsmdev_handle_open_wide(
 					}
 					break;
 			}
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 	}
@@ -835,6 +982,12 @@ int libsmdev_handle_open_wide(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags.",
 		 function );
+
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 
 		return( -1 );
 	}
@@ -892,6 +1045,12 @@ int libsmdev_handle_open_wide(
 			 "%s: unable to determine narrow character filename size.",
 			 function );
 
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 		narrow_filename = (char *) memory_allocate(
@@ -905,6 +1064,12 @@ int libsmdev_handle_open_wide(
 			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create narrow character filename.",
 			 function );
+
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
 
 			return( -1 );
 		}
@@ -961,6 +1126,11 @@ int libsmdev_handle_open_wide(
 
 			memory_free(
 			 narrow_filename );
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
 
 			return( -1 );
 		}
@@ -1026,6 +1196,12 @@ int libsmdev_handle_open_wide(
 					}
 					break;
 			}
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 #if defined( HAVE_POSIX_FADVISE )
@@ -1045,6 +1221,17 @@ int libsmdev_handle_open_wide(
 			 "%s: unable to advice file descriptor.",
 			 function );
 
+			close(
+			 internal_handle->file_descriptor );
+
+			internal_handle->file_descriptor = -1;
+
+			memory_free(
+			 internal_handle->filename );
+
+			internal_handle->filename      = NULL;
+			internal_handle->filename_size = 0;
+
 			return( -1 );
 		}
 #endif
@@ -1061,6 +1248,23 @@ int libsmdev_handle_open_wide(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve media size.",
 		 function );
+
+#if defined( WINAPI )
+		CloseHandle(
+		 internal_handle->file_handle );
+
+		internal_handle->file_handle = INVALID_HANDLE_VALUE;
+#else
+		close(
+		 internal_handle->file_descriptor );
+
+		internal_handle->file_descriptor = -1;
+#endif
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 
 		return( -1 );
 	}
@@ -1080,6 +1284,7 @@ int libsmdev_handle_close(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_close";
+	int result                                  = 0;
 
 #if defined( WINAPI )
 	DWORD error_code                            = 0;
@@ -1138,7 +1343,7 @@ int libsmdev_handle_close(
 			 "%s: unable to close handle.",
 			 function );
 		}
-		return( -1 );
+		result = -1;
 	}
 	internal_handle->file_handle = INVALID_HANDLE_VALUE;
 #else
@@ -1179,11 +1384,37 @@ int libsmdev_handle_close(
 			 "%s: unable to close file descriptor.",
 			 function );
 		}
-		return( -1 );
+		result = -1;
 	}
 	internal_handle->file_descriptor = -1;
 #endif
-	return( 0 );
+	if( libsmdev_offset_list_empty(
+	     internal_handle->sessions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty sessions offset list.",
+		 function );
+
+		result = -1;
+	}
+	if( libsmdev_offset_list_empty(
+	     internal_handle->errors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty errors offset list.",
+		 function );
+
+		result = -1;
+	}
+	return( result );
 }
 
 /* Reads a buffer
@@ -1520,7 +1751,7 @@ ssize_t libsmdev_handle_read_buffer(
 			}
 			calculated_current_offset = internal_handle->offset + (off64_t) buffer_offset;
 
-			/* On MacOS the read count is -1 on error and the file offset is set to the position of the error
+			/* On MacOS-X the read count is -1 on error and the file offset is set to the position of the error
 			 */
 			if( current_offset != calculated_current_offset )
 			{
@@ -1676,16 +1907,17 @@ ssize_t libsmdev_handle_read_buffer(
 			}
 #endif
 			if( libsmdev_offset_list_append_offset(
-			     internal_handle->error_ranges,
+			     internal_handle->errors,
 			     current_offset,
 			     read_error_size,
+			     1,
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append read errror.",
+				 "%s: unable to append read errror to offset list.",
 				 function );
 
 				return( -1 );
@@ -2723,10 +2955,10 @@ int libsmdev_handle_set_filename(
 			return( -1 );
 		}
 		memory_free(
-		  internal_handle->filename );
+		 internal_handle->filename );
 
-		 internal_handle->filename      = NULL;
-		 internal_handle->filename_size = 0;
+		internal_handle->filename      = NULL;
+		internal_handle->filename_size = 0;
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcstring_narrow_system_string_codepage == 0 )
@@ -3262,7 +3494,7 @@ int libsmdev_handle_set_filename_wide(
 			return( -1 );
 		}
 		memory_free(
-		  internal_handle->filename );
+		 internal_handle->filename );
 
 		 internal_handle->filename      = NULL;
 		 internal_handle->filename_size = 0;

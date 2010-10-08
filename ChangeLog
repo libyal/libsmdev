@@ -30,6 +30,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101008
+* worked on improving device info
+* updated offset list
+
 20101007
 * updated offset list
 * updated liberror, libnotify

@@ -381,6 +381,15 @@ int libsmdev_handle_get_media_size(
 		}
 #endif
 #endif
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: media size: %" PRIu64 "\n",
+			 function,
+			 internal_handle->media_size );
+		}
+#endif
 	}
 	if( internal_handle->media_size_set == 0 )
 	{
@@ -393,15 +402,6 @@ int libsmdev_handle_get_media_size(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
-	{
-		libnotify_printf(
-		 "%s: media size: %" PRIu64 "\n",
-		 function,
-		 internal_handle->media_size );
-	}
-#endif
 	*media_size = internal_handle->media_size;
 
 	return( 1 );
@@ -911,6 +911,8 @@ int libsmdev_internal_handle_determine_media_information(
 			  255,
 			  NULL );
 
+/* TODO what to do about garbarge return ? */
+
 	if( response_count >= 5 )
 	{
 		internal_handle->removable   = ( response[ 1 ] & 0x80 ) >> 7;
@@ -1105,8 +1107,10 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( HAVE_LINUX_CDROM_H )
 	if( internal_handle->device_type == 0x05 )
 	{
+/* TODO */
 		if( libsmdev_optical_disk_get_table_of_contents(
 		     internal_handle->file_descriptor,
+		     NULL,
 		     error ) != 1 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1489,6 +1493,93 @@ int libsmdev_handle_get_information_value(
 	return( 1 );
 }
 
+/* Retrieves the number of sessions
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_get_number_of_sessions(
+     libsmdev_handle_t *handle,
+     int *number_of_sessions,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_number_of_sessions";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( libsmdev_offset_list_get_number_of_elements(
+	     internal_handle->sessions,
+	     number_of_sessions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements in sessions offset list.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a session
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_get_session(
+     libsmdev_handle_t *handle,
+     int index,
+     off64_t *offset,
+     size64_t *size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_session";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( libsmdev_offset_list_get_offset(
+	     internal_handle->sessions,
+	     index,
+	     offset,
+	     size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve session: %d from sessions offset list.",
+		 function,
+		 index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
@@ -1745,7 +1836,7 @@ int libsmdev_handle_get_number_of_errors(
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
 	if( libsmdev_offset_list_get_number_of_elements(
-	     internal_handle->error_ranges,
+	     internal_handle->errors,
 	     number_of_errors,
 	     error ) != 1 )
 	{
@@ -1753,7 +1844,7 @@ int libsmdev_handle_get_number_of_errors(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of error ranges.",
+		 "%s: unable to retrieve number of elements in errors offset list.",
 		 function );
 
 		return( -1 );
@@ -1761,7 +1852,7 @@ int libsmdev_handle_get_number_of_errors(
 	return( 1 );
 }
 
-/* Retrieves the information of a read/write error
+/* Retrieves a read/write error
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_handle_get_error(
@@ -1788,7 +1879,7 @@ int libsmdev_handle_get_error(
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
 	if( libsmdev_offset_list_get_offset(
-	     internal_handle->error_ranges,
+	     internal_handle->errors,
 	     index,
 	     offset,
 	     size,
@@ -1798,7 +1889,7 @@ int libsmdev_handle_get_error(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve error: %d.",
+		 "%s: unable to retrieve error: %d from errors offset list.",
 		 function,
 		 index );
 

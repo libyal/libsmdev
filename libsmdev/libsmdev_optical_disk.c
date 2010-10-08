@@ -34,24 +34,37 @@
 #include <linux/cdrom.h>
 #endif
 
+#include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disk.h"
 
 #if defined( HAVE_LINUX_CDROM_H )
+
+#define libsmdev_optical_disk_copy_msf_to_lba( minutes, seconds, frames, lba ) \
+	lba  = minutes; \
+	lba *= CD_SECS; \
+	lba += seconds; \
+	lba *= CD_FRAMES; \
+	lba += frames; \
+	lba -= CD_MSF_OFFSET;
 
 /* Retrieves the table of contents (toc) from the optical disk
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_optical_disk_get_table_of_contents(
      int file_descriptor,
+     libsmdev_offset_list_t *sessions,
      liberror_error_t **error )
 {
 	struct cdrom_tochdr toc_header;
 	struct cdrom_tocentry toc_entry;
 
 	static char *function   = "libsmdev_optical_disk_get_table_of_contents";
+	off64_t last_offset     = 0;
+	off64_t offset          = 0;
 	uint16_t entry_iterator = 0;
 	uint8_t first_entry     = 0;
 	uint8_t last_entry      = 0;
+	int session_index       = 0;
 
 	if( file_descriptor == -1 )
 	{
@@ -91,7 +104,6 @@ int libsmdev_optical_disk_get_table_of_contents(
 		 last_entry );
 	}
 #endif
-
 	for( entry_iterator = (uint16_t) first_entry;
 	     entry_iterator <= (uint16_t) last_entry;
 	     entry_iterator++ )
@@ -127,44 +139,97 @@ int libsmdev_optical_disk_get_table_of_contents(
 
 			return( -1 );
 		}
+		if( toc_entry.cdte_format == CDROM_LBA )
+		{
+			offset = (off64_t) toc_entry.cdte_addr.lba;
+		}
+		else if( toc_entry.cdte_format == CDROM_MSF )
+		{
+			libsmdev_optical_disk_copy_msf_to_lba(
+			 toc_entry.cdte_addr.msf.minute,
+			 toc_entry.cdte_addr.msf.second,
+			 toc_entry.cdte_addr.msf.frame,
+			 offset );
+		}
+		else
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported CDTE format.",
+			 function );
+
+			return( -1 );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
 			 "\tTrack: %" PRIu16 "",
 			 entry_iterator );
-		}
-		if( toc_entry.cdte_format == CDROM_MSF )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+
+			if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
 			{
 				libnotify_printf(
-				 " start:\t\t%02" PRIu8 ":%02" PRIu8 ".%" PRIu8 "",
+				 " (audio)" );
+			}
+			else
+			{
+				libnotify_printf(
+				 " (data)" );
+			}
+			if( toc_entry.cdte_format == CDROM_LBA )
+			{
+				libnotify_printf(
+				 " start:\t%" PRIu32 "",
+				 toc_entry.cdte_addr.lba );
+			}
+			else if( toc_entry.cdte_format == CDROM_MSF )
+			{
+				libnotify_printf(
+				 " start:\t%02" PRIu8 ":%02" PRIu8 ".%" PRIu8 "",
 				 toc_entry.cdte_addr.msf.minute,
 				 toc_entry.cdte_addr.msf.second,
 				 toc_entry.cdte_addr.msf.frame );
 			}
-#endif
-		}
-		else if( toc_entry.cdte_format == CDROM_LBA )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_printf(
-				 " start:\t\t%" PRIu32 "",
-				 toc_entry.cdte_addr.lba );
-			}
-#endif
-		}
-		if( libnotify_verbose != 0 )
-		{
 			libnotify_printf(
 			 "\n" );
 		}
-		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == CDROM_DATA_TRACK )
+#endif
+		if( entry_iterator > first_entry )
 		{
+			if( offset < last_offset )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid offset value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
+			if( libsmdev_offset_list_append_offset(
+			     sessions,
+			     offset,
+			     offset - last_offset,
+			     0,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append session: %d.",
+				 function,
+				 session_index );
+
+				return( -1 );
+			}
+			session_index++;
 		}
+		last_offset = offset;
 	}
 	if( memory_set(
 	     &toc_entry,
@@ -197,39 +262,90 @@ int libsmdev_optical_disk_get_table_of_contents(
 
 		return( -1 );
 	}
+	if( toc_entry.cdte_format == CDROM_LBA )
+	{
+		offset = (off64_t) toc_entry.cdte_addr.lba;
+	}
+	else if( toc_entry.cdte_format == CDROM_MSF )
+	{
+		libsmdev_optical_disk_copy_msf_to_lba(
+		 toc_entry.cdte_addr.msf.minute,
+		 toc_entry.cdte_addr.msf.second,
+		 toc_entry.cdte_addr.msf.frame,
+		 offset );
+	}
+	else
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported CDTE format.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
 		 "\tLead out" );
-	}
-	if( toc_entry.cdte_format == CDROM_MSF )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+
+		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
 		{
 			libnotify_printf(
-			 " start:\t\t%02" PRIu8 ":%02" PRIu8 ".%" PRIu8 "",
+			 " (audio)" );
+		}
+		else
+		{
+			libnotify_printf(
+			 " (data)" );
+		}
+		if( toc_entry.cdte_format == CDROM_LBA )
+		{
+			libnotify_printf(
+			 " start:\t%" PRIu32 "",
+			 toc_entry.cdte_addr.lba );
+		}
+		else if( toc_entry.cdte_format == CDROM_MSF )
+		{
+			libnotify_printf(
+			 " start:\t%02" PRIu8 ":%02" PRIu8 ".%" PRIu8 "",
 			 toc_entry.cdte_addr.msf.minute,
 			 toc_entry.cdte_addr.msf.second,
 			 toc_entry.cdte_addr.msf.frame );
 		}
-#endif
-	}
-	else if( toc_entry.cdte_format == CDROM_LBA )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
-		{
-			libnotify_printf(
-			 " start:\t\t%" PRIu32 "",
-			 toc_entry.cdte_addr.lba );
-		}
-#endif
-	}
-	if( libnotify_verbose != 0 )
-	{
 		libnotify_printf(
 		 "\n\n" );
+	}
+#endif
+	if( offset < last_offset )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_offset_list_append_offset(
+	     sessions,
+	     offset,
+	     offset - last_offset,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append last session: %d.",
+		 function,
+		 session_index );
+
+		return( -1 );
 	}
 	return( 1 );
 }

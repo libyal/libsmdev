@@ -340,28 +340,6 @@ LIBSMDEV_EXTERN int libsmdev_handle_set_number_of_error_retries(
                      uint8_t number_of_error_retries,
                      libsmdev_error_t **error );
 
-/* Retrieves the amount of read/write error retries
- * Returns the 1 if succesful or -1 on error
- *
- * This function is deprecated use libsmdev_handle_get_number_of_error_retries instead
- */
-LIBSMDEV_DEPRECATED \
-LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t *amount_of_error_retries,
-                     libsmdev_error_t **error );
-
-/* Sets the amount of read/write error retries
- * Returns the 1 if succesful or -1 on error
- *
- * This function is deprecated use libsmdev_handle_set_number_of_error_retries instead
- */
-LIBSMDEV_DEPRECATED \
-LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t amount_of_error_retries,
-                     libsmdev_error_t **error );
-
 /* Retrieves the read/write error granularity
  * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
@@ -394,6 +372,32 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_error_flags(
 LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
                      libsmdev_handle_t *handle,
                      uint8_t error_flags,
+                     libsmdev_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Meta data functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the amount of read/write error retries
+ * Returns the 1 if succesful or -1 on error
+ *
+ * This function is deprecated use libsmdev_handle_get_number_of_error_retries instead
+ */
+LIBSMDEV_DEPRECATED \
+LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t *amount_of_error_retries,
+                     libsmdev_error_t **error );
+
+/* Sets the amount of read/write error retries
+ * Returns the 1 if succesful or -1 on error
+ *
+ * This function is deprecated use libsmdev_handle_set_number_of_error_retries instead
+ */
+LIBSMDEV_DEPRECATED \
+LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
+                     libsmdev_handle_t *handle,
+                     uint8_t amount_of_error_retries,
                      libsmdev_error_t **error );
 
 #if defined( __cplusplus )
