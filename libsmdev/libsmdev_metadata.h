@@ -72,7 +72,7 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_sessions(
                      int *number_of_sessions,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_sessions(
+LIBSMDEV_EXTERN int libsmdev_handle_get_session(
                      libsmdev_handle_t *handle,
                      int index,
                      off64_t *offset,

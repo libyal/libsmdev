@@ -324,6 +324,24 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
                      size_t information_value_size,
                      libsmdev_error_t **error );
 
+/* Retrieves the number of sessions
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_sessions(
+                     libsmdev_handle_t *handle,
+                     int *number_of_sessions,
+                     libsmdev_error_t **error );
+
+/* Retrieves a session
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN int libsmdev_handle_get_session(
+                     libsmdev_handle_t *handle,
+                     int index,
+                     off64_t *offset,
+                     size64_t *size,
+                     libsmdev_error_t **error );
+
 /* Retrieves the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */

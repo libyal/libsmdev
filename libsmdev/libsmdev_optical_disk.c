@@ -194,7 +194,8 @@ int libsmdev_optical_disk_get_table_of_contents(
 				 toc_entry.cdte_addr.msf.frame );
 			}
 			libnotify_printf(
-			 "\n" );
+			 " (offset: %" PRIi64 ")\n",
+			 offset );
 		}
 #endif
 		if( entry_iterator > first_entry )
@@ -212,7 +213,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 			}
 			if( libsmdev_offset_list_append_offset(
 			     sessions,
-			     offset,
+			     last_offset,
 			     offset - last_offset,
 			     0,
 			     error ) != 1 )
@@ -316,7 +317,8 @@ int libsmdev_optical_disk_get_table_of_contents(
 			 toc_entry.cdte_addr.msf.frame );
 		}
 		libnotify_printf(
-		 "\n\n" );
+		 " (offset: %" PRIi64 ")\n\n",
+		 offset );
 	}
 #endif
 	if( offset < last_offset )
@@ -332,7 +334,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 	}
 	if( libsmdev_offset_list_append_offset(
 	     sessions,
-	     offset,
+	     last_offset,
 	     offset - last_offset,
 	     0,
 	     error ) != 1 )

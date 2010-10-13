@@ -1107,10 +1107,9 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( HAVE_LINUX_CDROM_H )
 	if( internal_handle->device_type == 0x05 )
 	{
-/* TODO */
 		if( libsmdev_optical_disk_get_table_of_contents(
 		     internal_handle->file_descriptor,
-		     NULL,
+		     internal_handle->sessions,
 		     error ) != 1 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1123,6 +1122,10 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 			liberror_error_free(
 			 error );
+
+			libsmdev_offset_list_empty(
+			 internal_handle->sessions,
+			 NULL );
 		}
 	}
 #endif

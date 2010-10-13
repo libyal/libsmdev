@@ -1936,8 +1936,8 @@ ssize_t libsmdev_handle_read_buffer(
 #if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x520
 			large_integer_offset.QuadPart = (LONGLONG) error_granularity_skip_size;
 #else
-			large_integer_offset.LowPart  = (DWORD) ( 0x0ffffffffUL & error_granularity_skip_size );
-			large_integer_offset.HighPart = (LONG) ( error_granularity_skip_size >> 32 );
+			large_integer_offset.LowPart  = (DWORD) error_granularity_skip_size;
+			large_integer_offset.HighPart = (LONG) 0;
 #endif
 
 #if ( WINVER >= 0x0500 )
@@ -1947,7 +1947,7 @@ ssize_t libsmdev_handle_read_buffer(
 			     &large_integer_offset,
 			     FILE_CURRENT ) == 0 )
 #else
-			if( SafeSetFilePointerEx(
+			if( libsmdev_SetFilePointerEx(
 			     internal_handle->file_handle,
 			     large_integer_offset,
 			     &large_integer_offset,
@@ -2229,7 +2229,7 @@ ssize_t libsmdev_handle_write_buffer(
 /* Cross Windows safe version of SetFilePointerEx
  * Returns TRUE if successful or FALSE on error
  */
-BOOL SafeSetFilePointerEx(
+BOOL libsmdev_SetFilePointerEx(
       HANDLE file_handle,
       LARGE_INTEGER distance_to_move_large_integer,
       LARGE_INTEGER *new_file_pointer_large_integer,
@@ -2334,6 +2334,7 @@ off64_t libsmdev_handle_seek_offset(
 
 #if defined( WINAPI )
 	LARGE_INTEGER large_integer_offset          = LIBSMDEV_LARGE_INTEGER_ZERO;
+	DWORD error_code                            = 0;
 	DWORD move_method                           = 0;
 #endif
 
@@ -2437,7 +2438,7 @@ off64_t libsmdev_handle_seek_offset(
 	     &large_integer_offset,
 	     move_method ) == 0 )
 #else
-	if( SafeSetFilePointerEx(
+	if( libsmdev_SetFilePointerEx(
 	     internal_handle->file_handle,
 	     large_integer_offset,
 	     &large_integer_offset,

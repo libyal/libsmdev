@@ -30,6 +30,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101013
+* worked on improving device info
+* renamed Win95/98 safe WINAPI replacement functions
+  to prevent conflict with libbfio
+
 20101012
 * worked on improving device info
 

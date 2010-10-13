@@ -184,7 +184,7 @@ LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
                          liberror_error_t **error );
 
 #if defined( WINAPI ) && ( WINVER < 0x0500 )
-BOOL SafeSetFilePointerEx(
+BOOL libsmdev_SetFilePointerEx(
       HANDLE file_handle,
       LARGE_INTEGER distance_to_move_large_integer,
       LARGE_INTEGER *new_file_pointer_large_integer,
