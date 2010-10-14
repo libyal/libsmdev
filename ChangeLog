@@ -30,6 +30,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101014
+* updated common
+
 20101013
 * worked on improving device info
 * renamed Win95/98 safe WINAPI replacement functions
