@@ -30,6 +30,12 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101113
+* textual changes
+* updated configure.ac
+* updated include/error.h, include/types.h
+* updated liberror
+
 20101014
 * updated common
 

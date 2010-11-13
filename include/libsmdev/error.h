@@ -22,6 +22,8 @@
 #if !defined( _LIBSMDEV_ERROR_H )
 #define _LIBSMDEV_ERROR_H
 
+#include <libsmdev/types.h>
+
 /* External error type definition hides internal structure
  */
 typedef intptr_t libsmdev_error_t;
@@ -290,7 +292,11 @@ enum LIBSMDEV_RUNTIME_ERROR
  */
 enum LIBSMDEV_OUTPUT_ERROR
 {
-	LIBSMDEV_OUTPUT_ERROR_GENERIC			= 0
+	LIBSMDEV_OUTPUT_ERROR_GENERIC			= 0,
+
+	/* There is insuficient space to write the output
+	 */
+	LIBSMDEV_OUTPUT_ERROR_INSUFFICIENT_SPACE	= 1
 };
 
 #endif
