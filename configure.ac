@@ -2,8 +2,8 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
-  [20101113],
-  [jbmetz@users.sourceforge.net])
+ [20101115],
+ [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
  [include/libsmdev.h.in])
@@ -803,6 +803,7 @@ AC_CONFIG_FILES([include/libsmdev/types.h])
 AC_CONFIG_FILES([libsmdev/libsmdev_definitions.h])
 dnl Have configure make distribution specific files
 AC_CONFIG_FILES([common/types.h])
+AC_CONFIG_FILES([libsmdev/libsmdev.rc])
 AC_CONFIG_FILES([libsmdev.pc])
 AC_CONFIG_FILES([libsmdev.spec])
 dnl Have configure write its configuration

@@ -30,6 +30,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101115
+* updated offset list
+* added libsmdev.rc
+
 20101113
 * textual changes
 * updated configure.ac

@@ -120,7 +120,7 @@ int libsmdev_handle_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create sessions.",
+			 "%s: unable to create sessions offset list.",
 			 function );
 
 			memory_free(
