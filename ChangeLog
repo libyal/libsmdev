@@ -30,6 +30,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101119
+* updated configure.ac, libcstring, liberror
+* fixed bug regarding session values
+
 20101115
 * updated offset list
 * added libsmdev.rc

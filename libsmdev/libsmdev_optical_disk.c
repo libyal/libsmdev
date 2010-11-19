@@ -34,8 +34,8 @@
 #include <linux/cdrom.h>
 #endif
 
-#include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disk.h"
+#include "libsmdev_sector_list.h"
 
 #if defined( HAVE_LINUX_CDROM_H )
 
@@ -52,7 +52,7 @@
  */
 int libsmdev_optical_disk_get_table_of_contents(
      int file_descriptor,
-     libsmdev_offset_list_t *sessions,
+     libsmdev_sector_list_t *sessions,
      liberror_error_t **error )
 {
 	struct cdrom_tochdr toc_header;
@@ -211,7 +211,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 
 				return( -1 );
 			}
-			if( libsmdev_offset_list_append_offset(
+			if( libsmdev_sector_list_append_sector(
 			     sessions,
 			     last_offset,
 			     offset - last_offset,
@@ -332,7 +332,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 
 		return( -1 );
 	}
-	if( libsmdev_offset_list_append_offset(
+	if( libsmdev_sector_list_append_sector(
 	     sessions,
 	     last_offset,
 	     offset - last_offset,

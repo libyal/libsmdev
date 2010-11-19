@@ -123,6 +123,7 @@ LIBSMDEV_EXTERN int libsmdev_error_fprint(
                      FILE *stream );
 
 /* Prints a descriptive string of the error to the string
+ * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_sprint(
@@ -138,6 +139,7 @@ LIBSMDEV_EXTERN int libsmdev_error_backtrace_fprint(
                      FILE *stream );
 
 /* Prints a backtrace of the error to the string
+ * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
 LIBSMDEV_EXTERN int libsmdev_error_backtrace_sprint(

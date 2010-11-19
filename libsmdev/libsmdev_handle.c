@@ -49,6 +49,7 @@
 #include "libsmdev_libuna.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
+#include "libsmdev_sector_list.h"
 #include "libsmdev_types.h"
 
 /* The definition of POSIX_FADV_SEQUENTIAL seems to be missing from fcntl.h
@@ -112,7 +113,7 @@ int libsmdev_handle_initialize(
 
 			return( -1 );
 		}
-		if( libsmdev_offset_list_initialize(
+		if( libsmdev_sector_list_initialize(
 		     &( internal_handle->sessions ),
 		     error ) != 1 )
 		{
@@ -120,7 +121,7 @@ int libsmdev_handle_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create sessions offset list.",
+			 "%s: unable to create sessions sector list.",
 			 function );
 
 			memory_free(
@@ -139,7 +140,7 @@ int libsmdev_handle_initialize(
 			 "%s: unable to create errors offset list.",
 			 function );
 
-			libsmdev_offset_list_free(
+			libsmdev_sector_list_free(
 			 &( internal_handle->sessions ),
 			 NULL );
 			memory_free(
@@ -211,7 +212,7 @@ int libsmdev_handle_free(
 			memory_free(
 			 internal_handle->filename );
 		}
-		if( libsmdev_offset_list_free(
+		if( libsmdev_sector_list_free(
 		     &( internal_handle->sessions ),
 		     error ) != 1 )
 		{
@@ -219,7 +220,7 @@ int libsmdev_handle_free(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free sessions offset list.",
+			 "%s: unable to free sessions sector list.",
 			 function );
 
 			result = -1;
@@ -361,7 +362,7 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( libsmdev_offset_list_empty(
+	if( libsmdev_sector_list_empty(
 	     internal_handle->sessions,
 	     error ) != 1 )
 	{
@@ -369,7 +370,7 @@ int libsmdev_handle_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions offset list.",
+		 "%s: unable to empty sessions sector list.",
 		 function );
 
 		return( -1 );
@@ -796,7 +797,7 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( libsmdev_offset_list_empty(
+	if( libsmdev_sector_list_empty(
 	     internal_handle->sessions,
 	     error ) != 1 )
 	{
@@ -804,7 +805,7 @@ int libsmdev_handle_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions offset list.",
+		 "%s: unable to empty sessions sector list.",
 		 function );
 
 		return( -1 );
@@ -1388,7 +1389,7 @@ int libsmdev_handle_close(
 	}
 	internal_handle->file_descriptor = -1;
 #endif
-	if( libsmdev_offset_list_empty(
+	if( libsmdev_sector_list_empty(
 	     internal_handle->sessions,
 	     error ) != 1 )
 	{
@@ -1396,7 +1397,7 @@ int libsmdev_handle_close(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions offset list.",
+		 "%s: unable to empty sessions sector list.",
 		 function );
 
 		result = -1;

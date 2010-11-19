@@ -188,12 +188,6 @@
 /* Define to 1 if you have the `strchr' function. */
 #undef HAVE_STRCHR
 
-/* Define to 1 if you have the `strcmp' function. */
-#undef HAVE_STRCMP
-
-/* Define to 1 if you have the `strcpy' function. */
-#undef HAVE_STRCPY
-
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
@@ -275,12 +269,6 @@
 /* Define to 1 if you have the `wcschr' function. */
 #undef HAVE_WCSCHR
 
-/* Define to 1 if you have the `wcscmp' function. */
-#undef HAVE_WCSCMP
-
-/* Define to 1 if you have the `wcscpy' function. */
-#undef HAVE_WCSCPY
-
 /* Define to 1 if you have the `wcslen' function. */
 #undef HAVE_WCSLEN
 
@@ -301,6 +289,9 @@
 
 /* Define to 1 if you have the `wcstoll' function. */
 #undef HAVE_WCSTOLL
+
+/* Define to 1 if you have the `wcstombs' function. */
+#undef HAVE_WCSTOMBS
 
 /* Define to 1 if you have the `wcstoull' function. */
 #undef HAVE_WCSTOULL

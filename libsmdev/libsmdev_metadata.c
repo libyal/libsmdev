@@ -1123,7 +1123,7 @@ int libsmdev_internal_handle_determine_media_information(
 			liberror_error_free(
 			 error );
 
-			libsmdev_offset_list_empty(
+			libsmdev_sector_list_empty(
 			 internal_handle->sessions,
 			 NULL );
 		}
@@ -1520,7 +1520,7 @@ int libsmdev_handle_get_number_of_sessions(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_offset_list_get_number_of_elements(
+	if( libsmdev_sector_list_get_number_of_elements(
 	     internal_handle->sessions,
 	     number_of_sessions,
 	     error ) != 1 )
@@ -1529,7 +1529,7 @@ int libsmdev_handle_get_number_of_sessions(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in sessions offset list.",
+		 "%s: unable to retrieve number of elements in sessions sector list.",
 		 function );
 
 		return( -1 );
@@ -1543,8 +1543,8 @@ int libsmdev_handle_get_number_of_sessions(
 int libsmdev_handle_get_session(
      libsmdev_handle_t *handle,
      int index,
-     off64_t *offset,
-     size64_t *size,
+     uint64_t *start_sector,
+     uint64_t *number_of_sectors,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
@@ -1563,18 +1563,18 @@ int libsmdev_handle_get_session(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_offset_list_get_offset(
+	if( libsmdev_sector_list_get_sector(
 	     internal_handle->sessions,
 	     index,
-	     offset,
-	     size,
+	     start_sector,
+	     number_of_sectors,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve session: %d from sessions offset list.",
+		 "%s: unable to retrieve session: %d from sessions sector list.",
 		 function,
 		 index );
 

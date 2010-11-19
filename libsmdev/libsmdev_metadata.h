@@ -75,8 +75,8 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_sessions(
 LIBSMDEV_EXTERN int libsmdev_handle_get_session(
                      libsmdev_handle_t *handle,
                      int index,
-                     off64_t *offset,
-                     size64_t *size,
+                     uint64_t *start_sector,
+                     uint64_t *number_of_sectors,
                      liberror_error_t **error );
 
 LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_error_retries(

@@ -27,7 +27,7 @@
 
 #include <liberror.h>
 
-#include "libsmdev_offset_list.h"
+#include "libsmdev_sector_list.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -37,7 +37,7 @@ extern "C" {
 
 int libsmdev_optical_disk_get_table_of_contents(
      int file_descriptor,
-     libsmdev_offset_list_t *sessions,
+     libsmdev_sector_list_t *sessions,
      liberror_error_t **error );
 
 #endif

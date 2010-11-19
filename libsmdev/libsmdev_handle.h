@@ -30,6 +30,7 @@
 
 #include "libsmdev_extern.h"
 #include "libsmdev_offset_list.h"
+#include "libsmdev_sector_list.h"
 #include "libsmdev_types.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
@@ -112,7 +113,7 @@ struct libsmdev_internal_handle
 
 	/* The sessions
 	 */
-	libsmdev_offset_list_t *sessions;
+	libsmdev_sector_list_t *sessions;
 
 	/* Value to indicate the media information values were set
 	 */
