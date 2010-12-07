@@ -50,8 +50,8 @@ int libsmdev_sector_list_value_initialize(
 	}
 	if( *sector_list_value == NULL )
 	{
-		*sector_list_value = (libsmdev_sector_list_value_t *) memory_allocate(
-		                                                       sizeof( libsmdev_sector_list_value_t ) );
+		*sector_list_value = memory_allocate_structure(
+		                      libsmdev_sector_list_value_t );
 
 		if( *sector_list_value == NULL )
 		{
@@ -62,7 +62,7 @@ int libsmdev_sector_list_value_initialize(
 			 "%s: unable to create sector list value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *sector_list_value,
@@ -76,15 +76,20 @@ int libsmdev_sector_list_value_initialize(
 			 "%s: unable to clear sector list value.",
 			 function );
 
-			memory_free(
-			 *sector_list_value );
-
-			*sector_list_value = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *sector_list_value != NULL )
+	{
+		memory_free(
+		 *sector_list_value );
+
+		*sector_list_value = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees a sector list value
@@ -134,8 +139,8 @@ int libsmdev_sector_list_initialize(
 	}
 	if( *sector_list == NULL )
 	{
-		*sector_list = (libsmdev_sector_list_t *) memory_allocate(
-		                                           sizeof( libsmdev_sector_list_t ) );
+		*sector_list = memory_allocate_structure(
+		                libsmdev_sector_list_t );
 
 		if( *sector_list == NULL )
 		{
@@ -146,7 +151,7 @@ int libsmdev_sector_list_initialize(
 			 "%s: unable to create sector list.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *sector_list,
@@ -160,15 +165,20 @@ int libsmdev_sector_list_initialize(
 			 "%s: unable to clear sector list.",
 			 function );
 
-			memory_free(
-			 *sector_list );
-
-			*sector_list = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *sector_list != NULL )
+	{
+		memory_free(
+		 *sector_list );
+
+		*sector_list = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees an sector list including the elements
@@ -918,22 +928,6 @@ int libsmdev_sector_list_append_sector(
 		}
 		else
 		{
-			if( last_list_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: missing last list element.",
-				 function );
-
-				libsmdev_list_element_free(
-				 &list_element,
-				 &libsmdev_sector_list_value_free,
-				 NULL );
-
-				return( -1 );
-			}
 			if( sector_list->first_element == NULL )
 			{
 				liberror_error_set(
@@ -966,29 +960,39 @@ int libsmdev_sector_list_append_sector(
 
 				return( -1 );
 			}
-			list_element->previous_element = last_list_element;
-			list_element->next_element     = last_list_element->next_element;
-
-			if( last_list_element == sector_list->last_element )
+			if( last_list_element == NULL )
 			{
-				sector_list->last_element = list_element;
-			}
-			else if( last_list_element->next_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: corruption detected - missing next in last list element.",
-				 function );
+				sector_list->first_element->previous_element = list_element;
+				list_element->next_element                   = sector_list->first_element;
 
-				return( -1 );
+				sector_list->first_element = list_element;
 			}
 			else
 			{
-				last_list_element->next_element->previous_element = list_element;
+				list_element->previous_element = last_list_element;
+				list_element->next_element     = last_list_element->next_element;
+
+				if( last_list_element == sector_list->last_element )
+				{
+					sector_list->last_element = list_element;
+				}
+				else if( last_list_element->next_element == NULL )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+					 "%s: corruption detected - missing next in last list element.",
+					 function );
+
+					return( -1 );
+				}
+				else
+				{
+					last_list_element->next_element->previous_element = list_element;
+				}
+				last_list_element->next_element = list_element;
 			}
-			last_list_element->next_element = list_element;
 		}
 		sector_list->number_of_elements++;
 	}
@@ -1006,7 +1010,7 @@ int libsmdev_sector_list_get_sector(
      liberror_error_t **error )
 {
 	libsmdev_sector_list_value_t *sector_list_value = NULL;
-	static char *function                           = "libsmdev_sector_list_get_sector";
+	static char *function                         = "libsmdev_sector_list_get_sector";
 
 	if( sector_list == NULL )
 	{

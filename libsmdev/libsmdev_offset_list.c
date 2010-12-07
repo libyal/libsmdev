@@ -50,8 +50,8 @@ int libsmdev_offset_list_value_initialize(
 	}
 	if( *offset_list_value == NULL )
 	{
-		*offset_list_value = (libsmdev_offset_list_value_t *) memory_allocate(
-		                                                       sizeof( libsmdev_offset_list_value_t ) );
+		*offset_list_value = memory_allocate_structure(
+		                      libsmdev_offset_list_value_t );
 
 		if( *offset_list_value == NULL )
 		{
@@ -62,7 +62,7 @@ int libsmdev_offset_list_value_initialize(
 			 "%s: unable to create offset list value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *offset_list_value,
@@ -76,15 +76,20 @@ int libsmdev_offset_list_value_initialize(
 			 "%s: unable to clear offset list value.",
 			 function );
 
-			memory_free(
-			 *offset_list_value );
-
-			*offset_list_value = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *offset_list_value != NULL )
+	{
+		memory_free(
+		 *offset_list_value );
+
+		*offset_list_value = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees an offset list value
@@ -134,8 +139,8 @@ int libsmdev_offset_list_initialize(
 	}
 	if( *offset_list == NULL )
 	{
-		*offset_list = (libsmdev_offset_list_t *) memory_allocate(
-		                                           sizeof( libsmdev_offset_list_t ) );
+		*offset_list = memory_allocate_structure(
+		                libsmdev_offset_list_t );
 
 		if( *offset_list == NULL )
 		{
@@ -146,7 +151,7 @@ int libsmdev_offset_list_initialize(
 			 "%s: unable to create offset list.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *offset_list,
@@ -160,15 +165,20 @@ int libsmdev_offset_list_initialize(
 			 "%s: unable to clear offset list.",
 			 function );
 
-			memory_free(
-			 *offset_list );
-
-			*offset_list = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *offset_list != NULL )
+	{
+		memory_free(
+		 *offset_list );
+
+		*offset_list = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees an offset list including the elements
@@ -920,22 +930,6 @@ int libsmdev_offset_list_append_offset(
 		}
 		else
 		{
-			if( last_list_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: missing last list element.",
-				 function );
-
-				libsmdev_list_element_free(
-				 &list_element,
-				 &libsmdev_offset_list_value_free,
-				 NULL );
-
-				return( -1 );
-			}
 			if( offset_list->first_element == NULL )
 			{
 				liberror_error_set(
@@ -968,29 +962,39 @@ int libsmdev_offset_list_append_offset(
 
 				return( -1 );
 			}
-			list_element->previous_element = last_list_element;
-			list_element->next_element     = last_list_element->next_element;
-
-			if( last_list_element == offset_list->last_element )
+			if( last_list_element == NULL )
 			{
-				offset_list->last_element = list_element;
-			}
-			else if( last_list_element->next_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: corruption detected - missing next in last list element.",
-				 function );
+				offset_list->first_element->previous_element = list_element;
+				list_element->next_element                   = offset_list->first_element;
 
-				return( -1 );
+				offset_list->first_element = list_element;
 			}
 			else
 			{
-				last_list_element->next_element->previous_element = list_element;
+				list_element->previous_element = last_list_element;
+				list_element->next_element     = last_list_element->next_element;
+
+				if( last_list_element == offset_list->last_element )
+				{
+					offset_list->last_element = list_element;
+				}
+				else if( last_list_element->next_element == NULL )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+					 "%s: corruption detected - missing next in last list element.",
+					 function );
+
+					return( -1 );
+				}
+				else
+				{
+					last_list_element->next_element->previous_element = list_element;
+				}
+				last_list_element->next_element = list_element;
 			}
-			last_list_element->next_element = list_element;
 		}
 		offset_list->number_of_elements++;
 	}
@@ -1008,7 +1012,7 @@ int libsmdev_offset_list_get_offset(
      liberror_error_t **error )
 {
 	libsmdev_offset_list_value_t *offset_list_value = NULL;
-	static char *function                           = "libsmdev_offset_list_get_offset";
+	static char *function                          = "libsmdev_offset_list_get_offset";
 
 	if( offset_list == NULL )
 	{

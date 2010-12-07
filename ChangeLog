@@ -30,6 +30,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101207
+* updated common, list type, offset list, sector list, liberror, libnotify,
+  libuna
+* code clean up
+
 20101119
 * updated configure.ac, libcstring, liberror
 * fixed bug regarding session values

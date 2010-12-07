@@ -140,49 +140,57 @@ struct libsmdev_internal_handle
 	int abort;
 };
 
-LIBSMDEV_EXTERN int libsmdev_handle_initialize(
-                     libsmdev_handle_t **handle,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_initialize(
+     libsmdev_handle_t **handle,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_free(
-                     libsmdev_handle_t **handle,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_free(
+     libsmdev_handle_t **handle,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_signal_abort(
-                     libsmdev_handle_t *handle,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_signal_abort(
+     libsmdev_handle_t *handle,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_open(
-                     libsmdev_handle_t *handle,
-                     char * const filenames[],
-                     int number_of_filenames,
-                     int flags,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_open(
+     libsmdev_handle_t *handle,
+     char * const filenames[],
+     int number_of_filenames,
+     int access_flags,
+     liberror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
-LIBSMDEV_EXTERN int libsmdev_handle_open_wide(
-                     libsmdev_handle_t *handle,
-                     wchar_t * const filenames[],
-                     int number_of_filenames,
-                     int flags,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_open_wide(
+     libsmdev_handle_t *handle,
+     wchar_t * const filenames[],
+     int number_of_filenames,
+     int access_flags,
+     liberror_error_t **error );
 #endif
 
-LIBSMDEV_EXTERN int libsmdev_handle_close(
-                     libsmdev_handle_t *handle,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_close(
+     libsmdev_handle_t *handle,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN ssize_t libsmdev_handle_read_buffer(
-                         libsmdev_handle_t *handle,
-                         void *buffer,
-                         size_t buffer_size,
-                         liberror_error_t **error );
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_read_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         liberror_error_t **error );
 
-LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
-                         libsmdev_handle_t *handle,
-                         void *buffer,
-                         size_t buffer_size,
-                         liberror_error_t **error );
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_write_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         liberror_error_t **error );
 
 #if defined( WINAPI ) && ( WINVER < 0x0500 )
 BOOL libsmdev_SetFilePointerEx(
@@ -192,27 +200,31 @@ BOOL libsmdev_SetFilePointerEx(
       DWORD move_method );
 #endif
 
-LIBSMDEV_EXTERN off64_t libsmdev_handle_seek_offset(
-                         libsmdev_handle_t *handle,
-                         off64_t offset,
-                         int whence,
-                         liberror_error_t **error );
+LIBSMDEV_EXTERN \
+off64_t libsmdev_handle_seek_offset(
+         libsmdev_handle_t *handle,
+         off64_t offset,
+         int whence,
+         liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_offset(
-                     libsmdev_handle_t *handle,
-                     off64_t *offset,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_offset(
+     libsmdev_handle_t *handle,
+     off64_t *offset,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_size(
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_size(
                      libsmdev_handle_t *handle,
                      size_t *filename_size,
                      liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename(
-                     libsmdev_handle_t *handle,
-                     char *filename,
-                     size_t filename_size,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename(
+     libsmdev_handle_t *handle,
+     char *filename,
+     size_t filename_size,
+     liberror_error_t **error );
 
 int libsmdev_handle_set_filename(
      libsmdev_handle_t *handle,
@@ -221,16 +233,18 @@ int libsmdev_handle_set_filename(
      liberror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_size_wide(
-                     libsmdev_handle_t *handle,
-                     size_t *filename_size,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_size_wide(
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_wide(
-                     libsmdev_handle_t *handle,
-                     wchar_t *filename,
-                     size_t filename_size,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_wide(
+     libsmdev_handle_t *handle,
+     wchar_t *filename,
+     size_t filename_size,
+     liberror_error_t **error );
 
 int libsmdev_handle_set_filename_wide(
      libsmdev_handle_t *handle,

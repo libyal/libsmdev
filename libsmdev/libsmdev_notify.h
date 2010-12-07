@@ -37,19 +37,23 @@ extern "C" {
 
 #if !defined( HAVE_LOCAL_LIBSMDEV )
 
-LIBSMDEV_EXTERN void libsmdev_notify_set_verbose(
-                      int verbose );
+LIBSMDEV_EXTERN \
+void libsmdev_notify_set_verbose(
+      int verbose );
 
-LIBSMDEV_EXTERN int libsmdev_notify_set_stream(
-                     FILE *stream,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_set_stream(
+     FILE *stream,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_notify_stream_open(
-                     const char *filename,
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_stream_open(
+     const char *filename,
+     liberror_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_notify_stream_close(
-                     liberror_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_stream_close(
+     liberror_error_t **error );
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 

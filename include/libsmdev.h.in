@@ -41,39 +41,44 @@ extern "C" {
 
 /* Returns the library version
  */
-LIBSMDEV_EXTERN const char *libsmdev_handle_get_version(
-                             void );
+LIBSMDEV_EXTERN \
+const char *libsmdev_handle_get_version(
+             void );
 
 /* Retrieves the narrow system string codepage
  * A value of 0 represents no codepage, UTF-8 encoding is used instead
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_get_codepage(
-                     int *codepage,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_get_codepage(
+     int *codepage,
+     libsmdev_error_t **error );
 
 /* Sets the narrow system string codepage
  * A value of 0 represents no codepage, UTF-8 encoding is used instead
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_set_codepage(
-                     int codepage,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_set_codepage(
+     int codepage,
+     libsmdev_error_t **error );
 
 /* Determines if a file is a device
  * Returns 1 if true, 0 if not or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_check_device(
-                     const char *filename,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_check_device(
+     const char *filename,
+     libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
 /* Determines if a file is a device
  * Returns 1 if true, 0 if not or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_check_device_wide(
-                     const wchar_t *filename,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_check_device_wide(
+     const wchar_t *filename,
+     libsmdev_error_t **error );
 #endif
 
 /* -------------------------------------------------------------------------
@@ -82,29 +87,33 @@ LIBSMDEV_EXTERN int libsmdev_check_device_wide(
 
 /* Sets the verbose notification
  */
-LIBSMDEV_EXTERN void libsmdev_notify_set_verbose(
-                      int verbose );
+LIBSMDEV_EXTERN \
+void libsmdev_notify_set_verbose(
+      int verbose );
 
 /* Sets the notification stream
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_notify_set_stream(
-                     FILE *stream,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_set_stream(
+     FILE *stream,
+     libsmdev_error_t **error );
 
 /* Opens the notification stream using a filename
  * The stream is opened in append mode
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_notify_stream_open(
-                     const char *filename,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_stream_open(
+     const char *filename,
+     libsmdev_error_t **error );
 
 /* Closes the notification stream if opened using a filename
  * Returns 0 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_notify_stream_close(
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_notify_stream_close(
+     libsmdev_error_t **error );
 
 /* -------------------------------------------------------------------------
  * Error functions
@@ -112,40 +121,45 @@ LIBSMDEV_EXTERN int libsmdev_notify_stream_close(
 
 /* Frees the error including elements
  */
-LIBSMDEV_EXTERN void libsmdev_error_free(
-                      libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+void libsmdev_error_free(
+      libsmdev_error_t **error );
 
 /* Prints a descriptive string of the error to the stream
  * Returns the number of printed characters if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_error_fprint(
-                     libsmdev_error_t *error,
-                     FILE *stream );
+LIBSMDEV_EXTERN \
+int libsmdev_error_fprint(
+     libsmdev_error_t *error,
+     FILE *stream );
 
 /* Prints a descriptive string of the error to the string
  * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_error_sprint(
-                     libsmdev_error_t *error,
-                     char *string,
-                     size_t size );
+LIBSMDEV_EXTERN \
+int libsmdev_error_sprint(
+     libsmdev_error_t *error,
+     char *string,
+     size_t size );
 
 /* Prints a backtrace of the error to the stream
  * Returns the number of printed characters if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_error_backtrace_fprint(
-                     libsmdev_error_t *error,
-                     FILE *stream );
+LIBSMDEV_EXTERN \
+int libsmdev_error_backtrace_fprint(
+     libsmdev_error_t *error,
+     FILE *stream );
 
 /* Prints a backtrace of the error to the string
  * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_error_backtrace_sprint(
-                     libsmdev_error_t *error,
-                     char *string,
-                     size_t size );
+LIBSMDEV_EXTERN \
+int libsmdev_error_backtrace_sprint(
+     libsmdev_error_t *error,
+     char *string,
+     size_t size );
 
 /* -------------------------------------------------------------------------
  * Handle functions
@@ -155,126 +169,140 @@ LIBSMDEV_EXTERN int libsmdev_error_backtrace_sprint(
  * Make sure the value handle is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_initialize(
-                     libsmdev_handle_t **handle,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_initialize(
+     libsmdev_handle_t **handle,
+     libsmdev_error_t **error );
 
 /* Frees the handle
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_free(
-                     libsmdev_handle_t **handle,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_free(
+     libsmdev_handle_t **handle,
+     libsmdev_error_t **error );
 
 /* Signals the handle to abort its current activity
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_signal_abort(
-                     libsmdev_handle_t *handle,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_signal_abort(
+     libsmdev_handle_t *handle,
+     libsmdev_error_t **error );
 
 /* Opens a storage media device
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_open(
-                     libsmdev_handle_t *handle,
-                     char * const filenames[],
-                     int number_of_filenames,
-                     int flags,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_open(
+     libsmdev_handle_t *handle,
+     char * const filenames[],
+     int number_of_filenames,
+     int access_flags,
+     libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
 /* Opens a storage media device
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_open_wide(
-                     libsmdev_handle_t *handle,
-                     wchar_t * const filenames[],
-                     int number_of_filenames,
-                     int flags,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_open_wide(
+     libsmdev_handle_t *handle,
+     wchar_t * const filenames[],
+     int number_of_filenames,
+     int access_flags,
+     libsmdev_error_t **error );
 #endif
 
 /* Closes the handle
  * Returns the 0 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_close(
-                     libsmdev_handle_t *handle,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_close(
+     libsmdev_handle_t *handle,
+     libsmdev_error_t **error );
 
 /* Reads a buffer from the handle
  * Returns the number of bytes read or -1 on error
  */
-LIBSMDEV_EXTERN ssize_t libsmdev_handle_read_buffer(
-                         libsmdev_handle_t *handle,
-                         void *buffer,
-                         size_t buffer_size,
-                         libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_read_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         libsmdev_error_t **error );
 
 /* Writes a buffer to the handle
  * Returns the number of bytes written or -1 on error
  */
-LIBSMDEV_EXTERN ssize_t libsmdev_handle_write_buffer(
-                         libsmdev_handle_t *handle,
-                         void *buffer,
-                         size_t buffer_size,
-                         libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_write_buffer(
+         libsmdev_handle_t *handle,
+         void *buffer,
+         size_t buffer_size,
+         libsmdev_error_t **error );
 
 /* Seeks an offset in the handle
  * Returns the offset if seek is successful or -1 on error
  */
-LIBSMDEV_EXTERN off64_t libsmdev_handle_seek_offset(
-                         libsmdev_handle_t *handle,
-                         off64_t offset,
-                         int whence,
-                         libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+off64_t libsmdev_handle_seek_offset(
+         libsmdev_handle_t *handle,
+         off64_t offset,
+         int whence,
+         libsmdev_error_t **error );
 
 /* Retrieves the current offset of the (media) data
  * Returns the offset if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_offset(
-                     libsmdev_handle_t *handle,
-                     off64_t *offset,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_offset(
+     libsmdev_handle_t *handle,
+     off64_t *offset,
+     libsmdev_error_t **error );
 
 /* Retrieves the filename size of the device
  * The filename size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_size(
-                     libsmdev_handle_t *handle,
-                     size_t *filename_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_size(
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     libsmdev_error_t **error );
 
 /* Retrieves the filename of the device
  * The filename size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename(
-                     libsmdev_handle_t *handle,
-                     char *filename,
-                     size_t filename_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename(
+     libsmdev_handle_t *handle,
+     char *filename,
+     size_t filename_size,
+     libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
 /* Retrieves the filename size of the device
  * The filename size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_size_wide(
-                     libsmdev_handle_t *handle,
-                     size_t *filename_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_size_wide(
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     libsmdev_error_t **error );
 
 /* Retrieves the filename of the device
  * The filename size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_filename_wide(
-                     libsmdev_handle_t *handle,
-                     wchar_t *filename,
-                     size_t filename_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_filename_wide(
+     libsmdev_handle_t *handle,
+     wchar_t *filename,
+     size_t filename_size,
+     libsmdev_error_t **error );
 #endif
 
 /* -------------------------------------------------------------------------
@@ -284,115 +312,128 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_filename_wide(
 /* Retrieves the media size
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_media_size(
-                     libsmdev_handle_t *handle,
-                     size64_t *media_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_media_size(
+     libsmdev_handle_t *handle,
+     size64_t *media_size,
+     libsmdev_error_t **error );
 
 /* Retrieves the number of bytes per sector
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_bytes_per_sector(
-                     libsmdev_handle_t *handle,
-                     uint32_t *bytes_per_sector,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_bytes_per_sector(
+     libsmdev_handle_t *handle,
+     uint32_t *bytes_per_sector,
+     libsmdev_error_t **error );
 
 /* Retrieves the media type
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_media_type(
-                     libsmdev_handle_t *handle,
-                     uint8_t *media_type,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_media_type(
+     libsmdev_handle_t *handle,
+     uint8_t *media_type,
+     libsmdev_error_t **error );
 
 /* Retrieves the bus type
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_bus_type(
-                     libsmdev_handle_t *handle,
-                     uint8_t *bus_type,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_bus_type(
+     libsmdev_handle_t *handle,
+     uint8_t *bus_type,
+     libsmdev_error_t **error );
 
 /* Retrieves an information value specified by the identifier
  * The strings are encoded in UTF-8
  * The value size should include the end of string character
  * Returns 1 if successful, 0 if value not present or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_information_value(
-                     libsmdev_handle_t *handle,
-                     const uint8_t *information_value_identifier,
-                     size_t information_value_identifier_length,
-                     uint8_t *information_value,
-                     size_t information_value_size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_information_value(
+     libsmdev_handle_t *handle,
+     const uint8_t *information_value_identifier,
+     size_t information_value_identifier_length,
+     uint8_t *information_value,
+     size_t information_value_size,
+     libsmdev_error_t **error );
 
 /* Retrieves the number of sessions
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_sessions(
-                     libsmdev_handle_t *handle,
-                     int *number_of_sessions,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_number_of_sessions(
+     libsmdev_handle_t *handle,
+     int *number_of_sessions,
+     libsmdev_error_t **error );
 
 /* Retrieves a session
  * Returns 1 if successful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_session(
-                     libsmdev_handle_t *handle,
-                     int index,
-                     off64_t *offset,
-                     size64_t *size,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_session(
+     libsmdev_handle_t *handle,
+     int index,
+     off64_t *offset,
+     size64_t *size,
+     libsmdev_error_t **error );
 
 /* Retrieves the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_number_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t *number_of_error_retries,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_number_of_error_retries(
+     libsmdev_handle_t *handle,
+     uint8_t *number_of_error_retries,
+     libsmdev_error_t **error );
 
 /* Sets the number of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_set_number_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t number_of_error_retries,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_set_number_of_error_retries(
+     libsmdev_handle_t *handle,
+     uint8_t number_of_error_retries,
+     libsmdev_error_t **error );
 
 /* Retrieves the read/write error granularity
  * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_error_granularity(
-                     libsmdev_handle_t *handle,
-                     size_t *error_granularity,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_error_granularity(
+     libsmdev_handle_t *handle,
+     size_t *error_granularity,
+     libsmdev_error_t **error );
 
 /* Sets the read/write error granularity
  * A value of 0 represents an error granularity of the entire buffer being read/written
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_set_error_granularity(
-                     libsmdev_handle_t *handle,
-                     size_t error_granularity,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_set_error_granularity(
+     libsmdev_handle_t *handle,
+     size_t error_granularity,
+     libsmdev_error_t **error );
 
 /* Retrieves the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_get_error_flags(
-                     libsmdev_handle_t *handle,
-                     uint8_t *error_flags,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_error_flags(
+     libsmdev_handle_t *handle,
+     uint8_t *error_flags,
+     libsmdev_error_t **error );
 
 /* Sets the read/write error flags
  * Returns the 1 if succesful or -1 on error
  */
-LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
-                     libsmdev_handle_t *handle,
-                     uint8_t error_flags,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_set_error_flags(
+     libsmdev_handle_t *handle,
+     uint8_t error_flags,
+     libsmdev_error_t **error );
 
 /* -------------------------------------------------------------------------
  * Meta data functions - deprecated
@@ -404,10 +445,11 @@ LIBSMDEV_EXTERN int libsmdev_handle_set_error_flags(
  * This function is deprecated use libsmdev_handle_get_number_of_error_retries instead
  */
 LIBSMDEV_DEPRECATED \
-LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t *amount_of_error_retries,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_amount_of_error_retries(
+     libsmdev_handle_t *handle,
+     uint8_t *amount_of_error_retries,
+     libsmdev_error_t **error );
 
 /* Sets the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
@@ -415,10 +457,11 @@ LIBSMDEV_EXTERN int libsmdev_handle_get_amount_of_error_retries(
  * This function is deprecated use libsmdev_handle_set_number_of_error_retries instead
  */
 LIBSMDEV_DEPRECATED \
-LIBSMDEV_EXTERN int libsmdev_handle_set_amount_of_error_retries(
-                     libsmdev_handle_t *handle,
-                     uint8_t amount_of_error_retries,
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+int libsmdev_handle_set_amount_of_error_retries(
+     libsmdev_handle_t *handle,
+     uint8_t amount_of_error_retries,
+     libsmdev_error_t **error );
 
 #if defined( __cplusplus )
 }

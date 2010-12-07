@@ -30,6 +30,7 @@ libsmdev_la_SOURCES = \
 	libsmdev_string.c libsmdev_string.h \
 	libsmdev_support.c libsmdev_support.h \
 	libsmdev_types.h \
+	libsmdev_unused.h \
 	libsmdev_usb.c libsmdev_usb.h
 
 libsmdev_la_LIBADD = \

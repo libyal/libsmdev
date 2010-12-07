@@ -82,8 +82,8 @@ int libsmdev_handle_initialize(
 	}
 	if( *handle == NULL )
 	{
-		internal_handle = (libsmdev_internal_handle_t *) memory_allocate(
-		                                                  sizeof( libsmdev_internal_handle_t ) );
+		internal_handle = memory_allocate_structure(
+		                   libsmdev_internal_handle_t );
 
 		if( internal_handle == NULL )
 		{
@@ -94,7 +94,7 @@ int libsmdev_handle_initialize(
 			 "%s: unable to create internal handle.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_handle,
@@ -108,10 +108,7 @@ int libsmdev_handle_initialize(
 			 "%s: unable to clear handle.",
 			 function );
 
-			memory_free(
-			 internal_handle );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libsmdev_sector_list_initialize(
 		     &( internal_handle->sessions ),
@@ -124,10 +121,7 @@ int libsmdev_handle_initialize(
 			 "%s: unable to create sessions sector list.",
 			 function );
 
-			memory_free(
-			 internal_handle );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libsmdev_offset_list_initialize(
 		     &( internal_handle->errors ),
@@ -140,13 +134,7 @@ int libsmdev_handle_initialize(
 			 "%s: unable to create errors offset list.",
 			 function );
 
-			libsmdev_sector_list_free(
-			 &( internal_handle->sessions ),
-			 NULL );
-			memory_free(
-			 internal_handle );
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( WINAPI )
 		internal_handle->file_handle             = INVALID_HANDLE_VALUE;
@@ -158,6 +146,20 @@ int libsmdev_handle_initialize(
 		*handle = (libsmdev_handle_t *) internal_handle;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_handle != NULL )
+	{
+		if( internal_handle->sessions != NULL )
+		{
+			libsmdev_sector_list_free(
+			 &( internal_handle->sessions ),
+			 NULL );
+		}
+		memory_free(
+		 internal_handle );
+	}
+	return( -1 );
 }
 
 /* Frees the handle
@@ -276,7 +278,7 @@ int libsmdev_handle_open(
      libsmdev_handle_t *handle,
      char * const filenames[],
      int number_of_filenames,
-     int flags,
+     int access_flags,
      liberror_error_t **error )
 {
 	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
@@ -407,18 +409,18 @@ int libsmdev_handle_open(
 		return( -1 );
 	}
 #if defined( WINAPI )
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_access_flags   = GENERIC_WRITE | GENERIC_READ;
 		file_io_creation_flags = OPEN_ALWAYS;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_READ;
 		file_io_creation_flags = OPEN_EXISTING;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_WRITE;
 		file_io_creation_flags = OPEN_ALWAYS;
@@ -429,7 +431,7 @@ int libsmdev_handle_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		memory_free(
@@ -440,8 +442,8 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
@@ -528,16 +530,16 @@ int libsmdev_handle_open(
 		}
 	}
 #else
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_flags = O_RDWR | O_CREAT;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_flags = O_RDONLY;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_flags = O_WRONLY | O_CREAT;
 	}
@@ -547,7 +549,7 @@ int libsmdev_handle_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		memory_free(
@@ -558,8 +560,8 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_flags |= O_TRUNC;
 	}
@@ -708,7 +710,7 @@ int libsmdev_handle_open_wide(
      libsmdev_handle_t *handle,
      wchar_t * const filenames[],
      int number_of_filenames,
-     int flags,
+     int access_flags,
      liberror_error_t **error )
 {
 	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
@@ -842,18 +844,18 @@ int libsmdev_handle_open_wide(
 		return( -1 );
 	}
 #if defined( WINAPI )
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_access_flags   = GENERIC_WRITE | GENERIC_READ;
 		file_io_creation_flags = OPEN_ALWAYS;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_READ;
 		file_io_creation_flags = OPEN_EXISTING;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_access_flags   = GENERIC_WRITE;
 		file_io_creation_flags = OPEN_ALWAYS;
@@ -864,7 +866,7 @@ int libsmdev_handle_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		memory_free(
@@ -875,8 +877,8 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
@@ -962,16 +964,16 @@ int libsmdev_handle_open_wide(
 		}
 	}
 #else
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 ) )
 	{
 		file_io_flags = O_RDWR | O_CREAT;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
 	{
 		file_io_flags = O_RDONLY;
 	}
-	else if( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	else if( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		file_io_flags = O_WRONLY | O_CREAT;
 	}
@@ -981,7 +983,7 @@ int libsmdev_handle_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		memory_free(
@@ -992,8 +994,8 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
-	 && ( ( flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
+	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
+	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_flags |= O_TRUNC;
 	}

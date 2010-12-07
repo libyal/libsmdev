@@ -25,6 +25,8 @@
 
 #include <windows.h>
 
+#include "libsmdev_unused.h"
+
 #if defined( _MANAGED )
 #pragma managed( push, off )
 #endif
@@ -36,6 +38,8 @@ BOOL WINAPI DllMain(
              DWORD fdwReason,
              LPVOID lpvReserved )
 {
+	LIBSMDEV_UNREFERENCED_PARAMETER( lpvReserved )
+
 	switch( fdwReason )
 	{
 		case DLL_PROCESS_ATTACH:

@@ -39,26 +39,31 @@ extern "C" {
 
 #if !defined( HAVE_LOCAL_LIBSMDEV )
 
-LIBSMDEV_EXTERN void libsmdev_error_free(
-                     libsmdev_error_t **error );
+LIBSMDEV_EXTERN \
+void libsmdev_error_free(
+      libsmdev_error_t **error );
 
-LIBSMDEV_EXTERN int libsmdev_error_fprint(
-                    libsmdev_error_t *error,
-                    FILE *stream );
+LIBSMDEV_EXTERN \
+int libsmdev_error_fprint(
+     libsmdev_error_t *error,
+     FILE *stream );
 
-LIBSMDEV_EXTERN int libsmdev_error_sprint(
-                    libsmdev_error_t *error,
-                    char *string,
-                    size_t size );
+LIBSMDEV_EXTERN \
+int libsmdev_error_sprint(
+     libsmdev_error_t *error,
+     char *string,
+     size_t size );
 
-LIBSMDEV_EXTERN int libsmdev_error_backtrace_fprint(
-                    libsmdev_error_t *error,
-                    FILE *stream );
+LIBSMDEV_EXTERN \
+int libsmdev_error_backtrace_fprint(
+     libsmdev_error_t *error,
+     FILE *stream );
 
-LIBSMDEV_EXTERN int libsmdev_error_backtrace_sprint(
-                    libsmdev_error_t *error,
-                    char *string,
-                    size_t size );
+LIBSMDEV_EXTERN \
+int libsmdev_error_backtrace_sprint(
+     libsmdev_error_t *error,
+     char *string,
+     size_t size );
 
 #endif
 
