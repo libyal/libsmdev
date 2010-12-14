@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20101207],
+ [20101214],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(

@@ -30,6 +30,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101214
+* corrected 'errror'
+
 20101207
 * updated common, list type, offset list, sector list, liberror, libnotify,
   libuna

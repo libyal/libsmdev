@@ -1920,7 +1920,7 @@ ssize_t libsmdev_handle_read_buffer(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append read errror to offset list.",
+				 "%s: unable to append read error to offset list.",
 				 function );
 
 				return( -1 );
