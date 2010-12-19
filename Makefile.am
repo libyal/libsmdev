@@ -8,8 +8,16 @@ SUBDIRS = \
 	libnotify \
 	libuna \
 	libsmdev \
+	po \
 	manuals \
 	msvscpp
+
+GETTEXT_FILES = \
+	config.rpath \
+	po/Makevars.in
+
+PKGCONFIG_FILES = \
+	libsmdev.pc.in
 
 SPEC_FILES = \
 	libsmdev.spec \
@@ -17,7 +25,8 @@ SPEC_FILES = \
 
 EXTRA_DIST = \
 	README.mingw \
-	libsmdev.pc.in \
+	$(GETTEXT_FILES) \
+	$(PKGCONFIG_FILES) \
         $(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \
@@ -40,6 +49,7 @@ library:
 	(cd $(srcdir)/libnotify && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libuna && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsmdev && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
 	/bin/rm -f Makefile
@@ -59,4 +69,5 @@ splint:
 	(cd $(srcdir)/libnotify && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsmdev && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))
 

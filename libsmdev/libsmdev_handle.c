@@ -108,7 +108,10 @@ int libsmdev_handle_initialize(
 			 "%s: unable to clear handle.",
 			 function );
 
-			goto on_error;
+			memory_free(
+			 internal_handle );
+
+			return( -1 );
 		}
 		if( libsmdev_sector_list_initialize(
 		     &( internal_handle->sessions ),

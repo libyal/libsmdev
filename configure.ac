@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20101214],
+ [20101219],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -28,7 +28,7 @@ LIBSMDEV_TEST_ENABLE(
  [winapi],
  [winapi],
  [enable WINAPI support for cross-compilation],
- [no])
+ [auto-detect])
 LIBSMDEV_TEST_ENABLE(
  [verbose-output],
  [verbose_output],
@@ -51,9 +51,29 @@ AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
+dnl Support of internationalization (i18n)
+AM_GNU_GETTEXT([external])
+
 dnl Check for compiler language support
 AC_C_CONST
 AC_C_VOLATILE
+
+dnl Automatically enable winapi support for mingw
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xauto-detect],
+ [ac_libsmdev_target_string="$target";
+
+ AS_IF(
+  [test "x$ac_libsmdev_target_string" = x],
+  [ac_libsmdev_target_string="$build"])
+
+ AS_CASE(
+  [$ac_libsmdev_target_string],
+  [*mingw*],[AC_MSG_NOTICE(
+             [Detected MinGW enabling WINAPI support for cross-compilation])
+            ac_cv_libsmdev_enable_winapi=yes],
+  [*],[ac_cv_libsmdev_enable_winapi=no])
+ ])
 
 dnl Check for headers
 dnl Headers included in include/libsmdev/types.h
@@ -789,6 +809,8 @@ AC_CONFIG_FILES([liberror/Makefile])
 AC_CONFIG_FILES([libnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
+AC_CONFIG_FILES([po/Makefile.in])
+AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
 AC_CONFIG_FILES([msvscpp/Makefile])
 dnl Have configure make the include files

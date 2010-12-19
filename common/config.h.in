@@ -1,7 +1,19 @@
 /* common/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to 1 if translation of program messages to the user's native
+   language is requested. */
+#undef ENABLE_NLS
+
 /* Define to 1 if you have the `atoll' function. */
 #undef HAVE_ATOLL
+
+/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+   CoreFoundation framework. */
+#undef HAVE_CFLOCALECOPYCURRENT
+
+/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+   the CoreFoundation framework. */
+#undef HAVE_CFPREFERENCESCOPYAPPVALUE
 
 /* Define to 1 if you have the `close' function. */
 #undef HAVE_CLOSE
@@ -11,6 +23,10 @@
 
 /* Define to 1 if you have the <cygwin/hdreg.h> header file. */
 #undef HAVE_CYGWIN_HDREG_H
+
+/* Define if the GNU dcgettext() function is already present or preinstalled.
+   */
+#undef HAVE_DCGETTEXT
 
 /* Define to 1 if debug output should be used */
 #undef HAVE_DEBUG_OUTPUT
@@ -67,6 +83,12 @@
 
 /* Define to 1 if you have the `getenv' function. */
 #undef HAVE_GETENV
+
+/* Define if the GNU gettext() function is already present or preinstalled. */
+#undef HAVE_GETTEXT
+
+/* Define if you have the iconv() function and it works. */
+#undef HAVE_ICONV
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

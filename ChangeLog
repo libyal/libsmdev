@@ -30,6 +30,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20101219
+* updated configure, added gettext support
+* updated list type, offset list, sector list
+* code clean up
+
 20101214
 * corrected 'errror'
 
