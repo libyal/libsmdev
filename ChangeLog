@@ -30,6 +30,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110104
+* updated libcstring, libuna
+* 2011 update
+
 20101219
 * updated configure, added gettext support
 * updated list type, offset list, sector list
