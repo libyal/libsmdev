@@ -31,6 +31,27 @@
 
 #if !defined( HAVE_LOCAL_LIBSMDEV )
 
+/* Retrieves an UTF-8 encoded information value for the specific identifier
+ * The value size should include the end of string character
+ * Returns 1 if successful, 0 if value not present or -1 on error
+ */
+int libsmdev_handle_get_information_value(
+     libsmdev_handle_t *handle,
+     const uint8_t *information_value_identifier,
+     size_t information_value_identifier_length,
+     uint8_t *information_value,
+     size_t information_value_size,
+     liberror_error_t **error )
+{
+	return( libsmdev_handle_get_utf8_information_value(
+	         handle,
+	         information_value_identifier,
+	         information_value_identifier_length,
+	         information_value,
+	         information_value_size,
+	         error ) );
+}
+
 /* Retrieves the amount of read/write error retries
  * Returns the 1 if succesful or -1 on error
  */

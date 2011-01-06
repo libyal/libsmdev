@@ -64,12 +64,12 @@ int libsmdev_handle_get_bus_type(
      liberror_error_t **error );
 
 LIBSMDEV_EXTERN \
-int libsmdev_handle_get_information_value(
+int libsmdev_handle_get_utf8_information_value(
      libsmdev_handle_t *handle,
-     const uint8_t *information_value_identifier,
-     size_t information_value_identifier_length,
-     uint8_t *information_value,
-     size_t information_value_size,
+     const uint8_t *identifier,
+     size_t identifier_length,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
      liberror_error_t **error );
 
 LIBSMDEV_EXTERN \

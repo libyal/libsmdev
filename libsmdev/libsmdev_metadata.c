@@ -585,7 +585,10 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 
 	static char *function  = "libsmdev_internal_handle_determine_media_information";
+
+#if defined( WINAPI ) || defined( HAVE_SCSI_SG_H ) || defined( HDIO_GET_IDENTITY )
 	ssize_t result         = 0;
+#endif
 
 	if( internal_handle == NULL )
 	{
@@ -1358,23 +1361,22 @@ int libsmdev_handle_get_bus_type(
 	return( 1 );
 }
 
-/* Retrieves an information value specified by the identifier
- * The strings are encoded in UTF-8
+/* Retrieves an UTF-8 encoded information value for the specific identifier
  * The value size should include the end of string character
  * Returns 1 if successful, 0 if value not present or -1 on error
  */
-int libsmdev_handle_get_information_value(
+int libsmdev_handle_get_utf8_information_value(
      libsmdev_handle_t *handle,
-     const uint8_t *information_value_identifier,
-     size_t information_value_identifier_length,
-     uint8_t *information_value,
-     size_t information_value_size,
+     const uint8_t *identifier,
+     size_t identifier_length,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
-	uint8_t *internal_information_value         = NULL;
-	static char *function                       = "libsmdev_handle_get_information_value";
-	size_t internal_information_value_size      = 0;
+	uint8_t *information_value                  = NULL;
+	static char *function                       = "libsmdev_handle_get_utf8_information_value";
+	size_t information_value_size               = 0;
 
 	if( handle == NULL )
 	{
@@ -1389,13 +1391,13 @@ int libsmdev_handle_get_information_value(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( information_value_identifier == NULL )
+	if( identifier == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid information value identifier.",
+		 "%s: invalid identifier.",
 		 function );
 
 		return( -1 );
@@ -1427,72 +1429,76 @@ int libsmdev_handle_get_information_value(
 			return( -1 );
 		}
 	}
-	if( ( information_value_identifier_length == 5 )
-	 && ( libcstring_narrow_string_compare(
-	       "model",
-	       (char *) information_value_identifier,
-	       information_value_identifier_length ) == 0 ) )
+	if( identifier_length == 5 )
 	{
-		internal_information_value = (uint8_t *) internal_handle->model;
+		if( libcstring_narrow_string_compare(
+		     "model",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->model;
+		}
 	}
-	else if( ( information_value_identifier_length == 6 )
-	      && ( libcstring_narrow_string_compare(
-		    "vendor",
-		    (char *) information_value_identifier,
-		    information_value_identifier_length ) == 0 ) )
+	else if( identifier_length == 6 )
 	{
-		internal_information_value = (uint8_t *) internal_handle->vendor;
+		if( libcstring_narrow_string_compare(
+		     "vendor",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->vendor;
+		}
 	}
-	else if( ( information_value_identifier_length == 13 )
-	      && ( libcstring_narrow_string_compare(
-		    "serial_number",
-		    (char *) information_value_identifier,
-		    information_value_identifier_length ) == 0 ) )
+	else if( identifier_length == 13 )
 	{
-		internal_information_value = (uint8_t *) internal_handle->serial_number;
+		if( libcstring_narrow_string_compare(
+		     "serial_number",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->serial_number;
+		}
 	}
-	else
+	if( information_value == NULL )
 	{
 		return( 0 );
 	}
-	if( internal_information_value != NULL )
+	if( information_value[ 0 ] == 0 )
 	{
-		if( internal_information_value[ 0 ] == 0 )
-		{
-			return( 0 );
-		}
-		/* Determine the header value size
-		 */
-		internal_information_value_size = 1 + libcstring_string_length(
-		                                       (char *) internal_information_value );
-
-		if( information_value_size < internal_information_value_size )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-			 "%s: information value too small.",
-			 function );
-
-			return( -1 );
-		}
-		if( libcstring_string_copy(
-		     information_value,
-		     internal_information_value,
-		     internal_information_value_size ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set information value.",
-			 function );
-
-			return( -1 );
-		}
-		information_value[ internal_information_value_size - 1 ] = 0;
+		return( 0 );
 	}
+	/* Determine the header value size
+	 */
+	information_value_size = 1 + libcstring_string_length(
+	                              (char *) information_value );
+
+	if( utf8_string_size < information_value_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: UTF-8 string too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcstring_string_copy(
+	     (char *) utf8_string,
+	     information_value,
+	     information_value_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy information value to UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	utf8_string[ information_value_size - 1 ] = 0;
+
 	return( 1 );
 }
 

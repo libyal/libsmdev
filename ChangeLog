@@ -1,4 +1,5 @@
 TODO
+* add UTF-16 information value functions
 * make sure error_ranges is cleared on open
 * configure validate libuna and libbfio check
 * work on libsmdev_metadata
@@ -29,6 +30,9 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20110106
+* worked on UTF-8 functions
 
 20110104
 * updated libcstring, libuna
