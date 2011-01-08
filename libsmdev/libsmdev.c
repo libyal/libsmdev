@@ -1,5 +1,5 @@
 /*
- * Library to access and read the storage media (SM) devices
+ * Library to access and read storage media (SM) devices
  *
  * Copyright (c) 2010-2011, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -22,10 +22,16 @@
 #include <common.h>
 
 #if defined( WINAPI )
-
 #include <windows.h>
+#endif
 
 #include "libsmdev_unused.h"
+
+/* Define HAVE_LOCAL_LIBSMDEV for local use of libsmdev
+ */
+#if !defined( HAVE_LOCAL_LIBSMDEV )
+
+#if defined( WINAPI )
 
 #if defined( _MANAGED )
 #pragma managed( push, off )
@@ -59,5 +65,16 @@ BOOL WINAPI DllMain(
 	return( TRUE );
 }
 
-#endif
+/* Function that indicates the library is a DLL
+ * Returns 1
+ */
+int libsmdev_is_dll(
+     void )
+{
+	return( 1 );
+}
+
+#endif /* defined( WINAPI ) */
+
+#endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 

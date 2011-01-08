@@ -31,6 +31,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110108
+* updated configure.ac
+* updatec common, libcstring, libuna
+
 20110106
 * worked on UTF-8 functions
 
