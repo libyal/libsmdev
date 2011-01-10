@@ -1,4 +1,4 @@
-.Dd January 6, 2011
+.Dd January 10, 2011
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -12,6 +12,12 @@
 Support functions
 .Ft const char *
 .Fn libsmdev_get_version "void"
+.Ft int
+.Fn libsmdev_get_access_flags_read "void"
+.Ft int
+.Fn libsmdev_get_access_flags_read_write "void"
+.Ft int
+.Fn libsmdev_get_access_flags_write "void"
 .Ft int
 .Fn libsmdev_get_codepage "int *codepage, libsmdev_error_t **error"
 .Ft int
@@ -47,11 +53,11 @@ Error functions
 .Pp
 File/Handle functions
 .Ft int
-.Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
-.Ft int
 .Fn libsmdev_handle_initialize "libsmdev_handle_t **handle, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_free "libsmdev_handle_t **handle, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_open "libsmdev_handle_t *handle, char * const filenames[], int number_of_filenames, uint8_t flags, libsmdev_error_t **error"
 .Ft int

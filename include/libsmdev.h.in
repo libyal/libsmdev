@@ -45,6 +45,24 @@ LIBSMDEV_EXTERN \
 const char *libsmdev_handle_get_version(
              void );
 
+/* Returns the access flags for reading
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_read(
+     void );
+
+/* Returns the access flags for reading and writing
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_read_write(
+     void );
+
+/* Returns the access flags for writing
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_write(
+     void );
+
 /* Retrieves the narrow system string codepage
  * A value of 0 represents no codepage, UTF-8 encoding is used instead
  * Returns 1 if successful or -1 on error

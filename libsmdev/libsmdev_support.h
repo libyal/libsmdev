@@ -33,9 +33,23 @@
 extern "C" {
 #endif
 
+#if !defined( HAVE_LOCAL_LIBSMDEV )
+
 LIBSMDEV_EXTERN \
 const char *libsmdev_get_version(
              void );
+
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_read(
+     void );
+
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_read_write(
+     void );
+
+LIBSMDEV_EXTERN \
+int libsmdev_get_access_flags_write(
+     void );
 
 LIBSMDEV_EXTERN \
 int libsmdev_get_codepage(
@@ -47,6 +61,8 @@ int libsmdev_set_codepage(
      int codepage,
      liberror_error_t **error );
 
+#endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
+
 LIBSMDEV_EXTERN \
 int libsmdev_check_device(
      const char *filename,
@@ -56,36 +72,6 @@ int libsmdev_check_device(
 LIBSMDEV_EXTERN \
 int libsmdev_check_device_wide(
      const wchar_t *filename,
-     liberror_error_t **error );
-#endif
-
-LIBSMDEV_EXTERN \
-int libsmdev_glob(
-     const char *filename,
-     size_t filename_length,
-     char **filenames[],
-     int *number_of_filenames,
-     liberror_error_t **error );
-
-LIBSMDEV_EXTERN \
-int libsmdev_glob_free(
-     char *filenames[],
-     int number_of_filenames,
-     liberror_error_t **error );
-
-#if defined( HAVE_WIDE_CHARACTER_TYPE )
-LIBSMDEV_EXTERN \
-int libsmdev_glob_wide(
-     const wchar_t *filename,
-     size_t filename_length,
-     wchar_t **filenames[],
-     int *number_of_filenames,
-     liberror_error_t **error );
-
-LIBSMDEV_EXTERN \
-int libsmdev_glob_wide_free(
-     wchar_t *filenames[],
-     int number_of_filenames,
      liberror_error_t **error );
 #endif
 

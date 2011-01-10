@@ -31,6 +31,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110110
+* updated libcstring, libuna
+
 20110108
 * updated configure.ac
 * updatec common, libcstring, libuna
