@@ -19,6 +19,7 @@ Media information:
 * detect bus type
 * determine USB serial number
 * use pre windows XP io control codes as fallback ?
+* add support for reading from floppy \\.\A: for builder5 compilation
 
 Beta release
 * remove deprecated functions in libsmdev_legacy.[ch]
@@ -30,6 +31,12 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20110117
+* updated libuna
+* fixed invalid information value issue
+* WINAPI added fallback media size detection for floppy drive
+* fix for return value of FormatMessage
 
 20110114
 * updated common, libuna

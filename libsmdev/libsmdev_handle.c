@@ -378,7 +378,7 @@ int libsmdev_handle_open(
 		 "%s: unable to empty sessions sector list.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libsmdev_offset_list_empty(
 	     internal_handle->errors,
@@ -391,7 +391,7 @@ int libsmdev_handle_open(
 		 "%s: unable to empty errors offset list.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	filename_length = libcstring_narrow_string_length(
 	                   filenames[ 0 ] );
@@ -409,7 +409,7 @@ int libsmdev_handle_open(
 		 "%s: unable to set filename in handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( WINAPI )
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
@@ -437,20 +437,13 @@ int libsmdev_handle_open(
 		 "%s: unsupported access flags.",
 		 function );
 
-		memory_free(
-		 internal_handle->filename );
-
-		internal_handle->filename      = NULL;
-		internal_handle->filename_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
 	{
 		file_io_creation_flags = TRUNCATE_EXISTING;
 	}
-
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
 		/* Must use CreateFileA here because filename is a 
@@ -523,13 +516,7 @@ int libsmdev_handle_open(
 					}
 					break;
 			}
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 #else
@@ -555,13 +542,7 @@ int libsmdev_handle_open(
 		 "%s: unsupported access flags.",
 		 function );
 
-		memory_free(
-		 internal_handle->filename );
-
-		internal_handle->filename      = NULL;
-		internal_handle->filename_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
@@ -629,13 +610,7 @@ int libsmdev_handle_open(
 					}
 					break;
 			}
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_POSIX_FADVISE )
 		/* Use this function to double the read-ahead system buffer
@@ -654,18 +629,7 @@ int libsmdev_handle_open(
 			 "%s: unable to advice file descriptor.",
 			 function );
 
-			close(
-			 internal_handle->file_descriptor );
-
-			internal_handle->file_descriptor = -1;
-
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 #endif
 	}
@@ -682,26 +646,37 @@ int libsmdev_handle_open(
 		 "%s: unable to retrieve media size.",
 		 function );
 
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
 #if defined( WINAPI )
+	if( internal_handle->file_handle != INVALID_HANDLE_VALUE )
+	{
 		CloseHandle(
 		 internal_handle->file_handle );
 
 		internal_handle->file_handle = INVALID_HANDLE_VALUE;
+	}
 #else
+	if( internal_handle->file_descriptor != -1 )
+	{
 		close(
 		 internal_handle->file_descriptor );
 
 		internal_handle->file_descriptor = -1;
+	}
 #endif
+	if( internal_handle->filename != NULL )
+	{
 		memory_free(
 		 internal_handle->filename );
 
 		internal_handle->filename      = NULL;
 		internal_handle->filename_size = 0;
-
-		return( -1 );
 	}
-	return( 1 );
+	return( -1 );
 }
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
@@ -813,7 +788,7 @@ int libsmdev_handle_open_wide(
 		 "%s: unable to empty sessions sector list.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libsmdev_offset_list_empty(
 	     internal_handle->errors,
@@ -826,7 +801,7 @@ int libsmdev_handle_open_wide(
 		 "%s: unable to empty errors offset list.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	filename_length = libcstring_wide_string_length(
 	                   filenames[ 0 ] );
@@ -844,7 +819,7 @@ int libsmdev_handle_open_wide(
 		 "%s: unable to set filename in handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( WINAPI )
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_READ ) != 0 )
@@ -872,13 +847,7 @@ int libsmdev_handle_open_wide(
 		 "%s: unsupported access flags.",
 		 function );
 
-		memory_free(
-		 internal_handle->filename );
-
-		internal_handle->filename      = NULL;
-		internal_handle->filename_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
@@ -957,13 +926,7 @@ int libsmdev_handle_open_wide(
 					}
 					break;
 			}
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 #else
@@ -989,13 +952,7 @@ int libsmdev_handle_open_wide(
 		 "%s: unsupported access flags.",
 		 function );
 
-		memory_free(
-		 internal_handle->filename );
-
-		internal_handle->filename      = NULL;
-		internal_handle->filename_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( ( ( access_flags & LIBSMDEV_ACCESS_FLAG_WRITE ) != 0 )
 	 && ( ( access_flags & LIBSMDEV_ACCESS_FLAG_TRUNCATE ) != 0 ) )
@@ -1051,16 +1008,10 @@ int libsmdev_handle_open_wide(
 			 "%s: unable to determine narrow character filename size.",
 			 function );
 
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
-		narrow_filename = (char *) memory_allocate(
-					    sizeof( char ) * narrow_filename_size );
+		narrow_filename = libcstring_narrow_string_allocate(
+		                   narrow_filename_size );
 
 		if( narrow_filename == NULL )
 		{
@@ -1071,13 +1022,7 @@ int libsmdev_handle_open_wide(
 			 "%s: unable to create narrow character filename.",
 			 function );
 
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libcstring_narrow_system_string_codepage == 0 )
 		{
@@ -1132,13 +1077,8 @@ int libsmdev_handle_open_wide(
 
 			memory_free(
 			 narrow_filename );
-			memory_free(
-			 internal_handle->filename );
 
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 		internal_handle->file_descriptor = open(
 		                                    narrow_filename,
@@ -1202,13 +1142,7 @@ int libsmdev_handle_open_wide(
 					}
 					break;
 			}
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_POSIX_FADVISE )
 		/* Use this function to double the read-ahead system buffer
@@ -1227,18 +1161,7 @@ int libsmdev_handle_open_wide(
 			 "%s: unable to advice file descriptor.",
 			 function );
 
-			close(
-			 internal_handle->file_descriptor );
-
-			internal_handle->file_descriptor = -1;
-
-			memory_free(
-			 internal_handle->filename );
-
-			internal_handle->filename      = NULL;
-			internal_handle->filename_size = 0;
-
-			return( -1 );
+			goto on_error;
 		}
 #endif
 	}
@@ -1255,26 +1178,37 @@ int libsmdev_handle_open_wide(
 		 "%s: unable to retrieve media size.",
 		 function );
 
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
 #if defined( WINAPI )
+	if( internal_handle->file_handle != INVALID_HANDLE_VALUE )
+	{
 		CloseHandle(
 		 internal_handle->file_handle );
 
 		internal_handle->file_handle = INVALID_HANDLE_VALUE;
+	}
 #else
+	if( internal_handle->file_descriptor != -1 )
+	{
 		close(
 		 internal_handle->file_descriptor );
 
 		internal_handle->file_descriptor = -1;
+	}
 #endif
+	if( internal_handle->filename != NULL )
+	{
 		memory_free(
 		 internal_handle->filename );
 
 		internal_handle->filename      = NULL;
 		internal_handle->filename_size = 0;
-
-		return( -1 );
 	}
-	return( 1 );
+	return( -1 );
 }
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
@@ -1436,6 +1370,7 @@ ssize_t libsmdev_handle_read_buffer(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_read_buffer";
+	off64_t calculated_current_offset           = 0;
 	off64_t current_offset                      = 0;
 	size_t buffer_offset                        = 0;
 	size_t error_granularity_buffer_offset      = 0;
@@ -1449,8 +1384,6 @@ ssize_t libsmdev_handle_read_buffer(
 #if defined( WINAPI )
 	LARGE_INTEGER large_integer_offset          = LIBSMDEV_LARGE_INTEGER_ZERO;
 	DWORD error_code                            = 0;
-#else
-	off64_t calculated_current_offset           = 0;
 #endif
 
 	if( handle == NULL )
@@ -1581,6 +1514,8 @@ ssize_t libsmdev_handle_read_buffer(
 		}
 #endif
 #if defined( WINAPI )
+		error_code = 0;
+
 		if( ReadFile(
 		     internal_handle->file_handle,
 		     &( ( (uint8_t *) buffer )[ buffer_offset ] ),
@@ -1597,6 +1532,11 @@ ssize_t libsmdev_handle_read_buffer(
 				case ERROR_HANDLE_EOF:
 					break;
 
+				/* A read error generates this error code
+				 */
+				case ERROR_UNRECOGNIZED_MEDIA:
+					break;
+
 				default:
 					if( libsmdev_error_string_copy_from_error_number(
 					     error_string,
@@ -1608,9 +1548,8 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+						 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
-						 internal_handle->filename,
 						 error_string );
 					}
 					else
@@ -1619,13 +1558,11 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM ".",
-						 function,
-						 internal_handle->filename );
+						 "%s: unable to read from device.",
+						 function );
 					}
-					break;
+					return( -1 );
 			}
-			return( -1 );
 		}
 		if( read_count < 0 )
 		{
@@ -1639,8 +1576,111 @@ ssize_t libsmdev_handle_read_buffer(
 
 			return( -1 );
 		}
-		/* TODO use get offset, check for offset drift ? */
-		current_offset = internal_handle->offset + (off64_t) buffer_offset;
+		if( error_code == ERROR_HANDLE_EOF )
+		{
+			return( 0 );
+		}
+		else if( error_code == ERROR_UNRECOGNIZED_MEDIA )
+		{
+#if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x520
+			large_integer_offset.QuadPart = (LONGLONG) 0;
+#else
+			large_integer_offset.LowPart  = (DWORD) 0;
+			large_integer_offset.HighPart = (LONG) 0;
+#endif
+
+#if ( WINVER >= 0x0500 )
+			if( SetFilePointerEx(
+			     internal_handle->file_handle,
+			     large_integer_offset,
+			     &large_integer_offset,
+			     FILE_CURRENT ) == 0 )
+#else
+			if( libsmdev_SetFilePointerEx(
+			     internal_handle->file_handle,
+			     large_integer_offset,
+			     &large_integer_offset,
+			     FILE_CURRENT ) == 0 )
+#endif
+			{
+				error_code = GetLastError();
+
+				if( libsmdev_error_string_copy_from_error_number(
+				     error_string,
+				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
+				     error_code,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_SEEK_FAILED,
+					 "%s: unable to seek current offset.",
+					 function,
+					 error_string );
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_OPEN_FAILED,
+					 "%s: unable to seek current offset with error: %" PRIs_LIBCSTRING_SYSTEM "",
+					 function );
+				}
+				return( -1 );
+			}
+#if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x520
+			current_offset = (off64_t) large_integer_offset.QuadPart;
+#else
+			current_offset = ( (off64_t) large_integer_offset.HighPart << 32 ) + large_integer_offset.LowPart;
+#endif
+			calculated_current_offset = internal_handle->offset + (off64_t) buffer_offset;
+
+			if( current_offset != calculated_current_offset )
+			{
+#if defined( HAVE_VERBOSE_OUTPUT )
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "%s: correcting offset drift (actual: %" PRIi64 ", calculated: %" PRIi64 ").\n",
+					 function,
+					 current_offset,
+					 calculated_current_offset );
+				}
+#endif
+				if( current_offset < calculated_current_offset )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: unable to to correct negative offset drift.",
+					 function );
+
+					return( -1 );
+				}
+				read_count = (ssize_t) ( current_offset - calculated_current_offset );
+			}
+		}
+		if( read_count > (ssize_t) read_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid read count value exceeds read size.",
+			 function );
+
+			return( -1 );
+		}
+		buffer_offset += read_count;
+		read_size     -= read_count;
+
+		if( read_size == 0 )
+		{
+			break;
+		}
 #else
 		read_count = read(
 			      internal_handle->file_descriptor,
@@ -1677,9 +1717,8 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+						 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 						 function,
-						 internal_handle->filename,
 						 error_string );
 					}
 					else
@@ -1688,9 +1727,8 @@ ssize_t libsmdev_handle_read_buffer(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_IO,
 						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM ".",
-						 function,
-						 internal_handle->filename );
+						 "%s: unable to read from device.",
+						 function );
 					}
 					return( -1 );
 
@@ -1705,17 +1743,15 @@ ssize_t libsmdev_handle_read_buffer(
 						     error ) != 0 )
 						{
 							libnotify_printf(
-							 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "\n",
+							 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
-							 internal_handle->filename,
 							 error_string );
 						}
 						else
 						{
 							libnotify_printf(
-							 "%s: unable to read from device: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-							 function,
-							 internal_handle->filename );
+							 "%s: unable to read from device.\n",
+							 function );
 						}
 					}
 #endif
@@ -1738,9 +1774,8 @@ ssize_t libsmdev_handle_read_buffer(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset in device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+					 "%s: unable to seek current offset with error: %" PRIs_LIBCSTRING_SYSTEM "",
 					 function,
-					 internal_handle->filename,
 					 error_string );
 				}
 				else
@@ -1749,9 +1784,8 @@ ssize_t libsmdev_handle_read_buffer(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset in device: %" PRIs_LIBCSTRING_SYSTEM ".",
-					 function,
-					 internal_handle->filename );
+					 "%s: unable to seek current offset.",
+					 function );
 				}
 				return( -1 );
 			}
@@ -1785,7 +1819,6 @@ ssize_t libsmdev_handle_read_buffer(
 				read_count = (ssize_t) ( current_offset - calculated_current_offset );
 			}
 		}
-#endif /* defined( WINAPI ) */
 		if( read_count > (ssize_t) read_size )
 		{
 			liberror_error_set(
@@ -1811,6 +1844,7 @@ ssize_t libsmdev_handle_read_buffer(
 				break;
 			}
 		}
+#endif /* defined( WINAPI ) */
 		/* Not all data have been read or there was an error
 		 */
 		number_of_read_errors++;
@@ -2145,9 +2179,8 @@ ssize_t libsmdev_handle_write_buffer(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+			 "%s: unable to write to device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 			 function,
-			 internal_handle->filename,
 			 error_string );
 		}
 		else
@@ -2156,9 +2189,8 @@ ssize_t libsmdev_handle_write_buffer(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 internal_handle->filename );
+			 "%s: unable to write to device.",
+			 function );
 		}
 		return( -1 );
 	}
@@ -2203,9 +2235,8 @@ ssize_t libsmdev_handle_write_buffer(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+			 "%s: unable to write to device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 			 function,
-			 internal_handle->filename,
 			 error_string );
 		}
 		else
@@ -2214,9 +2245,8 @@ ssize_t libsmdev_handle_write_buffer(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 internal_handle->filename );
+			 "%s: unable to write to device.",
+			 function );
 		}
 		return( -1 );
 	}
@@ -2463,10 +2493,9 @@ off64_t libsmdev_handle_seek_offset(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+			 "%s: unable to find offset: %" PRIi64 " in device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 			 function,
 			 offset,
-			 internal_handle->filename,
 			 error_string );
 		}
 		else
@@ -2475,10 +2504,9 @@ off64_t libsmdev_handle_seek_offset(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to find offset: %" PRIi64 " in device.",
 			 function,
-			 offset,
-			 internal_handle->filename );
+			 offset );
 		}
 		return( -1 );
 	}
@@ -2518,10 +2546,9 @@ off64_t libsmdev_handle_seek_offset(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device: %" PRIs_LIBCSTRING_SYSTEM " with error: %" PRIs_LIBCSTRING_SYSTEM "",
+			 "%s: unable to find offset: %" PRIi64 " in device with error: %" PRIs_LIBCSTRING_SYSTEM "",
 			 function,
 			 offset,
-			 internal_handle->filename,
 			 error_string );
 		}
 		else
@@ -2530,10 +2557,9 @@ off64_t libsmdev_handle_seek_offset(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to find offset: %" PRIi64 " in device.",
 			 function,
-			 offset,
-			 internal_handle->filename );
+			 offset );
 		}
 		return( -1 );
 	}
@@ -3020,8 +3046,8 @@ int libsmdev_handle_set_filename(
 #else
 	internal_handle->filename_size = filename_length + 1;
 #endif
-	internal_handle->filename = (libcstring_system_character_t *) memory_allocate(
-	                                                               sizeof( libcstring_system_character_t ) * internal_handle->filename_size );
+	internal_handle->filename = libcstring_system_string_allocate(
+	                             internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
 	{
@@ -3560,8 +3586,8 @@ int libsmdev_handle_set_filename_wide(
 	}
 #endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
-	internal_handle->filename = (libcstring_system_character_t *) memory_allocate(
-	                                                               sizeof( libcstring_system_character_t ) * internal_handle->filename_size );
+	internal_handle->filename = libcstring_system_string_allocate(
+	                             internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
 	{
@@ -4002,8 +4028,8 @@ int libsmdev_file_exists_wide(
 
 		return( -1 );
 	}
-	narrow_filename = (char *) memory_allocate(
-	                            sizeof( char ) * narrow_filename_size );
+	narrow_filename = libcstring_narrow_string_allocate(
+	                   narrow_filename_size );
 
 	if( narrow_filename == NULL )
 	{

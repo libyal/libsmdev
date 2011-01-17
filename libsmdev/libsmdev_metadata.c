@@ -192,8 +192,10 @@ int libsmdev_handle_get_media_size(
      liberror_error_t **error )
 {
 #if defined( WINAPI )
+	DISK_GEOMETRY disk_geometry;
 	GET_LENGTH_INFORMATION length_information;
 
+	DWORD error_code                            = 0;
 	DWORD response_count                        = 0;
 #else
 #if !defined( DIOCGMEDIASIZE ) && defined( DIOCGDINFO )
@@ -269,6 +271,10 @@ int libsmdev_handle_get_media_size(
 		     &response_count,
 		     NULL ) == 0 )
 		{
+			error_code = GetLastError();
+
+			if( error_code != ERROR_NOT_SUPPORTED )
+			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_IO,
@@ -277,11 +283,40 @@ int libsmdev_handle_get_media_size(
 				 function );
 
 				return( -1 );
-		}
-		internal_handle->media_size     = ( (size64_t) length_information.Length.HighPart << 32 )
-		                                + length_information.Length.LowPart;
-		internal_handle->media_size_set = 1;
+			}
+			/* Floppy device does not support IOCTL_DISK_GET_LENGTH_INFO
+			 */
+			if( DeviceIoControl(
+			     internal_handle->file_handle,
+			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
+			     NULL,
+			     0,
+			     &disk_geometry,
+			     sizeof( DISK_GEOMETRY ),
+			     &response_count,
+			     NULL ) == 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
+				 function );
 
+				return( -1 );
+			}
+			internal_handle->media_size     = disk_geometry.Cylinders.QuadPart
+			                                * disk_geometry.TracksPerCylinder
+			                                * disk_geometry.SectorsPerTrack
+			                                * disk_geometry.BytesPerSector;
+			internal_handle->media_size_set = 1;
+		}
+		else
+		{
+			internal_handle->media_size     = ( (size64_t) length_information.Length.HighPart << 32 )
+			                                + length_information.Length.LowPart;
+			internal_handle->media_size_set = 1;
+		}
 #elif defined( BLKGETSIZE64 )
 		if( ioctl(
 		     internal_handle->file_descriptor,
@@ -416,8 +451,10 @@ int libsmdev_handle_get_bytes_per_sector(
      liberror_error_t **error )
 {
 #if defined( WINAPI )
-	DISK_GEOMETRY_EX disk_geometry;
+	DISK_GEOMETRY disk_geometry;
+	DISK_GEOMETRY_EX disk_geometry_extended;
 
+	DWORD error_code                            = 0;
 	DWORD response_count                        = 0;
 #endif
 
@@ -481,11 +518,15 @@ int libsmdev_handle_get_bytes_per_sector(
 		     IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
 		     NULL,
 		     0,
-		     &disk_geometry,
+		     &disk_geometry_extended,
 		     sizeof( DISK_GEOMETRY_EX ),
 		     &response_count,
 		     NULL ) == 0 )
 		{
+			error_code = GetLastError();
+
+			if( error_code != ERROR_NOT_SUPPORTED )
+			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_IO,
@@ -494,10 +535,36 @@ int libsmdev_handle_get_bytes_per_sector(
 				 function );
 
 				return( -1 );
-		}
-		internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.Geometry.BytesPerSector; 
-		internal_handle->bytes_per_sector_set = 1;
+			}
+			/* Floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+			 */
+			if( DeviceIoControl(
+			     internal_handle->file_handle,
+			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
+			     NULL,
+			     0,
+			     &disk_geometry,
+			     sizeof( DISK_GEOMETRY ),
+			     &response_count,
+			     NULL ) == 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
+				 function );
 
+				return( -1 );
+			}
+			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.BytesPerSector;
+			internal_handle->bytes_per_sector_set = 1;
+		}
+		else
+		{
+			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry_extended.Geometry.BytesPerSector; 
+			internal_handle->bytes_per_sector_set = 1;
+		}
 #elif defined( BLKSSZGET )
 		if( ioctl(
 		     internal_handle->file_descriptor,
@@ -1398,17 +1465,6 @@ int libsmdev_handle_get_utf8_information_value(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid identifier.",
-		 function );
-
-		return( -1 );
-	}
-	if( information_value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid information value.",
 		 function );
 
 		return( -1 );
