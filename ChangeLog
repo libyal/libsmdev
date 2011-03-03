@@ -32,6 +32,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110303
+* update for Cygwin WINAPI support
+* updated libcstring
+
 20110117
 * updated libuna
 * fixed invalid information value issue
