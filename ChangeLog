@@ -32,6 +32,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110306
+* updated libuna
+* msvscpp added VSDebug option
+
 20110303
 * update for Cygwin WINAPI support
 * updated libcstring
