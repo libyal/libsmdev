@@ -126,7 +126,12 @@ typedef enum _STORAGE_QUERY_TYPE
 }
 STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32_VERSION )
+#if defined( _MSC_VER ) || defined( __BORLANDC__ )
+#define HAVE_STORAGE_BUS_TYPE
+#endif
+
+#if !defined( HAVE_STORAGE_BUS_TYPE )
+
 typedef enum _STORAGE_BUS_TYPE
 {
 	BusTypeUnknown		= 0x00,
@@ -145,7 +150,7 @@ typedef enum _STORAGE_BUS_TYPE
 }
 STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
 
-#endif /* defined( __CYGWIN__ ) || defined( __MINGW32_VERSION ) */
+#endif /* !defined( HAVE_STORAGE_BUS_TYPE ) */
 
 typedef struct _STORAGE_PROPERTY_QUERY
 {

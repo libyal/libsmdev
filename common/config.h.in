@@ -126,6 +126,9 @@
 /* Define to 1 if you have the <linux/usb/ch9.h> header file. */
 #undef HAVE_LINUX_USB_CH9_H
 
+/* Define to 1 if you have the `localeconv' function. */
+#undef HAVE_LOCALECONV
+
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
@@ -206,6 +209,9 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* Define to 1 if STORAGE_BUS_TYPE is defined. */
+#undef HAVE_STORAGE_BUS_TYPE
 
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP

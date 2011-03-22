@@ -32,6 +32,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110322
+* updated configure.ac
+* updated libcstring
+
 20110306
 * updated libuna
 * msvscpp added VSDebug option

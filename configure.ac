@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20110312],
+ [20110322],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -341,6 +341,15 @@ AC_CHECK_FUNCS(
   [1]) ])
 
 dnl Check for localization functions in libcstring/libcstring_locale.c
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xno],
+ [AC_CHECK_FUNCS(
+  [localeconv],
+  [],
+  [AC_MSG_FAILURE(
+   [Missing function: localeconv],
+   [1]) ]) ])
+
 AC_CHECK_FUNCS(
  [setlocale],
  [],
@@ -545,6 +554,32 @@ LIBSMDEV_CHECK_FUNC_POSIX_FADVISE
 dnl Check for printf conversion specifier support
 LIBSMDEV_CHECK_FUNC_PRINTF_JD
 LIBSMDEV_CHECK_FUNC_PRINTF_ZD
+
+dnl Check if winioctl.h defines STORAGE_BUS_TYPE
+AS_IF(
+ [test "x$ac_cv_libsmdev_enable_winapi" = xyes],
+ [AC_CACHE_CHECK(
+  [whether winioctl.h defines STORAGE_BUS_TYPE],
+  [ac_cv_libsmdev_have_winioctl_storage_bus_type],
+  [AC_LANG_PUSH(C)
+  AC_COMPILE_IFELSE(
+   AC_LANG_PROGRAM(
+    [[#include <windows.h>
+#include <winioctl.h>]],
+    [[STORAGE_BUS_TYPE storage_bus_type;
+storage_bus_type = BusTypeUnknown;]]),
+   [ac_cv_libsmdev_have_winioctl_storage_bus_type=yes],
+   [ac_cv_libsmdev_have_winioctl_storage_bus_type=no])
+  AC_LANG_POP(C)],
+  [ac_cv_libsmdev_have_winioctl_storage_bus_type=no])
+ AS_IF(
+  [test "x$ac_cv_libsmdev_have_winioctl_storage_bus_type" = xyes],
+  [AC_DEFINE(
+   [HAVE_STORAGE_BUS_TYPE],
+   [1],
+   [Define to 1 if STORAGE_BUS_TYPE is defined.])
+  ])
+ ])
 
 dnl Checks for libraries and library functions
 dnl ac_libsmdev_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
