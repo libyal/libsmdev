@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20110322],
+ [20110625],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -563,11 +563,11 @@ AS_IF(
   [ac_cv_libsmdev_have_winioctl_storage_bus_type],
   [AC_LANG_PUSH(C)
   AC_COMPILE_IFELSE(
-   AC_LANG_PROGRAM(
+   [AC_LANG_PROGRAM(
     [[#include <windows.h>
 #include <winioctl.h>]],
     [[STORAGE_BUS_TYPE storage_bus_type;
-storage_bus_type = BusTypeUnknown;]]),
+storage_bus_type = BusTypeUnknown;]] )],
    [ac_cv_libsmdev_have_winioctl_storage_bus_type=yes],
    [ac_cv_libsmdev_have_winioctl_storage_bus_type=no])
   AC_LANG_POP(C)],

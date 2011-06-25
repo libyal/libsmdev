@@ -26,7 +26,7 @@ AC_DEFUN([LIBSMDEV_CHECK_FUNC_LANGINFO_CODESET],
    AC_LINK_IFELSE(
     [AC_LANG_PROGRAM(
      [[#include <langinfo.h>]],
-     [[char* charset = nl_langinfo( CODESET );]]) ],
+     [[char* charset = nl_langinfo( CODESET );]] )],
     [ac_cv_libsmdev_langinfo_codeset=yes],
     [ac_cv_libsmdev_langinfo_codeset=no])
    AC_LANG_POP(C) ]) ],
@@ -173,12 +173,12 @@ AC_DEFUN([LIBSMDEV_CHECK_FUNC_POSIX_FADVISE],
    AC_LANG_PUSH(C)
 
    AC_LINK_IFELSE(
-    AC_LANG_PROGRAM(
+    [AC_LANG_PROGRAM(
      [[#include <fcntl.h>]],
      [[#if !defined( POSIX_FADV_SEQUENTIAL )
 #define POSIX_FADV_SEQUENTIAL 2
 #endif
-posix_fadvise( 0, 0, 0, POSIX_FADV_SEQUENTIAL )]]),
+posix_fadvise( 0, 0, 0, POSIX_FADV_SEQUENTIAL )]] )],
      [ac_cv_func_posix_fadvise=yes],
      [ac_cv_func_posix_fadvise=no])
 

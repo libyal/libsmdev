@@ -32,6 +32,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110625
+* changes for: warning: AC_LANG_CONFTEST: no AC_LANG_SOURCE call detected in body
+* updated include/codepage.h, list type
+* updated common, libcstring, libuna
+
 20110322
 * updated configure.ac
 * updated libcstring
