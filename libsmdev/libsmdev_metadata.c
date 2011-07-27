@@ -1450,6 +1450,7 @@ int libsmdev_handle_get_utf8_information_value(
 	uint8_t *information_value                  = NULL;
 	static char *function                       = "libsmdev_handle_get_utf8_information_value";
 	size_t information_value_size               = 0;
+	size_t string_index                         = 0;
 
 	if( handle == NULL )
 	{
@@ -1545,21 +1546,136 @@ int libsmdev_handle_get_utf8_information_value(
 
 		return( -1 );
 	}
-	if( libcstring_string_copy(
-	     (char *) utf8_string,
-	     information_value,
-	     information_value_size ) == NULL )
+	for( string_index = 0;
+	     string_index < information_value_size - 2;
+	     string_index++ )
+	{
+		utf8_string[ string_index ] = (uint8_t) information_value[ string_index ];
+	}
+	utf8_string[ information_value_size - 1 ] = 0;
+
+	return( 1 );
+}
+
+/* Retrieves an UTF-16 encoded information value for the specific identifier
+ * The value size should include the end of string character
+ * Returns 1 if successful, 0 if value not present or -1 on error
+ */
+int libsmdev_handle_get_utf16_information_value(
+     libsmdev_handle_t *handle,
+     const uint8_t *identifier,
+     size_t identifier_length,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	uint8_t *information_value                  = NULL;
+	static char *function                       = "libsmdev_handle_get_utf16_information_value";
+	size_t information_value_size               = 0;
+	size_t string_index                         = 0;
+
+	if( handle == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-		 "%s: unable to copy information value to UTF-8 string.",
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
 	}
-	utf8_string[ information_value_size - 1 ] = 0;
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( identifier == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid identifier.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle->media_information_set == 0 )
+	{
+		if( libsmdev_internal_handle_determine_media_information(
+		     internal_handle,
+		     error ) == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine media information.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( identifier_length == 5 )
+	{
+		if( libcstring_narrow_string_compare(
+		     "model",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->model;
+		}
+	}
+	else if( identifier_length == 6 )
+	{
+		if( libcstring_narrow_string_compare(
+		     "vendor",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->vendor;
+		}
+	}
+	else if( identifier_length == 13 )
+	{
+		if( libcstring_narrow_string_compare(
+		     "serial_number",
+		     (char *) identifier,
+		     identifier_length ) == 0 )
+		{
+			information_value = (uint8_t *) internal_handle->serial_number;
+		}
+	}
+	if( information_value == NULL )
+	{
+		return( 0 );
+	}
+	if( information_value[ 0 ] == 0 )
+	{
+		return( 0 );
+	}
+	/* Determine the header value size
+	 */
+	information_value_size = 1 + libcstring_string_length(
+	                              (char *) information_value );
+
+	if( utf16_string_size < information_value_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: UTF-16 string too small.",
+		 function );
+
+		return( -1 );
+	}
+	for( string_index = 0;
+	     string_index < information_value_size - 2;
+	     string_index++ )
+	{
+		utf16_string[ string_index ] = (uint16_t) information_value[ string_index ];
+	}
+	utf16_string[ information_value_size - 1 ] = 0;
 
 	return( 1 );
 }
@@ -1649,6 +1765,118 @@ int libsmdev_handle_get_session(
 		return( -1 );
 	}
 	return( 1 );
+}
+
+/* Retrieves the number of tracks
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_get_number_of_tracks(
+     libsmdev_handle_t *handle,
+     int *number_of_tracks,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_number_of_tracks";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	if( number_of_tracks == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of tracks.",
+		 function );
+
+		return( -1 );
+	}
+	*number_of_tracks = 0;
+/* TODO
+	if( libsmdev_sector_list_get_number_of_elements(
+	     internal_handle->tracks,
+	     number_of_tracks,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements in tracks sector list.",
+		 function );
+
+		return( -1 );
+	}
+*/
+	return( 1 );
+}
+
+/* Retrieves a track
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_get_track(
+     libsmdev_handle_t *handle,
+     int index,
+     uint64_t *start_sector,
+     uint64_t *number_of_sectors,
+     uint8_t *type,
+     liberror_error_t **error )
+{
+	libsmdev_internal_handle_t *internal_handle = NULL;
+	static char *function                       = "libsmdev_handle_get_track";
+
+	if( handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_handle = (libsmdev_internal_handle_t *) handle;
+
+	liberror_error_set(
+	 error,
+	 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+	 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+	 "%s: invalid track index value out of bounds.",
+	 function );
+
+	return( -1 );
+/* TODO
+	if( libsmdev_sector_list_get_sector(
+	     internal_handle->tracks,
+	     index,
+	     start_sector,
+	     number_of_sectors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve track: %d from tracks sector list.",
+		 function,
+		 index );
+
+		return( -1 );
+	}
+	return( 1 );
+*/
 }
 
 /* Retrieves the number of read/write error retries

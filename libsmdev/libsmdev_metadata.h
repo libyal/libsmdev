@@ -73,6 +73,15 @@ int libsmdev_handle_get_utf8_information_value(
      liberror_error_t **error );
 
 LIBSMDEV_EXTERN \
+int libsmdev_handle_get_utf16_information_value(
+     libsmdev_handle_t *handle,
+     const uint8_t *identifier,
+     size_t identifier_length,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error );
+
+LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_sessions(
      libsmdev_handle_t *handle,
      int *number_of_sessions,
@@ -84,6 +93,21 @@ int libsmdev_handle_get_session(
      int index,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
+     liberror_error_t **error );
+
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_number_of_tracks(
+     libsmdev_handle_t *handle,
+     int *number_of_tracks,
+     liberror_error_t **error );
+
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_track(
+     libsmdev_handle_t *handle,
+     int index,
+     uint64_t *start_sector,
+     uint64_t *number_of_sectors,
+     uint8_t *type,
      liberror_error_t **error );
 
 LIBSMDEV_EXTERN \

@@ -1,4 +1,4 @@
-.Dd January 10, 2011
+.Dd July 27, 2011
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -105,9 +105,15 @@ Meta data functions
 .Ft int
 .Fn libsmdev_handle_get_utf8_information_value "libsmdev_handle_t *handle, const uint8_t *identifier, size_t identifier_length, uint8_t *utf8_string, size_t utf8_string_size, libsmdev_error_t **error"
 .Ft int
+.Fn libsmdev_handle_get_utf16_information_value "libsmdev_handle_t *handle, const uint8_t *identifier, size_t identifier_length, uint16_t *utf16_string, size_t utf16_string_size, libsmdev_error_t **error"
+.Ft int
 .Fn libsmdev_handle_get_number_of_sessions "libsmdev_handle_t *handle, int *number_of_sessions, libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_session "libsmdev_handle_t *handle, int index, off64_t *offset, size64_t *size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_session "libsmdev_handle_t *handle, int index, uint64_t *start_sector, uint64_t *number_of_sectors, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_number_of_tracks "libsmdev_handle_t *handle, int *number_of_tracks, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_track "libsmdev_handle_t *handle, int index, uint64_t *start_sector, uint64_t *number_of_sectors, uint8_t *type, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_get_number_of_error_retries "libsmdev_handle_t *handle, uint8_t *number_of_error_retries, libsmdev_error_t **error"
 .Ft int
@@ -152,26 +158,20 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libsmdev allows to be compiled with wide character support.
+Internally libsmdev uses ASCII strings, as provided by the device interfaces.
+
+Libsmdev uses either the system specific narrow or wide character strings for filenames.
 To compile libsmdev with wide character support use
 .Ar ./configure --enable-wide-character-type=yes
-or pass the definition
+ or on Windows define
+.Ar WINAPI
+ and either
 .Ar _UNICODE
  or
 .Ar UNICODE
- to the compiler (i.e. in case of Microsoft Visual Studio (MSVS) C++).
 
 To have other code to determine if libsmdev was compiled with wide character support it defines
-.Ar LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE
- in libsmdev/features.h.
-
-libsmdev uses UTF-8 encoded strings except for filenames.
-
-libsmdev allows to be compiled with chained IO support using libbfio.
-libsmdev will automatically detect if a compatible version of libbfio is available.
-
-To have other code to determine if libsmdev was compiled with libbfio support it defines
-.Ar LIBSMDEV_HAVE_BFIO
+.Ar LIBNK2_HAVE_WIDE_CHARACTER_TYPE
  in libsmdev/features.h.
 
 .Sh BUGS

@@ -376,6 +376,19 @@ int libsmdev_handle_get_utf8_information_value(
      size_t utf8_string_size,
      libsmdev_error_t **error );
 
+/* Retrieves an UTF-16 encoded information value for the specific identifier
+ * The value size should include the end of string character
+ * Returns 1 if successful, 0 if value not present or -1 on error
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_utf16_information_value(
+     libsmdev_handle_t *handle,
+     const uint8_t *identifier,
+     size_t identifier_size,
+     const uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libsmdev_error_t **error );
+
 /* Retrieves the number of sessions
  * Returns 1 if successful or -1 on error
  */
@@ -392,8 +405,29 @@ LIBSMDEV_EXTERN \
 int libsmdev_handle_get_session(
      libsmdev_handle_t *handle,
      int index,
-     off64_t *offset,
-     size64_t *size,
+     uint64_t *start_sector,
+     uint64_t *number_of_sectors,
+     libsmdev_error_t **error );
+
+/* Retrieves the number of tracks
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_number_of_tracks(
+     libsmdev_handle_t *handle,
+     int *number_of_tracks,
+     libsmdev_error_t **error );
+
+/* Retrieves a track
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_track(
+     libsmdev_handle_t *handle,
+     int index,
+     uint64_t *start_sector,
+     uint64_t *number_of_sectors,
+     uint8_t *type,
      libsmdev_error_t **error );
 
 /* Retrieves the number of read/write error retries

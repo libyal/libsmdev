@@ -1,9 +1,13 @@
 TODO
-* add UTF-16 information value functions
 * make sure error_ranges is cleared on open
-* configure validate libuna and libbfio check
+* configure validate libuna check
 * work on libsmdev_metadata
   - add information values functions (libsmio)
+* optical disc: (audio) tracks support
+
+API
+* add libsmdev_handle_get_utf8_information_value_size
+* add libsmdev_handle_get_utf16_information_value_size
 
 Library
 * add glib support
@@ -31,6 +35,12 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20110727
+* updated common
+* worked on optical dics track functions
+* added UTF-16 information value functions
+* updated manuals
 
 20110625
 * changes for: warning: AC_LANG_CONFTEST: no AC_LANG_SOURCE call detected in body
