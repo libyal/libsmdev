@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20110727],
+ [20110731],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -575,7 +575,7 @@ storage_bus_type = BusTypeUnknown;]] )],
  AS_IF(
   [test "x$ac_cv_libsmdev_have_winioctl_storage_bus_type" = xyes],
   [AC_DEFINE(
-   [HAVE_STORAGE_BUS_TYPE],
+   [HAVE_WINIOCTL_H_STORAGE_BUS_TYPE],
    [1],
    [Define to 1 if STORAGE_BUS_TYPE is defined.])
   ])

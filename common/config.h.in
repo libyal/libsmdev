@@ -210,9 +210,6 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define to 1 if STORAGE_BUS_TYPE is defined. */
-#undef HAVE_STORAGE_BUS_TYPE
-
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP
 
@@ -332,6 +329,9 @@
 
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
+
+/* Define to 1 if STORAGE_BUS_TYPE is defined. */
+#undef HAVE_WINIOCTL_H_STORAGE_BUS_TYPE
 
 /* Define to 1 if you have the `wmemchr' function. */
 #undef HAVE_WMEMCHR
