@@ -102,6 +102,9 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #undef HAVE_LANGINFO_H
 
+/* Define to 1 if you have the <libintl.h> header file. */
+#undef HAVE_LIBINTL_H
+
 /* Define to 1 if you have the `una' library (-luna). */
 #undef HAVE_LIBUNA
 
@@ -399,6 +402,9 @@
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef mode_t
 
 /* Define to `long int' if <sys/types.h> does not define. */
 #undef off_t

@@ -36,6 +36,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20110831
+* updated configure, libuna
+
 20110731
 * renamed HAVE_STORAGE_BUS_TYPE to HAVE_WINIOCTL_H_STORAGE_BUS_TYPE
 
