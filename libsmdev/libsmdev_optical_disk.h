@@ -37,7 +37,7 @@ extern "C" {
 
 int libsmdev_optical_disk_get_table_of_contents(
      int file_descriptor,
-     libsmdev_sector_list_t *sessions,
+     libsmdev_sector_list_t *tracks,
      liberror_error_t **error );
 
 #endif

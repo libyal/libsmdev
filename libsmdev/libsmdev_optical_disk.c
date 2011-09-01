@@ -52,7 +52,7 @@
  */
 int libsmdev_optical_disk_get_table_of_contents(
      int file_descriptor,
-     libsmdev_sector_list_t *sessions,
+     libsmdev_sector_list_t *tracks,
      liberror_error_t **error )
 {
 	struct cdrom_tochdr toc_header;
@@ -64,7 +64,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 	uint16_t entry_iterator = 0;
 	uint8_t first_entry     = 0;
 	uint8_t last_entry      = 0;
-	int session_index       = 0;
+	int track_index         = 0;
 
 	if( file_descriptor == -1 )
 	{
@@ -212,7 +212,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 				return( -1 );
 			}
 			if( libsmdev_sector_list_append_sector(
-			     sessions,
+			     tracks,
 			     last_offset,
 			     offset - last_offset,
 			     0,
@@ -222,13 +222,13 @@ int libsmdev_optical_disk_get_table_of_contents(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append session: %d.",
+				 "%s: unable to append track: %d.",
 				 function,
-				 session_index );
+				 track_index );
 
 				return( -1 );
 			}
-			session_index++;
+			track_index++;
 		}
 		last_offset = offset;
 	}
@@ -333,7 +333,7 @@ int libsmdev_optical_disk_get_table_of_contents(
 		return( -1 );
 	}
 	if( libsmdev_sector_list_append_sector(
-	     sessions,
+	     tracks,
 	     last_offset,
 	     offset - last_offset,
 	     0,
@@ -343,9 +343,9 @@ int libsmdev_optical_disk_get_table_of_contents(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append last session: %d.",
+		 "%s: unable to append last track: %d.",
 		 function,
-		 session_index );
+		 track_index );
 
 		return( -1 );
 	}

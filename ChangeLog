@@ -1,9 +1,11 @@
 TODO
+* optical disc
+  - add (audio) tracks support
+  - change session support
 * make sure error_ranges is cleared on open
 * configure validate libuna check
 * work on libsmdev_metadata
   - add information values functions (libsmio)
-* optical disc: (audio) tracks support
 
 API
 * add libsmdev_handle_get_utf8_information_value_size
