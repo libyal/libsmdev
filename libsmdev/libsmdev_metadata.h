@@ -95,6 +95,12 @@ int libsmdev_handle_get_session(
      uint64_t *number_of_sectors,
      liberror_error_t **error );
 
+int libsmdev_handle_append_session(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     liberror_error_t **error );
+
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_tracks(
      libsmdev_handle_t *handle,
@@ -108,6 +114,13 @@ int libsmdev_handle_get_track(
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      uint8_t *type,
+     liberror_error_t **error );
+
+int libsmdev_handle_append_track(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     uint8_t type,
      liberror_error_t **error );
 
 LIBSMDEV_EXTERN \

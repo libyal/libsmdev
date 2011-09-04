@@ -168,6 +168,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsmdev\libsmdev_array_type.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsmdev\libsmdev_ata.c"
 				>
 			</File>
@@ -204,7 +208,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsmdev\libsmdev_optical_disk.c"
+				RelativePath="..\..\libsmdev\libsmdev_optical_disc.c"
 				>
 			</File>
 			<File
@@ -212,7 +216,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsmdev\libsmdev_sector_list.c"
+				RelativePath="..\..\libsmdev\libsmdev_sector_range.c"
 				>
 			</File>
 			<File
@@ -221,6 +225,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libsmdev\libsmdev_support.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsmdev\libsmdev_track_value.c"
 				>
 			</File>
 			<File
@@ -233,6 +241,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\libsmdev\libsmdev_array_type.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\libsmdev\libsmdev_ata.h"
 				>
@@ -286,7 +298,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsmdev\libsmdev_optical_disk.h"
+				RelativePath="..\..\libsmdev\libsmdev_optical_disc.h"
 				>
 			</File>
 			<File
@@ -294,7 +306,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsmdev\libsmdev_sector_list.h"
+				RelativePath="..\..\libsmdev\libsmdev_sector_range.h"
 				>
 			</File>
 			<File
@@ -303,6 +315,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libsmdev\libsmdev_support.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsmdev\libsmdev_track_value.h"
 				>
 			</File>
 			<File

@@ -1,7 +1,7 @@
 TODO
 * optical disc
-  - add (audio) tracks support
-  - change session support
+  - add track type support
+  - add session support
 * make sure error_ranges is cleared on open
 * configure validate libuna check
 * work on libsmdev_metadata
@@ -37,6 +37,13 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20110904
+* fix for missing last character
+* reduced SCSI and USB ioctl timeout to 1 sec
+* renamed optical disk to optical disc
+* refactored sector list to arrays
+* worked on session support
 
 20110831
 * updated configure, libuna

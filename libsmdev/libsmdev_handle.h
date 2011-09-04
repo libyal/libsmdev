@@ -28,9 +28,9 @@
 #include <libcstring.h>
 #include <liberror.h>
 
+#include "libsmdev_array_type.h"
 #include "libsmdev_extern.h"
 #include "libsmdev_offset_list.h"
-#include "libsmdev_sector_list.h"
 #include "libsmdev_types.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
@@ -111,9 +111,13 @@ struct libsmdev_internal_handle
 	 */
 	libcstring_character_t serial_number[ 64 ];
 
-	/* The sessions
+	/* The sessions array
 	 */
-	libsmdev_sector_list_t *sessions;
+	libsmdev_array_t *sessions_array;
+
+	/* The tracks array
+	 */
+	libsmdev_array_t *tracks_array;
 
 	/* Value to indicate the media information values were set
 	 */

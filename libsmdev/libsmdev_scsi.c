@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -45,6 +46,10 @@
 
 #include "libsmdev_definitions.h"
 #include "libsmdev_scsi.h"
+
+/* Timeout in milli seconds: 1 second
+ */
+#define LIBSMDEV_SCSI_CONTROL_COMMAND_TIMEOUT	1000
 
 #if defined( HAVE_SCSI_SG_H )
 
@@ -156,9 +161,6 @@ int libsmdev_scsi_command(
 
 		return( -1 );
 	}
-
-	/* Timeout in milli seconds: 30 seconds
-	 */
 	sg_io_header.interface_id    = 'S';
 	sg_io_header.cmdp            = command;
 	sg_io_header.cmd_len         = command_size;
@@ -167,7 +169,7 @@ int libsmdev_scsi_command(
 	sg_io_header.dxferp          = response;
 	sg_io_header.dxfer_len       = response_size;
 	sg_io_header.dxfer_direction = SG_DXFER_FROM_DEV;
-	sg_io_header.timeout         = 30000;
+	sg_io_header.timeout         = LIBSMDEV_SCSI_CONTROL_COMMAND_TIMEOUT;
 
 	if( ioctl(
 	     file_descriptor,
@@ -312,7 +314,7 @@ ssize_t libsmdev_scsi_inquiry(
          size_t response_size,
          liberror_error_t **error )
 {
-	libsmdev_scsi_command_descriptor_t command;
+	libsmdev_scsi_inquiry_cdb_t command;
 
 	uint8_t sense[ LIBSMDEV_SCSI_SENSE_SIZE ];
 
@@ -355,7 +357,7 @@ ssize_t libsmdev_scsi_inquiry(
 	if( memory_set(
 	     &command,
 	     0,
-	     sizeof( libsmdev_scsi_command_descriptor_t ) ) == NULL )
+	     sizeof( libsmdev_scsi_inquiry_cdb_t ) ) == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -376,7 +378,7 @@ ssize_t libsmdev_scsi_inquiry(
 	if( libsmdev_scsi_command(
 	     file_descriptor,
 	     (uint8_t *) &command,
-	     sizeof( libsmdev_scsi_command_descriptor_t ),
+	     sizeof( libsmdev_scsi_inquiry_cdb_t ),
 	     response,
 	     response_size,
 	     sense,
@@ -387,7 +389,7 @@ ssize_t libsmdev_scsi_inquiry(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_GENERIC,
-		 "%s: SCSI command failed.",
+		 "%s: SCSI INQUIRY command failed.",
 		 function );
 
 		return( -1 );
@@ -403,6 +405,242 @@ ssize_t libsmdev_scsi_inquiry(
 	{
 		response_count = (ssize_t) ( response[ 3 ] + 4 );
 	}
+	if( response_count > (ssize_t) response_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: response too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: response:\n",
+		 function );
+		libnotify_print_data(
+		 response,
+		 response_count );
+	}
+#endif
+	return( response_count );
+}
+
+/* Sends a SCSI read table of contents (TOC) to the file descriptor
+ * Returns the number of bytes read if successful or -1 on error
+ */
+ssize_t libsmdev_scsi_read_toc(
+         int file_descriptor,
+         uint8_t format,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error )
+{
+	libsmdev_scsi_read_toc_cdb_t command;
+
+	uint8_t sense[ LIBSMDEV_SCSI_SENSE_SIZE ];
+
+	static char *function  = "libsmdev_scsi_read_toc";
+	ssize_t response_count = 0;
+
+	if( file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( response == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid response.",
+		 function );
+
+		return( -1 );
+	}
+	if( response_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid response size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_set(
+	     &command,
+	     0,
+	     sizeof( libsmdev_scsi_read_toc_cdb_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear command.",
+		 function );
+
+		return( -1 );
+	}
+	command.operation_code = LIBSMDEV_SCSI_OPERATION_CODE_READ_TOC;
+	command.format         = format;
+
+	byte_stream_copy_from_uint16_big_endian(
+	 command.receive_size,
+	 response_size );
+
+	if( libsmdev_scsi_command(
+	     file_descriptor,
+	     (uint8_t *) &command,
+	     sizeof( libsmdev_scsi_read_toc_cdb_t ),
+	     response,
+	     response_size,
+	     sense,
+	     LIBSMDEV_SCSI_SENSE_SIZE,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: SCSI READ TOC command failed.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_big_endian(
+	 response,
+	 response_count );
+
+	if( response_count > (ssize_t) response_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: response too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: response:\n",
+		 function );
+		libnotify_print_data(
+		 response,
+		 response_count );
+	}
+#endif
+	return( response_count );
+}
+
+/* Sends a SCSI read disc information to the file descriptor
+ * Returns the number of bytes read if successful or -1 on error
+ */
+ssize_t libsmdev_scsi_read_disc_information(
+         int file_descriptor,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error )
+{
+	libsmdev_scsi_read_disc_information_cdb_t command;
+
+	uint8_t sense[ LIBSMDEV_SCSI_SENSE_SIZE ];
+
+	static char *function  = "libsmdev_scsi_read_disc_information";
+	ssize_t response_count = 0;
+
+	if( file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( response == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid response.",
+		 function );
+
+		return( -1 );
+	}
+	if( response_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid response size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_set(
+	     &command,
+	     0,
+	     sizeof( libsmdev_scsi_read_disc_information_cdb_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear command.",
+		 function );
+
+		return( -1 );
+	}
+	command.operation_code = LIBSMDEV_SCSI_OPERATION_CODE_READ_DISK_INFORMATION;
+
+	byte_stream_copy_from_uint16_big_endian(
+	 command.receive_size,
+	 response_size );
+
+	if( libsmdev_scsi_command(
+	     file_descriptor,
+	     (uint8_t *) &command,
+	     sizeof( libsmdev_scsi_read_disc_information_cdb_t ),
+	     response,
+	     response_size,
+	     sense,
+	     LIBSMDEV_SCSI_SENSE_SIZE,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: SCSI READ DISC INFORMATION command failed.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_big_endian(
+	 response,
+	 response_count );
+
 	if( response_count > (ssize_t) response_size )
 	{
 		liberror_error_set(

@@ -35,7 +35,11 @@ extern "C" {
 
 enum LIBSMDEV_SCSI_OPERATION_CODES
 {
-	LIBSMDEV_SCSI_OPERATION_CODE_INQUIRY	= 0x12
+	LIBSMDEV_SCSI_OPERATION_CODE_INQUIRY			= 0x12,
+
+	LIBSMDEV_SCSI_OPERATION_CODE_READ_TOC			= 0x43,
+
+	LIBSMDEV_SCSI_OPERATION_CODE_READ_DISK_INFORMATION	= 0x51,
 };
 
 /* SCSI device types:
@@ -62,17 +66,17 @@ enum LIBSMDEV_SCSI_OPERATION_CODES
  * 0x1f      - unknown or no device type
  */
 
-/* The SCSI command descriptor block (CDB)
+/* The SCSI inquiry command descriptor block (CDB)
  */
-typedef struct libsmdev_scsi_command_descriptor libsmdev_scsi_command_descriptor_t;
+typedef struct libsmdev_scsi_inquiry_cdb libsmdev_scsi_inquiry_cdb_t;
 
-struct libsmdev_scsi_command_descriptor
+struct libsmdev_scsi_inquiry_cdb
 {
 	/* The operation code
 	 */
 	uint8_t operation_code;
 
-	/* The LUN and reserved bytes
+	/* The LUN and reserved bits
 	 * Bits:
 	 * 0 - 4 reserved
 	 * 5 - 7 LUN
@@ -91,7 +95,90 @@ struct libsmdev_scsi_command_descriptor
 	 */
 	uint8_t receive_size;
 
-	/* The control
+	/* The control byte
+	 */
+	uint8_t control;
+};
+
+/* The SCSI table of contents (TOC) command descriptor block (CDB)
+ * format definitions
+ */
+enum LIBSMDEV_SCSI_TOC_CDB_FORMATS
+{
+	LIBSMDEV_SCSI_TOC_CDB_FORMAT_FORMATTED_TOC	= 0x00,
+	LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC		= 0x02,
+};
+
+/* The SCSI read table of contents (TOC) command descriptor block (CDB)
+ */
+typedef struct libsmdev_scsi_read_toc_cdb libsmdev_scsi_read_toc_cdb_t;
+
+struct libsmdev_scsi_read_toc_cdb
+{
+	/* The operation code
+	 */
+	uint8_t operation_code;
+
+	/* The MSF bit and reserved bits
+	 * Bits:
+	 * 0     reserved
+	 * 1     MSF
+	 * 2 - 7 reserved 
+	 */
+	uint8_t msf;
+
+	/* The format and reserved bits
+	 * Bits:
+	 * 0 - 3 format
+	 * 4 - 7 reserved 
+	 */
+	uint8_t format;
+
+	/* Reserved
+	 */
+	uint8_t reserved[ 3 ];
+
+	/* TOC entry index
+	 */
+	uint8_t entry_index;
+
+	/* The size of the receive buffer (allocation length)
+	 * Contains a 16-bit big-endian value
+	 */
+	uint8_t receive_size[ 2 ];
+
+	/* The control byte
+	 */
+	uint8_t control;
+};
+
+/* The SCSI read disc information command descriptor block (CDB)
+ */
+typedef struct libsmdev_scsi_read_disc_information_cdb libsmdev_scsi_read_disc_information_cdb_t;
+
+struct libsmdev_scsi_read_disc_information_cdb
+{
+	/* The operation code
+	 */
+	uint8_t operation_code;
+
+	/* The data type and reserved bits
+	 * Bits:
+	 * 0 - 3 data type
+	 * 4 - 7 reserved 
+	 */
+	uint8_t data_type;
+
+	/* Reserved
+	 */
+	uint8_t reserved[ 5 ];
+
+	/* The size of the receive buffer (allocation length)
+	 * Contains a 16-bit big-endian value
+	 */
+	uint8_t receive_size[ 2 ];
+
+	/* The control byte
 	 */
 	uint8_t control;
 };
@@ -137,6 +224,19 @@ ssize_t libsmdev_scsi_inquiry(
          int file_descriptor,
          uint8_t inquiry_vital_product_data,
          uint8_t code_page,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error );
+
+ssize_t libsmdev_scsi_read_toc(
+         int file_descriptor,
+         uint8_t format,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error );
+
+ssize_t libsmdev_scsi_read_disc_information(
+         int file_descriptor,
          uint8_t *response,
          size_t response_size,
          liberror_error_t **error );

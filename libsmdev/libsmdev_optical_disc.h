@@ -27,7 +27,7 @@
 
 #include <liberror.h>
 
-#include "libsmdev_sector_list.h"
+#include "libsmdev_handle.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -35,9 +35,19 @@ extern "C" {
 
 #if defined( HAVE_LINUX_CDROM_H )
 
-int libsmdev_optical_disk_get_table_of_contents(
+int libsmdev_optical_disc_get_table_of_contents(
      int file_descriptor,
-     libsmdev_sector_list_t *tracks,
+     libsmdev_internal_handle_t *internal_handle,
+     liberror_error_t **error );
+
+int libsmdev_optical_disc_get_table_of_contents_scsi(
+     int file_descriptor,
+     libsmdev_internal_handle_t *internal_handle,
+     liberror_error_t **error );
+
+int libsmdev_optical_disc_get_table_of_contents_ioctl(
+     int file_descriptor,
+     libsmdev_internal_handle_t *internal_handle,
      liberror_error_t **error );
 
 #endif

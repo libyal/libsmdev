@@ -11,6 +11,7 @@ lib_LTLIBRARIES = libsmdev.la
 
 libsmdev_la_SOURCES = \
 	libsmdev.c \
+	libsmdev_array_type.c libsmdev_array_type.h \
 	libsmdev_ata.c libsmdev_ata.h \
 	libsmdev_codepage.h \
 	libsmdev_definitions.h \
@@ -24,11 +25,12 @@ libsmdev_la_SOURCES = \
 	libsmdev_metadata.c libsmdev_metadata.h \
 	libsmdev_notify.c libsmdev_notify.h \
 	libsmdev_offset_list.c libsmdev_offset_list.h \
-	libsmdev_optical_disk.c libsmdev_optical_disk.h \
+	libsmdev_optical_disc.c libsmdev_optical_disc.h \
 	libsmdev_scsi.c libsmdev_scsi.h \
-	libsmdev_sector_list.c libsmdev_sector_list.h \
+	libsmdev_sector_range.c libsmdev_sector_range.h \
 	libsmdev_string.c libsmdev_string.h \
 	libsmdev_support.c libsmdev_support.h \
+	libsmdev_track_value.c libsmdev_track_value.h \
 	libsmdev_types.h \
 	libsmdev_unused.h \
 	libsmdev_usb.c libsmdev_usb.h

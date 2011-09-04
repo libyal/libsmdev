@@ -43,13 +43,15 @@
 #include <errno.h>
 #endif
 
+#include "libsmdev_array_type.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
-#include "libsmdev_sector_list.h"
+#include "libsmdev_sector_range.h"
+#include "libsmdev_track_value.h"
 #include "libsmdev_types.h"
 
 /* The definition of POSIX_FADV_SEQUENTIAL seems to be missing from fcntl.h
@@ -113,15 +115,30 @@ int libsmdev_handle_initialize(
 
 			return( -1 );
 		}
-		if( libsmdev_sector_list_initialize(
-		     &( internal_handle->sessions ),
+		if( libsmdev_array_initialize(
+		     &( internal_handle->sessions_array ),
+		     0,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create sessions sector list.",
+			 "%s: unable to create sessions array.",
+			 function );
+
+			goto on_error;
+		}
+		if( libsmdev_array_initialize(
+		     &( internal_handle->tracks_array ),
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create tracks array.",
 			 function );
 
 			goto on_error;
@@ -153,10 +170,18 @@ int libsmdev_handle_initialize(
 on_error:
 	if( internal_handle != NULL )
 	{
-		if( internal_handle->sessions != NULL )
+		if( internal_handle->tracks_array != NULL )
 		{
-			libsmdev_sector_list_free(
-			 &( internal_handle->sessions ),
+			libsmdev_array_free(
+			 &( internal_handle->tracks_array ),
+			 NULL,
+			 NULL );
+		}
+		if( internal_handle->sessions_array != NULL )
+		{
+			libsmdev_array_free(
+			 &( internal_handle->sessions_array ),
+			 NULL,
 			 NULL );
 		}
 		memory_free(
@@ -217,15 +242,30 @@ int libsmdev_handle_free(
 			memory_free(
 			 internal_handle->filename );
 		}
-		if( libsmdev_sector_list_free(
-		     &( internal_handle->sessions ),
+		if( libsmdev_array_free(
+		     &( internal_handle->sessions_array ),
+		     &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free sessions sector list.",
+			 "%s: unable to free sessions array.",
+			 function );
+
+			result = -1;
+		}
+		if( libsmdev_array_free(
+		     &( internal_handle->tracks_array ),
+		     &libsmdev_track_value_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free tracks array.",
 			 function );
 
 			result = -1;
@@ -367,15 +407,32 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( libsmdev_sector_list_empty(
-	     internal_handle->sessions,
+	if( libsmdev_array_resize(
+	     internal_handle->sessions_array,
+	     0,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions sector list.",
+		 "%s: unable to empty sessions array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
 		 function );
 
 		goto on_error;
@@ -777,15 +834,32 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( libsmdev_sector_list_empty(
-	     internal_handle->sessions,
+	if( libsmdev_array_resize(
+	     internal_handle->sessions_array,
+	     0,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions sector list.",
+		 "%s: unable to empty sessions array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
 		 function );
 
 		goto on_error;
@@ -1328,15 +1402,32 @@ int libsmdev_handle_close(
 	}
 	internal_handle->file_descriptor = -1;
 #endif
-	if( libsmdev_sector_list_empty(
-	     internal_handle->sessions,
+	if( libsmdev_array_resize(
+	     internal_handle->sessions_array,
+	     0,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty sessions sector list.",
+		 "%s: unable to empty sessions array.",
+		 function );
+
+		result = -1;
+	}
+	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
 		 function );
 
 		result = -1;

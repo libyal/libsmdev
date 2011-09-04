@@ -47,7 +47,9 @@
 #include "libsmdev_scsi.h"
 #include "libsmdev_usb.h"
 
-#define IO_USB_CONTROL_COMMAND_TIMEOUT	5000
+/* Timeout in milli seconds: 1 second
+ */
+#define LIBSMDEV_USB_CONTROL_COMMAND_TIMEOUT	1000
 
 #if defined( HAVE_LINUX_USB_CH9_H )
 
@@ -179,7 +181,7 @@ int libsmdev_usb_control_command(
 	control_request.wValue       = value;
 	control_request.wIndex       = index;
 	control_request.wLength      = buffer_size;
-	control_request.timeout      = IO_USB_CONTROL_COMMAND_TIMEOUT;
+	control_request.timeout      = LIBSMDEV_USB_CONTROL_COMMAND_TIMEOUT;
 	control_request.data         = buffer;
 
 	if( ioctl(

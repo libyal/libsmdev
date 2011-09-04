@@ -65,9 +65,11 @@ typedef size_t u64;
 #include "libsmdev_handle.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_offset_list.h"
-#include "libsmdev_optical_disk.h"
+#include "libsmdev_optical_disc.h"
 #include "libsmdev_scsi.h"
 #include "libsmdev_string.h"
+#include "libsmdev_sector_range.h"
+#include "libsmdev_track_value.h"
 #include "libsmdev_types.h"
 
 #if defined( WINAPI )
@@ -650,6 +652,7 @@ int libsmdev_internal_handle_determine_media_information(
 #else
 #if defined( HAVE_SCSI_SG_H )
 	uint8_t response[ 255 ];
+
 	ssize_t response_count = 0;
 #endif
 #if defined( HDIO_GET_IDENTITY )
@@ -707,8 +710,8 @@ int libsmdev_internal_handle_determine_media_information(
 	query.PropertyId = StorageDeviceProperty;
 	query.QueryType  = PropertyStandardQuery;
 
-	response         = (uint8_t *) memory_allocate(
-					response_size );
+	response = (uint8_t *) memory_allocate(
+	                        response_size );
 
 	if( response == NULL )
 	{
@@ -718,6 +721,23 @@ int libsmdev_internal_handle_determine_media_information(
 		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to response.",
 		 function );
+
+		return( -1 );
+	}
+	if( memory_set(
+	     response,
+	     0,
+	     response_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear response.",
+		 function );
+
+		memory_free(
+		 response );
 
 		return( -1 );
 	}
@@ -962,6 +982,20 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
+	if( memory_set(
+	     response,
+	     0,
+	     255 ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear response.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_SCSI_SG_H )
 	/* Use the Linux sg (generic SCSI) driver to determine device information
 	 */
@@ -985,9 +1019,22 @@ int libsmdev_internal_handle_determine_media_information(
 			  0x00,
 			  response,
 			  255,
-			  NULL );
+			  error );
 
-/* TODO what to do about garbarge return ? */
+	if( response_count == -1 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( ( error != NULL )
+		 && ( *error != NULL ) )
+		{
+			libnotify_print_error_backtrace(
+			 *error );
+		}
+#endif
+		liberror_error_free(
+		 error );
+	}
+/* TODO handle garbarge return ? */
 
 	if( response_count >= 5 )
 	{
@@ -1183,9 +1230,9 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( HAVE_LINUX_CDROM_H )
 	if( internal_handle->device_type == 0x05 )
 	{
-		if( libsmdev_optical_disk_get_table_of_contents(
+		if( libsmdev_optical_disc_get_table_of_contents(
 		     internal_handle->file_descriptor,
-		     internal_handle->sessions,
+		     internal_handle,
 		     error ) != 1 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1198,10 +1245,6 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 			liberror_error_free(
 			 error );
-
-			libsmdev_sector_list_empty(
-			 internal_handle->sessions,
-			 NULL );
 		}
 	}
 #endif
@@ -1547,7 +1590,7 @@ int libsmdev_handle_get_utf8_information_value(
 		return( -1 );
 	}
 	for( string_index = 0;
-	     string_index < information_value_size - 2;
+	     string_index < information_value_size - 1;
 	     string_index++ )
 	{
 		utf8_string[ string_index ] = (uint8_t) information_value[ string_index ];
@@ -1670,7 +1713,7 @@ int libsmdev_handle_get_utf16_information_value(
 		return( -1 );
 	}
 	for( string_index = 0;
-	     string_index < information_value_size - 2;
+	     string_index < information_value_size - 1;
 	     string_index++ )
 	{
 		utf16_string[ string_index ] = (uint16_t) information_value[ string_index ];
@@ -1704,8 +1747,8 @@ int libsmdev_handle_get_number_of_sessions(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_sector_list_get_number_of_elements(
-	     internal_handle->sessions,
+	if( libsmdev_array_get_number_of_entries(
+	     internal_handle->sessions_array,
 	     number_of_sessions,
 	     error ) != 1 )
 	{
@@ -1713,7 +1756,7 @@ int libsmdev_handle_get_number_of_sessions(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in sessions sector list.",
+		 "%s: unable to retrieve number of entries in sessions array.",
 		 function );
 
 		return( -1 );
@@ -1732,6 +1775,7 @@ int libsmdev_handle_get_session(
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
+	libsmdev_sector_range_t *sector_range       = NULL;
 	static char *function                       = "libsmdev_handle_get_session";
 
 	if( handle == NULL )
@@ -1747,9 +1791,24 @@ int libsmdev_handle_get_session(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_sector_list_get_sector(
-	     internal_handle->sessions,
+	if( libsmdev_array_get_entry_by_index(
+	     internal_handle->sessions_array,
 	     index,
+	     (intptr_t **) &sector_range,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve session sector range: %d from array.",
+		 function,
+		 index );
+
+		return( -1 );
+	}
+	if( libsmdev_sector_range_get(
+	     sector_range,
 	     start_sector,
 	     number_of_sectors,
 	     error ) != 1 )
@@ -1758,13 +1817,91 @@ int libsmdev_handle_get_session(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve session: %d from sessions sector list.",
-		 function,
-		 index );
+		 "%s: unable to retrieve sector range.",
+		 function );
 
 		return( -1 );
 	}
 	return( 1 );
+}
+
+/* Appends a session
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_append_session(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     liberror_error_t **error )
+{
+	libsmdev_sector_range_t *sector_range = NULL;
+	static char *function                 = "libsmdev_handle_append_session";
+	int entry_index                       = 0;
+
+	if( internal_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_sector_range_initialize(
+	     &sector_range,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create sector range.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_sector_range_set(
+	     sector_range,
+	     start_sector,
+	     number_of_sectors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set sector range.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_append_entry(
+	     internal_handle->sessions_array,
+	     &entry_index,
+	     (intptr_t *) sector_range,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append session sector range to array.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( sector_range != NULL )
+	{
+		libsmdev_sector_range_free(
+		 (intptr_t *) sector_range,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the number of tracks
@@ -1791,21 +1928,8 @@ int libsmdev_handle_get_number_of_tracks(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( number_of_tracks == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid number of tracks.",
-		 function );
-
-		return( -1 );
-	}
-	*number_of_tracks = 0;
-/* TODO
-	if( libsmdev_sector_list_get_number_of_elements(
-	     internal_handle->tracks,
+	if( libsmdev_array_get_number_of_entries(
+	     internal_handle->tracks_array,
 	     number_of_tracks,
 	     error ) != 1 )
 	{
@@ -1813,12 +1937,11 @@ int libsmdev_handle_get_number_of_tracks(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in tracks sector list.",
+		 "%s: unable to retrieve number of entries in tracks array.",
 		 function );
 
 		return( -1 );
 	}
-*/
 	return( 1 );
 }
 
@@ -1834,6 +1957,7 @@ int libsmdev_handle_get_track(
      liberror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
+	libsmdev_track_value_t *track_value         = NULL;
 	static char *function                       = "libsmdev_handle_get_track";
 
 	if( handle == NULL )
@@ -1849,34 +1973,120 @@ int libsmdev_handle_get_track(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	liberror_error_set(
-	 error,
-	 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-	 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-	 "%s: invalid track index value out of bounds.",
-	 function );
-
-	return( -1 );
-/* TODO
-	if( libsmdev_sector_list_get_sector(
-	     internal_handle->tracks,
+	if( libsmdev_array_get_entry_by_index(
+	     internal_handle->tracks_array,
 	     index,
-	     start_sector,
-	     number_of_sectors,
+	     (intptr_t **) &track_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve track: %d from tracks sector list.",
+		 "%s: unable to retrieve track value: %d from array.",
 		 function,
 		 index );
 
 		return( -1 );
 	}
+	if( libsmdev_track_value_get(
+	     track_value,
+	     start_sector,
+	     number_of_sectors,
+	     type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve track value.",
+		 function );
+
+		return( -1 );
+	}
 	return( 1 );
-*/
+}
+
+/* Appends a track
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_append_track(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     uint8_t type,
+     liberror_error_t **error )
+{
+	libsmdev_track_value_t *track_value = NULL;
+	static char *function               = "libsmdev_handle_append_track";
+	int entry_index                     = 0;
+
+	if( internal_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_track_value_initialize(
+	     &track_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create track value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_track_value_set(
+	     track_value,
+	     start_sector,
+	     number_of_sectors,
+	     type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set track value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_append_entry(
+	     internal_handle->tracks_array,
+	     &entry_index,
+	     (intptr_t *) track_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append track to array.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( track_value != NULL )
+	{
+		libsmdev_track_value_free(
+		 (intptr_t *) track_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the number of read/write error retries
