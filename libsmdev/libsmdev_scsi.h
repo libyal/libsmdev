@@ -35,11 +35,12 @@ extern "C" {
 
 enum LIBSMDEV_SCSI_OPERATION_CODES
 {
-	LIBSMDEV_SCSI_OPERATION_CODE_INQUIRY			= 0x12,
+	LIBSMDEV_SCSI_OPERATION_CODE_INQUIRY				= 0x12,
 
-	LIBSMDEV_SCSI_OPERATION_CODE_READ_TOC			= 0x43,
+	LIBSMDEV_SCSI_OPERATION_CODE_READ_TOC				= 0x43,
 
-	LIBSMDEV_SCSI_OPERATION_CODE_READ_DISK_INFORMATION	= 0x51,
+	LIBSMDEV_SCSI_OPERATION_CODE_READ_DISK_INFORMATION		= 0x51,
+	LIBSMDEV_SCSI_OPERATION_CODE_READ_TRACK_INFORMATION		= 0x52,
 };
 
 /* SCSI device types:
@@ -105,8 +106,8 @@ struct libsmdev_scsi_inquiry_cdb
  */
 enum LIBSMDEV_SCSI_TOC_CDB_FORMATS
 {
-	LIBSMDEV_SCSI_TOC_CDB_FORMAT_FORMATTED_TOC	= 0x00,
-	LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC		= 0x02,
+	LIBSMDEV_SCSI_TOC_CDB_FORMAT_FORMATTED_TOC			= 0x00,
+	LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC				= 0x02,
 };
 
 /* The SCSI read table of contents (TOC) command descriptor block (CDB)
@@ -183,6 +184,53 @@ struct libsmdev_scsi_read_disc_information_cdb
 	uint8_t control;
 };
 
+/* The SCSI track information command descriptor block (CDB)
+ * address type definitions
+ */
+enum LIBSMDEV_SCSI_TRACK_INFORMATION_ADDRESS_TYPES
+{
+	LIBSMDEV_SCSI_TRACK_INFORMATION_ADDRESS_TYPE_LBA		= 0x00,
+	LIBSMDEV_SCSI_TRACK_INFORMATION_ADDRESS_TYPE_TRACK_NUMBER	= 0x01,
+	LIBSMDEV_SCSI_TRACK_INFORMATION_ADDRESS_TYPE_SESSION_NUMBER	= 0x02,
+};
+
+/* The SCSI read track information command descriptor block (CDB)
+ */
+typedef struct libsmdev_scsi_read_track_information_cdb libsmdev_scsi_read_track_information_cdb_t;
+
+struct libsmdev_scsi_read_track_information_cdb
+{
+	/* The operation code
+	 */
+	uint8_t operation_code;
+
+	/* The address type, flag and reserved bits
+	 * Bits:
+	 * 0 - 1 address type
+	 * 2     open flag 
+	 * 3 - 7 reserved 
+	 */
+	uint8_t address_type;
+
+	/* The (track) offset
+	 * Contains a 32-bit big-endian value
+	 */
+	uint8_t offset[ 4 ];
+
+	/* Reserved
+	 */
+	uint8_t reserved;
+
+	/* The size of the receive buffer (allocation length)
+	 * Contains a 16-bit big-endian value
+	 */
+	uint8_t receive_size[ 2 ];
+
+	/* The control byte
+	 */
+	uint8_t control;
+};
+
 /* The SCSI ioctrl header
  */
 typedef struct libsmdev_scsi_ioctrl_header libsmdev_scsi_ioctrl_header_t;
@@ -237,6 +285,13 @@ ssize_t libsmdev_scsi_read_toc(
 
 ssize_t libsmdev_scsi_read_disc_information(
          int file_descriptor,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error );
+
+ssize_t libsmdev_scsi_read_track_information(
+         int file_descriptor,
+         uint32_t offset,
          uint8_t *response,
          size_t response_size,
          liberror_error_t **error );

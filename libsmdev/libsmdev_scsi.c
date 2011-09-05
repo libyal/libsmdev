@@ -666,6 +666,129 @@ ssize_t libsmdev_scsi_read_disc_information(
 	return( response_count );
 }
 
+/* Sends a SCSI read track information to the file descriptor
+ * Returns the number of bytes read if successful or -1 on error
+ */
+ssize_t libsmdev_scsi_read_track_information(
+         int file_descriptor,
+         uint32_t offset,
+         uint8_t *response,
+         size_t response_size,
+         liberror_error_t **error )
+{
+	libsmdev_scsi_read_track_information_cdb_t command;
+
+	uint8_t sense[ LIBSMDEV_SCSI_SENSE_SIZE ];
+
+	static char *function  = "libsmdev_scsi_read_track_information";
+	ssize_t response_count = 0;
+
+	if( file_descriptor == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( response == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid response.",
+		 function );
+
+		return( -1 );
+	}
+	if( response_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid response size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_set(
+	     &command,
+	     0,
+	     sizeof( libsmdev_scsi_read_track_information_cdb_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear command.",
+		 function );
+
+		return( -1 );
+	}
+	command.operation_code = LIBSMDEV_SCSI_OPERATION_CODE_READ_TRACK_INFORMATION;
+	command.address_type   = LIBSMDEV_SCSI_TRACK_INFORMATION_ADDRESS_TYPE_LBA;
+
+	byte_stream_copy_from_uint32_big_endian(
+	 command.offset,
+	 offset );
+
+	byte_stream_copy_from_uint16_big_endian(
+	 command.receive_size,
+	 response_size );
+
+	if( libsmdev_scsi_command(
+	     file_descriptor,
+	     (uint8_t *) &command,
+	     sizeof( libsmdev_scsi_read_track_information_cdb_t ),
+	     response,
+	     response_size,
+	     sense,
+	     LIBSMDEV_SCSI_SENSE_SIZE,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: SCSI READ TRACK INFORMATION command failed.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_big_endian(
+	 response,
+	 response_count );
+
+	if( response_count > (ssize_t) response_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: response too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: response:\n",
+		 function );
+		libnotify_print_data(
+		 response,
+		 response_count );
+	}
+#endif
+	return( response_count );
+}
+
 /* Retrieves the SCSI identifier
  * Returns 1 if successful or -1 on error
  */

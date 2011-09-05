@@ -89,12 +89,10 @@ int libsmdev_optical_disc_get_table_of_contents(
 	}
 	else if( result == 0 )
 	{
-		result = libsmdev_optical_disc_get_table_of_contents_ioctl(
-			  file_descriptor,
-			  internal_handle,
-			  error );
-
-		if( result == -1 )
+		if( libsmdev_optical_disc_get_table_of_contents_ioctl(
+		     file_descriptor,
+		     internal_handle,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -117,23 +115,29 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
      libsmdev_internal_handle_t *internal_handle,
      liberror_error_t **error )
 {
-	uint8_t *toc_data        = NULL;
-	uint8_t *toc_entries     = NULL;
-	static char *function    = "libsmdev_optical_disc_get_table_of_contents_scsi";
-	void *reallocation       = NULL;
-	size_t toc_data_offset   = 0;
-	size_t toc_data_size     = 0;
-	ssize_t response_count   = 0;
-	uint32_t last_offset     = 0;
-	uint32_t lead_out_offset = 0;
-	uint32_t track_offset    = 0;
-	uint32_t offset          = 0;
-	uint16_t entry_iterator  = 0;
-	uint8_t first_entry      = 0;
-	uint8_t last_entry       = 0;
-	uint8_t track_index      = 0;
-	uint8_t track_type       = 0;
-	int result               = 0;
+	uint8_t track_info_data[ 64 ];
+
+	uint8_t *toc_data            = NULL;
+	uint8_t *toc_entries         = NULL;
+	static char *function        = "libsmdev_optical_disc_get_table_of_contents_scsi";
+	void *reallocation           = NULL;
+	size_t toc_data_offset       = 0;
+	size_t toc_data_size         = 0;
+	ssize_t response_count       = 0;
+	uint32_t lead_out_offset     = 0;
+	uint32_t last_track_offset   = 0;
+	uint32_t track_offset        = 0;
+	uint32_t session_offset      = 0;
+	uint32_t next_session_offset = 0;
+	uint16_t entry_iterator      = 0;
+	uint8_t first_track_number   = 0;
+	uint8_t last_track_number    = 0;
+	uint8_t lead_out_index       = 0;
+	uint8_t number_of_sessions   = 0;
+	uint8_t session_index        = 0;
+	uint8_t track_index          = 0;
+	uint8_t track_number         = 0;
+	int result                   = 0;
 
 	if( file_descriptor == -1 )
 	{
@@ -241,7 +245,9 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			}
 		}
 	}
-	if( response_count > 4 )
+	toc_data_size = response_count;
+
+	if( toc_data_size > 4 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -254,15 +260,15 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			 4 );
 		}
 #endif
-		last_entry = (uint16_t) toc_data[ 3 ];
+		number_of_sessions = (uint16_t) toc_data[ 3 ];
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: number of entries\t\t\t: %" PRIu8 "\n",
+			 "%s: number of sessions\t\t\t: %" PRIu8 "\n",
 			 function,
-			 last_entry );
+			 number_of_sessions );
 
 			libnotify_printf(
 			 "\n" );
@@ -271,7 +277,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		toc_entries     = &( toc_data[ 4 ] );
 		toc_data_offset = 4;
 
-		while( toc_data_offset < response_count )
+		while( toc_data_offset < (size_t) toc_data_size )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -291,7 +297,15 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				 toc_entries[ 8 ],
 				 toc_entries[ 9 ],
 				 toc_entries[ 10 ],
-				 offset );
+				 track_offset );
+			}
+			else if( toc_entries[ 3 ] == 0xa0 )
+			{
+				first_track_number = toc_entries[ 8 ];
+			}
+			else if( toc_entries[ 3 ] == 0xa1 )
+			{
+				last_track_number = toc_entries[ 8 ];
 			}
 			else if( toc_entries[ 3 ] == 0xa2 )
 			{
@@ -307,7 +321,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				 toc_entries[ 4 ],
 				 toc_entries[ 5 ],
 				 toc_entries[ 6 ],
-				 offset );
+				 next_session_offset );
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -330,7 +344,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					 "%s: session: %02" PRIu8 " first track number\t: %" PRIu8 "\n",
 					 function,
 					 toc_entries[ 0 ],
-					 toc_entries[ 8 ] );
+					 first_track_number );
 				}
 				else if( toc_entries[ 3 ] == 0xa1 )
 				{
@@ -338,7 +352,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					 "%s: session: %02" PRIu8 " last track number\t\t: %" PRIu8 "\n",
 					 function,
 					 toc_entries[ 0 ],
-					 toc_entries[ 8 ] );
+					 last_track_number );
 				}
 				else if( toc_entries[ 3 ] == 0xa2 )
 				{
@@ -360,31 +374,270 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					 toc_entries[ 4 ],
 					 toc_entries[ 5 ],
 					 toc_entries[ 6 ],
-					 offset );
+					 next_session_offset );
 				}
 				libnotify_printf(
 				 "\n" );
 			}
 #endif
+			if( ( toc_entries[ 3 ] <= 0x63 )
+			 || ( toc_entries[ 3 ] == 0xb0 ) )
+			{
+				if( track_number >= first_track_number )
+				{
+			 		if( toc_entries[ 3 ] == 0xb0 )
+					{
+						track_offset = lead_out_offset;
+					}
+					if( track_offset < last_track_offset )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid track offset value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					if( ( track_index + 1 ) != track_number )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid track number value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+			 		if( toc_entries[ 3 ] == 0xa2 )
+					{
+						if( track_number != last_track_number )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid track number value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
+					}
+					if( memory_set(
+					     track_info_data,
+					     0,
+					     64 ) == NULL )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_MEMORY,
+						 LIBERROR_MEMORY_ERROR_SET_FAILED,
+						 "%s: unable to clear track info data.",
+						 function );
+
+						goto on_error;
+					}
+					response_count = libsmdev_scsi_read_track_information(
+							  file_descriptor,
+							  last_track_offset,
+							  track_info_data,
+							  64,
+							  error );
+
+					if( response_count == -1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable retrieve track info data: %d.",
+						 function,
+						 track_index );
+
+						goto on_error;
+					}
+#if defined( HAVE_DEBUG_OUTPUT )
+					if( libnotify_verbose != 0 )
+					{
+						libnotify_printf(
+						 "%s: track information data: %d:\n",
+						 function,
+						 track_index );
+						libnotify_print_data(
+						 track_info_data,
+						 response_count );
+					}
+#endif
+					if( track_info_data[ 2 ] != toc_entries[ 0 ] )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid track information data - session number value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					if( track_info_data[ 3 ] != toc_entries[ 3 ] )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid track information data - track number value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					/* TODO track mode: ( toc_entries[ 5 ] & 0x0f )
+					 * 0x4 => set if data
+					 */
+
+					/* TODO data mode: ( toc_entries[ 6 ] & 0x0f )
+					 * 1 => mode-1 or other
+					 * 2 => mode-2
+					 */
+
+					if( libsmdev_handle_append_track(
+					     internal_handle,
+					     last_track_offset,
+					     track_offset - last_track_offset,
+					     LIBSMDEV_TRACK_TYPE_UNKNOWN,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append track: %d.",
+						 function,
+						 track_index );
+
+						goto on_error;
+					}
+					track_index++;
+				}
+				last_track_offset = track_offset;
+
+			 	if( toc_entries[ 3 ] != 0xb0 )
+				{
+					track_number = toc_entries[ 3 ];
+				}
+			}
+			if( toc_entries[ 3 ] == 0xb0 )
+			{
+				if( session_offset >= next_session_offset )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid session offset value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				if( ( session_index + 1 ) != toc_entries[ 0 ] )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid session number value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				if( ( lead_out_offset >= session_offset )
+				 && ( lead_out_offset < next_session_offset ) )
+				{
+					if( libsmdev_handle_append_lead_out(
+					     internal_handle,
+					     lead_out_offset,
+					     next_session_offset - lead_out_offset,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append lead_out: %d.",
+						 function,
+						 lead_out_index );
+
+						goto on_error;
+					}
+					lead_out_index++;
+				}
+				if( libsmdev_handle_append_session(
+				     internal_handle,
+				     session_offset,
+				     next_session_offset - session_offset,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append session: %d.",
+					 function,
+					 session_index );
+
+					goto on_error;
+				}
+				session_offset = next_session_offset;
+
+				session_index++;
+			}
 			toc_entries     += 11;
 			toc_data_offset += 11;
 
-/* TODO
-			if( offset < last_offset )
+			entry_iterator++;
+		}
+		if( ( track_index + 1 ) == track_number )
+		{
+			if( track_offset < last_track_offset )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid offset value out of bounds.",
+				 "%s: invalid track offset value out of bounds.",
 				 function );
 
 				goto on_error;
 			}
-*/
-			entry_iterator++;
+			if( libsmdev_handle_append_track(
+			     internal_handle,
+			     last_track_offset,
+			     track_offset - last_track_offset,
+			     LIBSMDEV_TRACK_TYPE_UNKNOWN,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append last track: %d.",
+				 function,
+				 track_index );
 
-			last_offset = offset;
+				goto on_error;
+			}
+		}
+		if( session_index != number_of_sessions )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid session index value out of bounds.",
+			 function );
+
+			goto on_error;
 		}
 		result = 1;
 	}
@@ -408,6 +661,12 @@ on_error:
 	 NULL );
 
 	libsmdev_array_resize(
+	 internal_handle->lead_outs_array,
+	 0,
+	 &libsmdev_sector_range_free,
+	 NULL );
+
+	libsmdev_array_resize(
 	 internal_handle->sessions_array,
 	 0,
 	 &libsmdev_sector_range_free,
@@ -417,7 +676,7 @@ on_error:
 }
 
 /* Retrieves the table of contents from the optical disk using IOCTL
- * Returns 1 if successful, 0 if no TOC could be found or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
      int file_descriptor,
@@ -428,14 +687,15 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	struct cdrom_tocentry toc_entry;
 
 	static char *function   = "libsmdev_optical_disc_get_table_of_contents_ioctl";
-	off64_t last_offset     = 0;
-	off64_t offset          = 0;
-	ssize_t response_count  = 0;
+	uint32_t last_offset    = 0;
+	uint32_t offset         = 0;
 	uint16_t entry_iterator = 0;
 	uint8_t first_entry     = 0;
 	uint8_t last_entry      = 0;
+	uint8_t last_track_type = 0;
 	uint8_t track_type      = 0;
-	int disc_status         = 0;
+	int number_of_sessions  = 0;
+	int number_of_tracks    = 0;
 	int track_index         = 0;
 
 	if( file_descriptor == -1 )
@@ -449,17 +709,30 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 		return( -1 );
 	}
-	disc_status = ioctl(
-	               file_descriptor,
-	               CDROM_DISC_STATUS );
-
-	if( disc_status == -1 )
+	if( libsmdev_handle_get_number_of_sessions(
+	     (libsmdev_handle_t *) internal_handle,
+	     &number_of_sessions,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
-		 "%s: unable to query device for: CDROM_DISC_STATUS.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable retrieve number of sessions.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_handle_get_number_of_tracks(
+	     (libsmdev_handle_t *) internal_handle,
+	     &number_of_tracks,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable retrieve number of tracks.",
 		 function );
 
 		goto on_error;
@@ -527,7 +800,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		}
 		if( toc_entry.cdte_format == CDROM_LBA )
 		{
-			offset = (off64_t) toc_entry.cdte_addr.lba;
+			offset = (uint32_t) toc_entry.cdte_addr.lba;
 		}
 		else if( toc_entry.cdte_format == CDROM_MSF )
 		{
@@ -552,24 +825,15 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		{
 			track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
 		}
-/* TODO improve */
-		else if( disc_status == CDS_DATA_1 )
-		{
-			track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
-		}
-		else if( disc_status == CDS_DATA_2 )
-		{
-			track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
-		}
 		else
 		{
-			track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
+			track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: track: %" PRIu16 "",
+			 "%s: entry: %" PRIu16 "",
 			 function,
 			 entry_iterator );
 
@@ -598,7 +862,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 				 toc_entry.cdte_addr.msf.frame );
 			}
 			libnotify_printf(
-			 " (offset: %" PRIi64 ")\n",
+			 " (offset: %" PRIu32 ")\n",
 			 offset );
 		}
 #endif
@@ -615,11 +879,13 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 				goto on_error;
 			}
+/* TODO this is either a session or a track
+ */
 			if( libsmdev_handle_append_track(
 			     internal_handle,
 			     last_offset,
 			     offset - last_offset,
-			     track_type,
+			     last_track_type,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -634,7 +900,8 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			}
 			track_index++;
 		}
-		last_offset = offset;
+		last_offset     = offset;
+		last_track_type = track_type;
 	}
 	if( memory_set(
 	     &toc_entry,
@@ -669,7 +936,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	}
 	if( toc_entry.cdte_format == CDROM_LBA )
 	{
-		offset = (off64_t) toc_entry.cdte_addr.lba;
+		offset = (uint32_t) toc_entry.cdte_addr.lba;
 	}
 	else if( toc_entry.cdte_format == CDROM_MSF )
 	{
@@ -689,23 +956,6 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		 function );
 
 		goto on_error;
-	}
-	if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
-	{
-		track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
-	}
-/* TODO improve */
-	else if( disc_status == CDS_DATA_1 )
-	{
-		track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
-	}
-	else if( disc_status == CDS_DATA_2 )
-	{
-		track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
-	}
-	else
-	{
-		track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -738,7 +988,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			 toc_entry.cdte_addr.msf.frame );
 		}
 		libnotify_printf(
-		 " (offset: %" PRIi64 ")\n\n",
+		 " (offset: %" PRIu32 ")\n\n",
 		 offset );
 	}
 #endif
@@ -757,7 +1007,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     internal_handle,
 	     last_offset,
 	     offset - last_offset,
-	     track_type,
+	     last_track_type,
 	     error ) != 1 )
 	{
 		liberror_error_set(

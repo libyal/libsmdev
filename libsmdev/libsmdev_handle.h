@@ -111,13 +111,17 @@ struct libsmdev_internal_handle
 	 */
 	libcstring_character_t serial_number[ 64 ];
 
+	/* The tracks array
+	 */
+	libsmdev_array_t *tracks_array;
+
 	/* The sessions array
 	 */
 	libsmdev_array_t *sessions_array;
 
-	/* The tracks array
+	/* The lead-outs array
 	 */
-	libsmdev_array_t *tracks_array;
+	libsmdev_array_t *lead_outs_array;
 
 	/* Value to indicate the media information values were set
 	 */

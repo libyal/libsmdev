@@ -116,6 +116,20 @@ int libsmdev_handle_initialize(
 			return( -1 );
 		}
 		if( libsmdev_array_initialize(
+		     &( internal_handle->tracks_array ),
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create tracks array.",
+			 function );
+
+			goto on_error;
+		}
+		if( libsmdev_array_initialize(
 		     &( internal_handle->sessions_array ),
 		     0,
 		     error ) != 1 )
@@ -130,7 +144,7 @@ int libsmdev_handle_initialize(
 			goto on_error;
 		}
 		if( libsmdev_array_initialize(
-		     &( internal_handle->tracks_array ),
+		     &( internal_handle->lead_outs_array ),
 		     0,
 		     error ) != 1 )
 		{
@@ -138,7 +152,7 @@ int libsmdev_handle_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create tracks array.",
+			 "%s: unable to create lead-outs array.",
 			 function );
 
 			goto on_error;
@@ -170,10 +184,10 @@ int libsmdev_handle_initialize(
 on_error:
 	if( internal_handle != NULL )
 	{
-		if( internal_handle->tracks_array != NULL )
+		if( internal_handle->lead_outs_array != NULL )
 		{
 			libsmdev_array_free(
-			 &( internal_handle->tracks_array ),
+			 &( internal_handle->lead_outs_array ),
 			 NULL,
 			 NULL );
 		}
@@ -181,6 +195,13 @@ on_error:
 		{
 			libsmdev_array_free(
 			 &( internal_handle->sessions_array ),
+			 NULL,
+			 NULL );
+		}
+		if( internal_handle->tracks_array != NULL )
+		{
+			libsmdev_array_free(
+			 &( internal_handle->tracks_array ),
 			 NULL,
 			 NULL );
 		}
@@ -243,6 +264,20 @@ int libsmdev_handle_free(
 			 internal_handle->filename );
 		}
 		if( libsmdev_array_free(
+		     &( internal_handle->tracks_array ),
+		     &libsmdev_track_value_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free tracks array.",
+			 function );
+
+			result = -1;
+		}
+		if( libsmdev_array_free(
 		     &( internal_handle->sessions_array ),
 		     &libsmdev_sector_range_free,
 		     error ) != 1 )
@@ -257,15 +292,15 @@ int libsmdev_handle_free(
 			result = -1;
 		}
 		if( libsmdev_array_free(
-		     &( internal_handle->tracks_array ),
-		     &libsmdev_track_value_free,
+		     &( internal_handle->lead_outs_array ),
+		     &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free tracks array.",
+			 "%s: unable to free lead-outs array.",
 			 function );
 
 			result = -1;
@@ -408,6 +443,21 @@ int libsmdev_handle_open(
 		return( -1 );
 	}
 	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     &libsmdev_sector_range_free,
@@ -423,16 +473,16 @@ int libsmdev_handle_open(
 		goto on_error;
 	}
 	if( libsmdev_array_resize(
-	     internal_handle->tracks_array,
+	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty tracks array.",
+		 "%s: unable to empty lead-outs array.",
 		 function );
 
 		goto on_error;
@@ -835,6 +885,21 @@ int libsmdev_handle_open_wide(
 		return( -1 );
 	}
 	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     &libsmdev_sector_range_free,
@@ -850,16 +915,16 @@ int libsmdev_handle_open_wide(
 		goto on_error;
 	}
 	if( libsmdev_array_resize(
-	     internal_handle->tracks_array,
+	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty tracks array.",
+		 "%s: unable to empty lead-outs array.",
 		 function );
 
 		goto on_error;
@@ -1403,6 +1468,21 @@ int libsmdev_handle_close(
 	internal_handle->file_descriptor = -1;
 #endif
 	if( libsmdev_array_resize(
+	     internal_handle->tracks_array,
+	     0,
+	     &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
+		 function );
+
+		result = -1;
+	}
+	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     &libsmdev_sector_range_free,
@@ -1418,16 +1498,16 @@ int libsmdev_handle_close(
 		result = -1;
 	}
 	if( libsmdev_array_resize(
-	     internal_handle->tracks_array,
+	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to empty tracks array.",
+		 "%s: unable to empty lead-outs array.",
 		 function );
 
 		result = -1;

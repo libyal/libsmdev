@@ -1904,6 +1904,85 @@ on_error:
 	return( -1 );
 }
 
+/* Appends a lead-out
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_handle_append_lead_out(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     liberror_error_t **error )
+{
+	libsmdev_sector_range_t *sector_range = NULL;
+	static char *function                 = "libsmdev_handle_append_lead_out";
+	int entry_index                       = 0;
+
+	if( internal_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libsmdev_sector_range_initialize(
+	     &sector_range,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create sector range.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_sector_range_set(
+	     sector_range,
+	     start_sector,
+	     number_of_sectors,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set sector range.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_append_entry(
+	     internal_handle->lead_outs_array,
+	     &entry_index,
+	     (intptr_t *) sector_range,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append lead-out sector range to array.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( sector_range != NULL )
+	{
+		libsmdev_sector_range_free(
+		 (intptr_t *) sector_range,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Retrieves the number of tracks
  * Returns 1 if successful or -1 on error
  */
