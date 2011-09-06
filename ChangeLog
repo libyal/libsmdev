@@ -1,4 +1,5 @@
 TODO
+* what if session offset > size
 * optical disc
   - add track type support
   - add session support
@@ -37,6 +38,12 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20110906
+* worked on session support
+
+20110905
+* worked on session support
 
 20110904
 * fix for missing last character

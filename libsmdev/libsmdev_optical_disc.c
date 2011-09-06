@@ -137,6 +137,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint8_t session_index        = 0;
 	uint8_t track_index          = 0;
 	uint8_t track_number         = 0;
+	uint8_t track_type           = 0;
 	int result                   = 0;
 
 	if( file_descriptor == -1 )
@@ -481,7 +482,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 						goto on_error;
 					}
-					if( track_info_data[ 3 ] != toc_entries[ 3 ] )
+					if( track_info_data[ 3 ] != track_number )
 					{
 						liberror_error_set(
 						 error,
@@ -492,20 +493,31 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 						goto on_error;
 					}
-					/* TODO track mode: ( toc_entries[ 5 ] & 0x0f )
-					 * 0x4 => set if data
-					 */
+					track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
 
-					/* TODO data mode: ( toc_entries[ 6 ] & 0x0f )
-					 * 1 => mode-1 or other
-					 * 2 => mode-2
-					 */
-
+					if( ( track_info_data[ 5 ] & 0x04 ) != 0 )
+					{
+						if( ( track_info_data[ 5 ] & 0x08 ) == 0 )
+						{
+							if( ( track_info_data[ 6 ] & 0x0f ) == 1 )
+							{
+								track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
+							}
+							else if( ( track_info_data[ 6 ] & 0x0f ) == 2 )
+							{
+								track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
+							}
+						}
+					}
+					else
+					{
+						track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
+					}
 					if( libsmdev_handle_append_track(
 					     internal_handle,
 					     last_track_offset,
 					     track_offset - last_track_offset,
-					     LIBSMDEV_TRACK_TYPE_UNKNOWN,
+					     track_type,
 					     error ) != 1 )
 					{
 						liberror_error_set(
@@ -610,11 +622,98 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 				goto on_error;
 			}
+			if( memory_set(
+			     track_info_data,
+			     0,
+			     64 ) == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_SET_FAILED,
+				 "%s: unable to clear track info data.",
+				 function );
+
+				goto on_error;
+			}
+			response_count = libsmdev_scsi_read_track_information(
+					  file_descriptor,
+					  last_track_offset,
+					  track_info_data,
+					  64,
+					  error );
+
+			if( response_count == -1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable retrieve track info data: %d.",
+				 function,
+				 track_index );
+
+				goto on_error;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: track information data: %d:\n",
+				 function,
+				 track_index );
+				libnotify_print_data(
+				 track_info_data,
+				 response_count );
+			}
+#endif
+			if( track_info_data[ 2 ] != toc_entries[ 0 ] )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid track information data - session number value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
+			if( track_info_data[ 3 ] != toc_entries[ 3 ] )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid track information data - track number value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
+			track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
+
+			if( ( track_info_data[ 5 ] & 0x04 ) != 0 )
+			{
+				if( ( track_info_data[ 5 ] & 0x08 ) == 0 )
+				{
+					if( ( track_info_data[ 6 ] & 0x0f ) == 1 )
+					{
+						track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
+					}
+					else if( ( track_info_data[ 6 ] & 0x0f ) == 2 )
+					{
+						track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
+					}
+				}
+			}
+			else
+			{
+				track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
+			}
 			if( libsmdev_handle_append_track(
 			     internal_handle,
 			     last_track_offset,
 			     track_offset - last_track_offset,
-			     LIBSMDEV_TRACK_TYPE_UNKNOWN,
+			     track_type,
 			     error ) != 1 )
 			{
 				liberror_error_set(
