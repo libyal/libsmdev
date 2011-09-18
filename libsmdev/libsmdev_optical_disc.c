@@ -330,7 +330,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				if( toc_entries[ 3 ] <= 0x63 )
 				{
 					libnotify_printf(
-					 "%s: session: %02" PRIu16 " track: %02" PRIu8 "\t\t\t: %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8 " (offset: %" PRIu32 ")\n",
+					 "%s: session: %02" PRIu16 " track: %02" PRIu8 "\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
 					 toc_entries[ 3 ],
@@ -358,7 +358,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				else if( toc_entries[ 3 ] == 0xa2 )
 				{
 					libnotify_printf(
-					 "%s: session: %02" PRIu8 " lead out\t\t\t: %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8 " (offset: %" PRIu32 ")\n",
+					 "%s: session: %02" PRIu8 " lead out\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
 					 toc_entries[ 8 ],
@@ -369,7 +369,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				else if( toc_entries[ 3 ] == 0xb0 )
 				{
 					libnotify_printf(
-					 "%s: session: %02" PRIu16 " end\t\t\t: %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8 " (offset: %" PRIu32 ")\n",
+					 "%s: session: %02" PRIu16 " end\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
 					 toc_entries[ 4 ],
@@ -785,17 +785,19 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	struct cdrom_tochdr toc_header;
 	struct cdrom_tocentry toc_entry;
 
-	static char *function   = "libsmdev_optical_disc_get_table_of_contents_ioctl";
-	uint32_t last_offset    = 0;
-	uint32_t offset         = 0;
-	uint16_t entry_iterator = 0;
-	uint8_t first_entry     = 0;
-	uint8_t last_entry      = 0;
-	uint8_t last_track_type = 0;
-	uint8_t track_type      = 0;
-	int number_of_sessions  = 0;
-	int number_of_tracks    = 0;
-	int track_index         = 0;
+	static char *function        = "libsmdev_optical_disc_get_table_of_contents_ioctl";
+	uint32_t last_session_offset = 0;
+	uint32_t last_track_offset   = 0;
+	uint32_t offset              = 0;
+	uint16_t entry_iterator      = 0;
+	uint8_t first_entry          = 0;
+	uint8_t last_entry           = 0;
+	uint8_t last_track_type      = 0;
+	uint8_t track_type           = 0;
+	int number_of_sessions       = 0;
+	int number_of_tracks         = 0;
+	uint8_t session_index        = 0;
+	uint8_t track_index          = 0;
 
 	if( file_descriptor == -1 )
 	{
@@ -955,7 +957,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			else if( toc_entry.cdte_format == CDROM_MSF )
 			{
 				libnotify_printf(
-				 " start\t: %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8 "",
+				 " start\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 "",
 				 toc_entry.cdte_addr.msf.minute,
 				 toc_entry.cdte_addr.msf.second,
 				 toc_entry.cdte_addr.msf.frame );
@@ -967,7 +969,8 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 #endif
 		if( entry_iterator > first_entry )
 		{
-			if( offset < last_offset )
+			if( ( offset < last_track_offset )
+			 || ( offset < last_session_offset ) )
 			{
 				liberror_error_set(
 				 error,
@@ -978,12 +981,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 				goto on_error;
 			}
-/* TODO this is either a session or a track
- */
 			if( libsmdev_handle_append_track(
 			     internal_handle,
-			     last_offset,
-			     offset - last_offset,
+			     last_track_offset,
+			     offset - last_track_offset,
 			     last_track_type,
 			     error ) != 1 )
 			{
@@ -991,16 +992,40 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append track: %d.",
+				 "%s: unable to append track: %" PRIu8 ".",
 				 function,
 				 track_index );
 
 				goto on_error;
 			}
 			track_index++;
+
+			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
+			 || ( last_track_type != track_type ) )
+			{
+				if( libsmdev_handle_append_session(
+				     internal_handle,
+				     last_session_offset,
+				     offset - last_session_offset,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append session: %" PRIu8 ".",
+					 function,
+					 session_index );
+
+					goto on_error;
+				}
+				session_index++;
+
+				last_session_offset = offset;
+			}
 		}
-		last_offset     = offset;
-		last_track_type = track_type;
+		last_track_offset = offset;
+		last_track_type   = track_type;
 	}
 	if( memory_set(
 	     &toc_entry,
@@ -1081,7 +1106,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		else if( toc_entry.cdte_format == CDROM_MSF )
 		{
 			libnotify_printf(
-			 " start:\t%02" PRIu8 ":%02" PRIu8 ".%" PRIu8 "",
+			 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
 			 toc_entry.cdte_addr.msf.minute,
 			 toc_entry.cdte_addr.msf.second,
 			 toc_entry.cdte_addr.msf.frame );
@@ -1091,7 +1116,8 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		 offset );
 	}
 #endif
-	if( offset < last_offset )
+	if( ( offset < last_track_offset )
+	 || ( offset < last_session_offset ) )
 	{
 		liberror_error_set(
 		 error,
@@ -1104,8 +1130,8 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	}
 	if( libsmdev_handle_append_track(
 	     internal_handle,
-	     last_offset,
-	     offset - last_offset,
+	     last_track_offset,
+	     offset - last_track_offset,
 	     last_track_type,
 	     error ) != 1 )
 	{
@@ -1113,9 +1139,25 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append last track: %d.",
+		 "%s: unable to append last track: %" PRIu8 ".",
 		 function,
 		 track_index );
+
+		goto on_error;
+	}
+	if( libsmdev_handle_append_session(
+	     internal_handle,
+	     last_session_offset,
+	     offset - last_session_offset,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append session: %" PRIu8 ".",
+		 function,
+		 session_index );
 
 		goto on_error;
 	}
