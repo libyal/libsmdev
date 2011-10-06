@@ -39,6 +39,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20111006
+* fix for MacOS-X
+* updated configure.ac and m4 files
+
 20110906
 * worked on session support
 

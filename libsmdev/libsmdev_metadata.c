@@ -650,9 +650,9 @@ int libsmdev_internal_handle_determine_media_information(
 	DWORD response_count   = 0;
 
 #else
-#if defined( HAVE_SCSI_SG_H )
 	uint8_t response[ 255 ];
 
+#if defined( HAVE_SCSI_SG_H )
 	ssize_t response_count = 0;
 #endif
 #if defined( HDIO_GET_IDENTITY )

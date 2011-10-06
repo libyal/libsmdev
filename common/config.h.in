@@ -28,7 +28,7 @@
    */
 #undef HAVE_DCGETTEXT
 
-/* Define to 1 if debug output should be used */
+/* Define to 1 if debug output should be used. */
 #undef HAVE_DEBUG_OUTPUT
 
 /* Define to 1 if you have the declaration of `memrchr', and to 0 if you
@@ -282,7 +282,7 @@
 /* Define to 1 if you have the <varargs.h> header file. */
 #undef HAVE_VARARGS_H
 
-/* Define to 1 if verbose output should be used */
+/* Define to 1 if verbose output should be used. */
 #undef HAVE_VERBOSE_OUTPUT
 
 /* Define to 1 if you have the `vfprintf' function. */

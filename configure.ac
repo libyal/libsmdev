@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20110918],
+ [20111006],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -17,35 +17,6 @@ AC_CANONICAL_HOST
 
 dnl Check for large file support
 AC_SYS_LARGEFILE
-
-dnl Check for configure arguments
-COMMON_ARG_ENABLE(
- [wide-character-type],
- [wide_character_type],
- [enable wide character type support],
- [no])
-COMMON_ARG_ENABLE(
- [winapi],
- [winapi],
- [enable WINAPI support for cross-compilation],
- [auto-detect])
-COMMON_ARG_ENABLE(
- [verbose-output],
- [verbose_output],
- [enable verbose output],
- [no])
-COMMON_ARG_ENABLE(
- [debug-output],
- [debug_output],
- [enable debug output],
- [no])
-
-COMMON_ARG_WITH(
- [libuna],
- [libuna],
- [search for libuna in includedir and libdir or in the specified DIR, or no if to use local version],
- [auto-detect],
- [DIR])
 
 dnl Check for libtool DLL support
 AC_LIBTOOL_WIN32_DLL
@@ -65,190 +36,34 @@ dnl Check for compiler language support
 AC_C_CONST
 AC_C_VOLATILE
 
-dnl Automatically enable winapi support for mingw
-AC_CHECK_WINAPI
+dnl Check if WINAPI support should be enabled
+AX_COMMON_CHECK_ENABLE_WINAPI
 
 dnl Check for type definitions
-AC_CHECK_LOCAL_TYPES
+AX_TYPES_CHECK_LOCAL
 
-dnl Check for headers
-dnl Headers included in libsmdev/libsmdev_handle.c and libsmdev/libsmdev_support.c
-AC_CHECK_HEADERS([errno.h fcntl.h sys/stat.h unistd.h])
+dnl Check if wide character type should be enabled
+AX_COMMON_CHECK_ENABLE_WIDE_CHARACTER_TYPE
 
-dnl Headers included in libsmdev/libsmdev_metadata.c
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xno],
- [AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h]) ])
-
-dnl Headers included in libsmdev/libsmdev_ata.c
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xno],
- [AC_CHECK_HEADERS([cygwin/hdreg.h linux/hdreg.h]) ])
-
-dnl Headers included in libsmdev/libsmdev_scsi.c
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xno],
- [AC_CHECK_HEADERS([scsi/scsi.h scsi/scsi_ioctl.h scsi/sg.h]) ])
-
-dnl Headers included in libsmdev/libsmdev_optical_disk.c
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xno],
- [AC_CHECK_HEADERS([linux/cdrom.h]) ])
-
-dnl Headers included in libsmdev/libsmdev_usb.c
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xno],
- [AC_CHECK_HEADERS([linux/usbdevice_fs.h linux/usb/ch9.h]) ])
-
-dnl Other headers
-
-dnl Check for functions
-dnl File input/output functions used in libsmdev/libsmdev_handle.h
-AC_CHECK_FUNCS(
- [close],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: close],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [fstat],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: fstat],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [lseek],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: lseek],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [open],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: open],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [read],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: read],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [stat],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: stat],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [ftruncate],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: ftruncate],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [write],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: write],
-  [1]) ])
-
-AC_CHECK_FUNC_POSIX_FADVISE
-
-dnl Check for error string functions used in libsmdev/libsmdev_error_string.h
-AC_FUNC_STRERROR_R()
-
-AS_IF(
- [test "x$ac_cv_have_decl_strerror_r" = xno],
- [AC_CHECK_FUNCS(
-  [strerror],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing functions: strerror_r and strerror],
-   [1]) ]) ])
-
-dnl Check for printf conversion specifier support
-AC_CHECK_FUNC_PRINTF_JD
-AC_CHECK_FUNC_PRINTF_ZD
-
-dnl Check if winioctl.h defines STORAGE_BUS_TYPE
-AS_IF(
- [test "x$ac_cv_enable_winapi" = xyes],
- [AC_CHECK_HEADER_WINIOCTL_H_STORAGE_BUS_TYPE])
+dnl Check for headers and functions
+AX_LIBSMDEV_CHECK_LOCAL
 
 dnl Checks for libraries and library functions
 dnl ac_libsmdev_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
-AC_CHECK_LOCAL_COMMON
-AC_CHECK_LOCAL_LIBCSTRING
-AC_CHECK_LOCAL_LIBERROR
-AC_CHECK_LOCAL_LIBNOTIFY
+AX_COMMON_CHECK_LOCAL
+AX_LIBCSTRING_CHECK_LOCAL
+AX_LIBERROR_CHECK_LOCAL
+AX_LIBNOTIFY_CHECK_LOCAL
+AX_LIBSYSTEM_CHECK_LOCAL
 
 dnl Check for enabling libuna for Unicode string support
-AC_CHECK_LIBUNA
-
-AS_IF(
- [test "x$ac_cv_libuna" = xyes],
- [AC_SUBST(
-  [libewf_pc_libs_private_libuna],
-  [-luna])
- ])
-
-AS_IF(
- [test "x$ac_cv_libuna" = xyes],
- [AC_SUBST(
-  [libewf_spec_requires_libuna],
-  [libuna])
- AC_SUBST(
-  [libewf_spec_build_requires_libuna],
-  [libuna-devel])
- ])
-
-AS_IF(
- [test "x$ac_cv_libuna" != xyes],
- [AC_DEFINE(
-  [HAVE_LOCAL_LIBUNA],
-  [1],
-  [Define to 1 if the local version of libuna is used.])
- AC_SUBST(
-  [HAVE_LOCAL_LIBUNA],
-  [1])
- AC_SUBST(
-  [LIBUNA_CPPFLAGS],
-  [-I../libuna])
- AC_SUBST(
-  [LIBUNA_LIBADD],
-  [../libuna/libuna.la])
- ac_cv_libuna=local
- ])
-
-AM_CONDITIONAL(
- [HAVE_LOCAL_LIBUNA],
- [test "x$ac_cv_libuna" = xlocal])
+AX_LIBUNA_CHECK_ENABLE
 
 dnl Check if libsmdev should be build with verbose output
-AS_IF(
- [test "x$ac_cv_enable_verbose_output" != xno],
- [AC_DEFINE(
- [HAVE_VERBOSE_OUTPUT],
- [1],
- [Define to 1 if verbose output should be used] )
- ac_cv_enable_verbose_output=yes])
+AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
 
 dnl Check if libsmdev should be build with debug output
-AS_IF(
- [test "x$ac_cv_enable_debug_output" != xno],
- [AC_DEFINE(
- [HAVE_DEBUG_OUTPUT],
- [1],
- [Define to 1 if debug output should be used] )
- ac_cv_enable_debug_output=yes])
+AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
@@ -258,20 +73,14 @@ AS_IF(
   [Requires:])
  AC_SUBST(
   [libsmdev_spec_build_requires],
-  [BuildRequires:]) ],
- [AC_SUBST(
-  [libsmdev_spec_requires],
-  [])
- AC_SUBST(
-  [libsmdev_spec_build_requires],
-  [])
- ac_libsmdev_dummy=yes])
+  [BuildRequires:])
+ ])
 
 dnl Set memwatch support
-ac_libsmdev_have_memwatch=no
+ac_cv_enable_memwatch=no
 
 AS_IF(
- [test "x$ac_libsmdev_have_memwatch" != xno ],
+ [test "x$ac_cv_enable_memwatch" != xno ],
  [AC_SUBST(
  [MEMWATCH_CPPFLAGS],
  ["-DMEMWATCH -DMEMWATCH_STDIO"])
@@ -281,7 +90,7 @@ AS_IF(
 
 AM_CONDITIONAL(
  [HAVE_MEMWATCH],
- [test "x$ac_libsmdev_have_memwatch" != xno])
+ [test "x$ac_cv_enable_memwatch" != xno])
 
 dnl Set additional compiler flags
 CFLAGS="$CFLAGS -Wall";
