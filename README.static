@@ -1,4 +1,4 @@
-Libsmdev supports two types of static compilation
+Libsmdev supports  the following types of static compilation:
 * static library
 
 Creating a static library

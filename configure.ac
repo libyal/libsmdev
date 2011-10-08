@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20111006],
+ [20111007],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -45,19 +45,17 @@ AX_TYPES_CHECK_LOCAL
 dnl Check if wide character type should be enabled
 AX_COMMON_CHECK_ENABLE_WIDE_CHARACTER_TYPE
 
-dnl Check for headers and functions
-AX_LIBSMDEV_CHECK_LOCAL
-
 dnl Checks for libraries and library functions
-dnl ac_libsmdev_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
 AX_COMMON_CHECK_LOCAL
 AX_LIBCSTRING_CHECK_LOCAL
 AX_LIBERROR_CHECK_LOCAL
 AX_LIBNOTIFY_CHECK_LOCAL
-AX_LIBSYSTEM_CHECK_LOCAL
 
 dnl Check for enabling libuna for Unicode string support
 AX_LIBUNA_CHECK_ENABLE
+
+dnl Check for library function support
+AX_LIBSMDEV_CHECK_LOCAL
 
 dnl Check if libsmdev should be build with verbose output
 AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
@@ -146,5 +144,4 @@ Features:
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);
-
 

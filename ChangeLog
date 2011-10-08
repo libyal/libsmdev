@@ -39,6 +39,12 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20111008
+* updated configure.ac and m4 files
+* updated common
+* updated libuna
+* fix for inclusion of last lead out in optical disk session
+
 20111006
 * fix for MacOS-X
 * updated configure.ac and m4 files

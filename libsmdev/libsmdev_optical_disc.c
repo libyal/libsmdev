@@ -124,9 +124,11 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	size_t toc_data_offset       = 0;
 	size_t toc_data_size         = 0;
 	ssize_t response_count       = 0;
+	uint32_t lead_out_size       = 0;
 	uint32_t lead_out_offset     = 0;
 	uint32_t last_track_offset   = 0;
 	uint32_t track_offset        = 0;
+	uint32_t session_size        = 0;
 	uint32_t session_offset      = 0;
 	uint32_t next_session_offset = 0;
 	uint16_t entry_iterator      = 0;
@@ -563,13 +565,17 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 					goto on_error;
 				}
+				lead_out_size = 0;
+
 				if( ( lead_out_offset >= session_offset )
 				 && ( lead_out_offset < next_session_offset ) )
 				{
+					lead_out_size = next_session_offset - lead_out_offset;
+
 					if( libsmdev_handle_append_lead_out(
 					     internal_handle,
 					     lead_out_offset,
-					     next_session_offset - lead_out_offset,
+					     lead_out_size,
 					     error ) != 1 )
 					{
 						liberror_error_set(
@@ -584,10 +590,16 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					}
 					lead_out_index++;
 				}
+				session_size = next_session_offset - session_offset;
+
+				if( ( session_index + 1 ) == number_of_sessions )
+				{
+					session_size -= lead_out_size;
+				}
 				if( libsmdev_handle_append_session(
 				     internal_handle,
 				     session_offset,
-				     next_session_offset - session_offset,
+				     session_size,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -786,7 +798,9 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	struct cdrom_tocentry toc_entry;
 
 	static char *function        = "libsmdev_optical_disc_get_table_of_contents_ioctl";
+	uint32_t last_session_size   = 0;
 	uint32_t last_session_offset = 0;
+	uint32_t last_track_size     = 0;
 	uint32_t last_track_offset   = 0;
 	uint32_t offset              = 0;
 	uint16_t entry_iterator      = 0;
@@ -981,10 +995,46 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 				goto on_error;
 			}
+			last_track_size = offset - last_track_offset;
+
+			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
+			 || ( last_track_type != track_type ) )
+			{
+				if( session_index == 0 )
+				{
+					if( last_track_size < 11400 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid last track size value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					last_track_size -= 11400;
+				}
+				else
+				{
+					if( last_track_size < 6900 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid last track size value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					last_track_size -= 6900;
+				}
+			}
 			if( libsmdev_handle_append_track(
 			     internal_handle,
 			     last_track_offset,
-			     offset - last_track_offset,
+			     last_track_size,
 			     last_track_type,
 			     error ) != 1 )
 			{
@@ -1003,10 +1053,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
 			 || ( last_track_type != track_type ) )
 			{
+				last_session_size = offset - last_session_offset;
+
 				if( libsmdev_handle_append_session(
 				     internal_handle,
 				     last_session_offset,
-				     offset - last_session_offset,
+				     last_session_size,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -1128,10 +1180,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 		goto on_error;
 	}
+	last_track_size = offset - last_track_offset;
+
 	if( libsmdev_handle_append_track(
 	     internal_handle,
 	     last_track_offset,
-	     offset - last_track_offset,
+	     last_track_size,
 	     last_track_type,
 	     error ) != 1 )
 	{
@@ -1145,10 +1199,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 		goto on_error;
 	}
+	last_session_size = offset - last_session_offset;
+
 	if( libsmdev_handle_append_session(
 	     internal_handle,
 	     last_session_offset,
-	     offset - last_session_offset,
+	     last_session_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
