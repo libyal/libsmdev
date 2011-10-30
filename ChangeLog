@@ -39,6 +39,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20111030
+* updated configure.ac and m4 files
+
 20111008
 * updated configure.ac and m4 files
 * updated common
