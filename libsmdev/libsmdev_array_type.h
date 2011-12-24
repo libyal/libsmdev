@@ -86,21 +86,21 @@ int libsmdev_array_initialize(
 int libsmdev_array_free(
      libsmdev_array_t **array,
      int (*entry_free_function)(
-            intptr_t *entry,
+            intptr_t **entry,
             liberror_error_t **error ),
      liberror_error_t **error );
 
 int libsmdev_array_empty(
      libsmdev_array_t *array,
      int (*entry_free_function)(
-            intptr_t *entry,
+            intptr_t **entry,
             liberror_error_t **error ),
      liberror_error_t **error );
 
 int libsmdev_array_clear(
      libsmdev_array_t *array,
      int (*entry_free_function)(
-            intptr_t *entry,
+            intptr_t **entry,
             liberror_error_t **error ),
      liberror_error_t **error );
 
@@ -108,7 +108,7 @@ int libsmdev_array_clone(
      libsmdev_array_t **destination_array,
      libsmdev_array_t *source_array,
      int (*entry_free_function)(
-            intptr_t *entry,
+            intptr_t **entry,
             liberror_error_t **error ),
      int (*entry_clone_function)(
             intptr_t **destination,
@@ -120,7 +120,7 @@ int libsmdev_array_resize(
      libsmdev_array_t *array,
      int number_of_entries,
      int (*entry_free_function)(
-            intptr_t *entry,
+            intptr_t **entry,
             liberror_error_t **error ),
      liberror_error_t **error );
 

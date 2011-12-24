@@ -768,19 +768,19 @@ on_error:
 	libsmdev_array_resize(
 	 internal_handle->tracks_array,
 	 0,
-	 &libsmdev_track_value_free,
+	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
 	libsmdev_array_resize(
 	 internal_handle->lead_outs_array,
 	 0,
-	 &libsmdev_sector_range_free,
+	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
 	libsmdev_array_resize(
 	 internal_handle->sessions_array,
 	 0,
-	 &libsmdev_sector_range_free,
+	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
 	return( -1 );
@@ -1223,7 +1223,7 @@ on_error:
 	libsmdev_array_resize(
 	 internal_handle->tracks_array,
 	 0,
-	 &libsmdev_track_value_free,
+	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
 	return( -1 );

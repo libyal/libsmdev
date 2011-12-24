@@ -51,7 +51,7 @@ int libsmdev_sector_range_initialize(
      liberror_error_t **error );
 
 int libsmdev_sector_range_free(
-     intptr_t *sector_range,
+     libsmdev_sector_range_t **sector_range,
      liberror_error_t **error );
 
 int libsmdev_sector_range_get(

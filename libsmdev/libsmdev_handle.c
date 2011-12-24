@@ -82,103 +82,112 @@ int libsmdev_handle_initialize(
 
 		return( -1 );
 	}
-	if( *handle == NULL )
+	if( *handle != NULL )
 	{
-		internal_handle = memory_allocate_structure(
-		                   libsmdev_internal_handle_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid handle value already set.",
+		 function );
 
-		if( internal_handle == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create internal handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_handle,
-		     0,
-		     sizeof( libsmdev_internal_handle_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear handle.",
-			 function );
-
-			memory_free(
-			 internal_handle );
-
-			return( -1 );
-		}
-		if( libsmdev_array_initialize(
-		     &( internal_handle->tracks_array ),
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create tracks array.",
-			 function );
-
-			goto on_error;
-		}
-		if( libsmdev_array_initialize(
-		     &( internal_handle->sessions_array ),
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create sessions array.",
-			 function );
-
-			goto on_error;
-		}
-		if( libsmdev_array_initialize(
-		     &( internal_handle->lead_outs_array ),
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create lead-outs array.",
-			 function );
-
-			goto on_error;
-		}
-		if( libsmdev_offset_list_initialize(
-		     &( internal_handle->errors ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create errors offset list.",
-			 function );
-
-			goto on_error;
-		}
-#if defined( WINAPI )
-		internal_handle->file_handle             = INVALID_HANDLE_VALUE;
-#else
-		internal_handle->file_descriptor         = -1;
-#endif
-		internal_handle->number_of_error_retries = 2;
-
-		*handle = (libsmdev_handle_t *) internal_handle;
+		return( -1 );
 	}
+	internal_handle = memory_allocate_structure(
+	                   libsmdev_internal_handle_t );
+
+	if( internal_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create internal handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_set(
+	     internal_handle,
+	     0,
+	     sizeof( libsmdev_internal_handle_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear handle.",
+		 function );
+
+		memory_free(
+		 internal_handle );
+
+		return( -1 );
+	}
+	if( libsmdev_array_initialize(
+	     &( internal_handle->tracks_array ),
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create tracks array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_initialize(
+	     &( internal_handle->sessions_array ),
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create sessions array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_array_initialize(
+	     &( internal_handle->lead_outs_array ),
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create lead-outs array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libsmdev_offset_list_initialize(
+	     &( internal_handle->errors ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create errors offset list.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( WINAPI )
+	internal_handle->file_handle             = INVALID_HANDLE_VALUE;
+#else
+	internal_handle->file_descriptor         = -1;
+#endif
+	internal_handle->number_of_error_retries = 2;
+
+	*handle = (libsmdev_handle_t *) internal_handle;
+
 	return( 1 );
 
 on_error:
@@ -265,7 +274,7 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->tracks_array ),
-		     &libsmdev_track_value_free,
+		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -279,7 +288,7 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->sessions_array ),
-		     &libsmdev_sector_range_free,
+		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -293,7 +302,7 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->lead_outs_array ),
-		     &libsmdev_sector_range_free,
+		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -445,7 +454,7 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -460,7 +469,7 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -475,7 +484,7 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -887,7 +896,7 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -902,7 +911,7 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -917,7 +926,7 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1470,7 +1479,7 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1485,7 +1494,7 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1500,7 +1509,7 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(

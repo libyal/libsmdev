@@ -49,36 +49,44 @@ int libsmdev_track_value_initialize(
 
 		return( -1 );
 	}
+	if( *track_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid track value value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*track_value = memory_allocate_structure(
+	                libsmdev_track_value_t );
+
 	if( *track_value == NULL )
 	{
-		*track_value = memory_allocate_structure(
-		                libsmdev_track_value_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create track value.",
+		 function );
 
-		if( *track_value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create track value.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *track_value,
+	     0,
+	     sizeof( libsmdev_track_value_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear track value.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *track_value,
-		     0,
-		     sizeof( libsmdev_track_value_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear track value.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -97,7 +105,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_track_value_free(
-     intptr_t *track_value,
+     libsmdev_track_value_t **track_value,
      liberror_error_t **error )
 {
 	static char *function = "libsmdev_track_value_free";
@@ -113,9 +121,13 @@ int libsmdev_track_value_free(
 
 		return( -1 );
 	}
-	memory_free(
-	 track_value );
+	if( *track_value != NULL )
+	{
+		memory_free(
+		 *track_value );
 
+		*track_value = NULL;
+	}
 	return( 1 );
 }
 

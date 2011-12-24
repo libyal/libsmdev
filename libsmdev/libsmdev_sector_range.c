@@ -48,36 +48,44 @@ int libsmdev_sector_range_initialize(
 
 		return( -1 );
 	}
+	if( *sector_range != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid sector range value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*sector_range = memory_allocate_structure(
+	                 libsmdev_sector_range_t );
+
 	if( *sector_range == NULL )
 	{
-		*sector_range = memory_allocate_structure(
-		                 libsmdev_sector_range_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create session value.",
+		 function );
 
-		if( *sector_range == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create session value.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *sector_range,
+	     0,
+	     sizeof( libsmdev_sector_range_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear session value.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *sector_range,
-		     0,
-		     sizeof( libsmdev_sector_range_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear session value.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -96,7 +104,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_sector_range_free(
-     intptr_t *sector_range,
+     libsmdev_sector_range_t **sector_range,
      liberror_error_t **error )
 {
 	static char *function = "libsmdev_sector_range_free";
@@ -112,9 +120,13 @@ int libsmdev_sector_range_free(
 
 		return( -1 );
 	}
-	memory_free(
-	 sector_range );
+	if( *sector_range != NULL )
+	{
+		memory_free(
+		 *sector_range );
 
+		*sector_range = NULL;
+	}
 	return( 1 );
 }
 

@@ -76,12 +76,12 @@ int libsmdev_offset_list_value_initialize(
      liberror_error_t **error );
 
 int libsmdev_offset_list_value_free(
-     intptr_t *offset_list_value,
+     libsmdev_offset_list_value_t **offset_list_value,
      liberror_error_t **error );
 
 int libsmdev_offset_list_value_clone(
-     intptr_t **destination_offset_list_value,
-     intptr_t *source_offset_list_value,
+     libsmdev_offset_list_value_t **destination_offset_list_value,
+     libsmdev_offset_list_value_t *source_offset_list_value,
      liberror_error_t **error );
 
 int libsmdev_offset_list_initialize(

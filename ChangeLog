@@ -39,6 +39,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20111224
+* updated libcstring, libuna
+* updated array type, list type, offset list
+* code clean up
+
 20111030
 * updated configure.ac and m4 files
 

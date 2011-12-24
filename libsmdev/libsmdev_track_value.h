@@ -59,7 +59,7 @@ int libsmdev_track_value_initialize(
      liberror_error_t **error );
 
 int libsmdev_track_value_free(
-     intptr_t *track_value,
+     libsmdev_track_value_t **track_value,
      liberror_error_t **error );
 
 int libsmdev_track_value_get(

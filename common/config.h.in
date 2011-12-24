@@ -4,17 +4,6 @@
    language is requested. */
 #undef ENABLE_NLS
 
-/* Define to 1 if you have the `atoll' function. */
-#undef HAVE_ATOLL
-
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-#undef HAVE_CFLOCALECOPYCURRENT
-
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
-#undef HAVE_CFPREFERENCESCOPYAPPVALUE
-
 /* Define to 1 if you have the `close' function. */
 #undef HAVE_CLOSE
 
@@ -249,12 +238,6 @@
 /* Define to 1 if you have the `strstr' function. */
 #undef HAVE_STRSTR
 
-/* Define to 1 if you have the `strtoll' function. */
-#undef HAVE_STRTOLL
-
-/* Define to 1 if you have the `strtoull' function. */
-#undef HAVE_STRTOULL
-
 /* Define to 1 if you have the `swprintf' function. */
 #undef HAVE_SWPRINTF
 
@@ -318,14 +301,8 @@
 /* Define to 1 if you have the `wcsstr' function. */
 #undef HAVE_WCSSTR
 
-/* Define to 1 if you have the `wcstoll' function. */
-#undef HAVE_WCSTOLL
-
 /* Define to 1 if you have the `wcstombs' function. */
 #undef HAVE_WCSTOMBS
-
-/* Define to 1 if you have the `wcstoull' function. */
-#undef HAVE_WCSTOULL
 
 /* Define to 1 if wide character type should be used. */
 #undef HAVE_WIDE_CHARACTER_TYPE

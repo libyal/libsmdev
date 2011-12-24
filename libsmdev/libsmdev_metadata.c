@@ -1898,7 +1898,7 @@ on_error:
 	if( sector_range != NULL )
 	{
 		libsmdev_sector_range_free(
-		 (intptr_t *) sector_range,
+		 &sector_range,
 		 NULL );
 	}
 	return( -1 );
@@ -1977,7 +1977,7 @@ on_error:
 	if( sector_range != NULL )
 	{
 		libsmdev_sector_range_free(
-		 (intptr_t *) sector_range,
+		 &sector_range,
 		 NULL );
 	}
 	return( -1 );
@@ -2162,7 +2162,7 @@ on_error:
 	if( track_value != NULL )
 	{
 		libsmdev_track_value_free(
-		 (intptr_t *) track_value,
+		 &track_value,
 		 NULL );
 	}
 	return( -1 );

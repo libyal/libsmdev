@@ -102,7 +102,7 @@ int libsmdev_list_element_initialize(
 int libsmdev_list_element_free(
      libsmdev_list_element_t **element,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
@@ -123,14 +123,14 @@ int libsmdev_list_initialize(
 int libsmdev_list_free(
      libsmdev_list_t **list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
 int libsmdev_list_empty(
      libsmdev_list_t *list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
@@ -138,7 +138,7 @@ int libsmdev_list_clone(
      libsmdev_list_t **destination_list,
      libsmdev_list_t *source_list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,
