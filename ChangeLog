@@ -32,12 +32,16 @@ Beta release
 * remove deprecated functions in libsmdev_legacy.[ch]
 
 Deployment
-* add msvscpp files
+* update msvscpp files
 * add borlandc files
 * add macosx files
 
 Test:
 * add autoconf/make test suite
+
+20111231
+* updated libcstring, libuna
+* updated msvscpp files
 
 20111224
 * updated libcstring, libuna

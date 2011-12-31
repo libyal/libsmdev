@@ -101,9 +101,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\common"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
-				RuntimeLibrary="2"
+				BasicRuntimeChecks="3"
+				SmallerTypeCheck="true"
+				RuntimeLibrary="3"
 				WarningLevel="4"
 				WarnAsError="false"
 				DebugInformationFormat="3"
@@ -150,15 +153,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libcstring\libcstring_locale.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libcstring\libcstring_system_string.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_wide.c"
+				RelativePath="..\..\libcstring\libcstring_wide_string.c"
 				>
 			</File>
 		</Filter>
@@ -180,11 +179,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_locale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcstring\libcstring_narrow.h"
+				RelativePath="..\..\libcstring\libcstring_narrow_string.h"
 				>
 			</File>
 			<File
@@ -200,7 +195,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_wide.h"
+				RelativePath="..\..\libcstring\libcstring_wide_string.h"
 				>
 			</File>
 		</Filter>
