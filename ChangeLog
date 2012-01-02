@@ -39,6 +39,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20120102
+* 2012 update
+* added windows codepage 932 and 936 support
+
 20111231
 * updated libcstring, libuna
 * updated msvscpp files

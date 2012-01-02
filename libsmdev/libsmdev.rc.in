@@ -24,7 +24,7 @@ BEGIN
       VALUE "FileDescription",		"Library to access and read the storage media (SM) devices\0"
       VALUE "FileVersion",		"@VERSION@" "\0"
       VALUE "InternalName",		"libsmdev.dll\0"
-      VALUE "LegalCopyright",		"(c) 2010-2011 Joachim Metz <jbmetz@users.sourceforge.net>\0"
+      VALUE "LegalCopyright",		"(c) 2010-2012 Joachim Metz <jbmetz@users.sourceforge.net>\0"
       VALUE "OriginalFilename",		"libsmdev.dll\0"
       VALUE "ProductName",		"libsmdev\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"

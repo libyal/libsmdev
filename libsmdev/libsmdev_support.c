@@ -1,7 +1,7 @@
 /*
  * Support functions
  *
- * Copyright (c) 2010-2011, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -138,6 +138,8 @@ int libsmdev_set_codepage(
 	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_R )
 	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_U )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_874 )
+	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_932 )
+	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_936 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1250 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1251 )
 	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1252 )
