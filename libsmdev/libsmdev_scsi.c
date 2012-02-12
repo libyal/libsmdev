@@ -424,7 +424,8 @@ ssize_t libsmdev_scsi_inquiry(
 		 function );
 		libnotify_print_data(
 		 response,
-		 response_count );
+		 response_count,
+		 0 );
 	}
 #endif
 	return( response_count );
@@ -543,7 +544,8 @@ ssize_t libsmdev_scsi_read_toc(
 		 function );
 		libnotify_print_data(
 		 response,
-		 response_count );
+		 response_count,
+		 0 );
 	}
 #endif
 	return( response_count );
@@ -660,7 +662,8 @@ ssize_t libsmdev_scsi_read_disc_information(
 		 function );
 		libnotify_print_data(
 		 response,
-		 response_count );
+		 response_count,
+		 0 );
 	}
 #endif
 	return( response_count );
@@ -783,7 +786,8 @@ ssize_t libsmdev_scsi_read_track_information(
 		 function );
 		libnotify_print_data(
 		 response,
-		 response_count );
+		 response_count,
+		 0 );
 	}
 #endif
 	return( response_count );
@@ -840,7 +844,8 @@ int libsmdev_scsi_get_identier(
 		 function );
 		libnotify_print_data(
 		 (uint8_t *) &identifier,
-		 sizeof( identifier ) );
+		 sizeof( identifier ),
+		 0 );
 	}
 #endif
 #endif

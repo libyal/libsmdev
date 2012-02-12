@@ -220,7 +220,8 @@ int libsmdev_usb_control_command(
 	{
 		libnotify_print_data(
 		 buffer,
-		 buffer_size );
+		 buffer_size,
+		 0 );
 	}
 #endif
 	return( 1 );
@@ -288,7 +289,8 @@ int libsmdev_usb_test(
 	{
 		libnotify_print_data(
 		 (uint8_t *) &connection_information,
-		 sizeof( struct usbdevfs_connectinfo ) );
+		 sizeof( struct usbdevfs_connectinfo ),
+		 0 );
 	}
 #endif
 #endif

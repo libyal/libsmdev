@@ -121,7 +121,8 @@ int libsmdev_ata_get_device_configuration(
 		 function );
 		libnotify_print_data(
 		 (uint8_t *) device_configuration,
-		 sizeof( struct hd_driveid ) );
+		 sizeof( struct hd_driveid ),
+		 0 );
 
 		libnotify_printf(
 		 "Feature sets:\n" );

@@ -784,10 +784,10 @@ int libsmdev_internal_handle_determine_media_information(
 		{
 			libnotify_print_data(
 			 response,
-			 (size_t) response_count );
+			 (size_t) response_count,
+			 0 );
 		}
 #endif
-
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
 		{
 			string_length = libcstring_narrow_string_length(
@@ -1066,7 +1066,8 @@ int libsmdev_internal_handle_determine_media_information(
 		{
 			libnotify_print_data(
 			 response,
-			 response_count );
+			 response_count,
+			 0 );
 		}
 #endif
 		result = libsmdev_string_trim_copy_from_byte_stream(
@@ -1124,7 +1125,8 @@ int libsmdev_internal_handle_determine_media_information(
 		{
 			libnotify_print_data(
 			 response,
-			 response_count );
+			 response_count,
+			 0 );
 		}
 #endif
 		result = libsmdev_string_trim_copy_from_byte_stream(

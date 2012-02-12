@@ -39,6 +39,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20120212
+* updated libnotify
+
 20120102
 * 2012 update
 * added windows codepage 932 and 936 support

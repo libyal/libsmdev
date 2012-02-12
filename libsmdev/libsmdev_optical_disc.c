@@ -260,7 +260,8 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			 function );
 			libnotify_print_data(
 			 toc_data,
-			 4 );
+			 4,
+			 0 );
 		}
 #endif
 		number_of_sessions = (uint16_t) toc_data[ 3 ];
@@ -291,7 +292,8 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				 entry_iterator );
 				libnotify_print_data(
 				 toc_entries,
-				 11 );
+				 11,
+				 0 );
 			}
 #endif
 			if( toc_entries[ 3 ] <= 0x63 )
@@ -470,7 +472,8 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 						 track_index );
 						libnotify_print_data(
 						 track_info_data,
-						 response_count );
+						 response_count,
+						 0 );
 					}
 #endif
 					if( track_info_data[ 2 ] != toc_entries[ 0 ] )
@@ -676,7 +679,8 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				 track_index );
 				libnotify_print_data(
 				 track_info_data,
-				 response_count );
+				 response_count,
+				 0 );
 			}
 #endif
 			if( track_info_data[ 2 ] != toc_entries[ 0 ] )
