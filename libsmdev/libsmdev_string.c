@@ -1,7 +1,7 @@
 /*
  * System character type string functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -22,9 +22,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_string.h"
 
 #if defined( _cplusplus )
@@ -35,11 +34,11 @@ extern "C" {
  * Returns the number of bytes copied or -1 on error
  */
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
-         libcstring_character_t *string,
+         uint8_t *string,
          size_t string_size,
          const uint8_t *byte_stream,
          size_t byte_stream_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
 	static char *function   = "libsmdev_string_trim_copy_from_byte_stream";
         size_t string_iterator  = 0;
@@ -48,10 +47,10 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 
 	if( string == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid string.",
 		 function );
 
@@ -59,10 +58,10 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 	}
 	if( string_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid string size value exceeds maximum.",
 		 function );
 
@@ -70,10 +69,10 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 	}
 	if( byte_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid byte stream.",
 		 function );
 
@@ -81,10 +80,10 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 	}
 	if( byte_stream_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid byte stream size value exceeds maximum.",
 		 function );
 
@@ -114,10 +113,10 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 	{
 		if( string_size < (size_t) ( last_character - first_character + 1 ) )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 			 "%s: string too small.",
 			 function );
 
@@ -125,7 +124,7 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 		}
 		while( first_character <= last_character )
 		{
-			string[ string_iterator++ ] = (libcstring_character_t) byte_stream[ first_character++ ];
+			string[ string_iterator++ ] = byte_stream[ first_character++ ];
 		}
 	}
 	string[ string_iterator ] = 0;

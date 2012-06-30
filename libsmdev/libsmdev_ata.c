@@ -1,7 +1,7 @@
 /*
  * ATA/ATAPI functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,10 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
 #endif
@@ -44,7 +40,9 @@
 #endif
 
 #include "libsmdev_ata.h"
-#include "libsmdev_error_string.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
+#include "libsmdev_libcstring.h"
 
 #if defined( HDIO_GET_IDENTITY )
 
@@ -54,18 +52,16 @@
 int libsmdev_ata_get_device_configuration(
      int file_descriptor,
      struct hd_driveid *device_configuration,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	static char *function = "libsmdev_ata_get_device_configuration";
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -73,10 +69,10 @@ int libsmdev_ata_get_device_configuration(
 	}
 	if( device_configuration == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid device configuration.",
 		 function );
 
@@ -88,67 +84,52 @@ int libsmdev_ata_get_device_configuration(
 	     HDIO_GET_IDENTITY,
 	     device_configuration ) == -1 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: HDIO_GET_IDENTITY with error: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: HDIO_GET_IDENTITY.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+		 errno,
+		 "%s: unable to query device for: HDIO_GET_IDENTITY.",
+		 function );
+
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: HDIO_GET_IDENTITY:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 (uint8_t *) device_configuration,
 		 sizeof( struct hd_driveid ),
 		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "Feature sets:\n" );
-		libnotify_printf(
+		libcnotify_printf(
 		 "SMART:\t\t\t%d\n",
 		 ( device_configuration->command_set_1 & 0x0001 ) );
-		libnotify_printf(
+		libcnotify_printf(
 		 "Security Mode:\t\t%d (%d)\n",
 		 ( device_configuration->command_set_1 & 0x0002 ) >> 1,
 		 ( device_configuration->dlf & 0x0001 ) );
-		libnotify_printf(
+		libcnotify_printf(
 		 "Security Mode enabled:\t%d\n",
 		 ( device_configuration->dlf & 0x0002 ) >> 1 );
-		libnotify_printf(
+		libcnotify_printf(
 		 "Removable Media:\t%d\n",
 		 ( device_configuration->command_set_1 & 0x0004 ) >> 2 );
-		libnotify_printf(
+		libcnotify_printf(
 		 "HPA:\t\t\t%d\n",
 		 ( device_configuration->command_set_1 & 0x0400 ) >> 10 );
-		libnotify_printf(
+		libcnotify_printf(
 		 "DCO:\t\t\t%d\n",
 		 ( device_configuration->command_set_2 & 0x0800 ) >> 11 );
-		libnotify_printf(
+		libcnotify_printf(
 		 "Media serial:\t\t%d\n",
 		 ( device_configuration->cfsse & 0x0004 ) >> 2 );
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif

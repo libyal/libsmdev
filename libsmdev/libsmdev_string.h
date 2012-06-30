@@ -1,7 +1,7 @@
 /*
  * Character type string functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,19 +25,19 @@
 #include <common.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcstring.h"
 
 #if defined( _cplusplus )
 extern "C" {
 #endif
 
 ssize_t libsmdev_string_trim_copy_from_byte_stream(
-         libcstring_character_t *string,
+         uint8_t *string,
          size_t string_size,
          const uint8_t *byte_stream,
          size_t byte_stream_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 #if defined( _cplusplus )
 }

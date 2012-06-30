@@ -1,7 +1,7 @@
 /*
  * Support functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,9 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
 #endif
@@ -42,10 +39,11 @@
 #include <errno.h>
 #endif
 
-#include "libsmdev_codepage.h"
 #include "libsmdev_definitions.h"
-#include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libclocale.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_support.h"
 
@@ -89,23 +87,23 @@ int libsmdev_get_access_flags_write(
  */
 int libsmdev_get_codepage(
      int *codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_get_codepage";
 
-	if( codepage == NULL )
+	if( libclocale_codepage_get(
+	     codepage,
+	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid codepage.",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve codepage.",
 		 function );
 
 		return( -1 );
 	}
-	*codepage = libcstring_narrow_system_string_codepage;
-
 	return( 1 );
 }
 
@@ -115,52 +113,23 @@ int libsmdev_get_codepage(
  */
 int libsmdev_set_codepage(
      int codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_set_codepage";
 
-	if( ( codepage != LIBSMDEV_CODEPAGE_ASCII )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_1 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_2 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_3 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_4 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_5 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_6 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_7 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_8 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_9 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_10 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_11 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_13 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_14 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_15 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_ISO_8859_16 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_R )
-	 && ( codepage != LIBSMDEV_CODEPAGE_KOI8_U )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_874 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_932 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_936 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1250 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1251 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1252 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1253 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1254 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1256 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1257 )
-	 && ( codepage != LIBSMDEV_CODEPAGE_WINDOWS_1258 )
-	 && ( codepage != 0 ) )
+	if( libclocale_codepage_set(
+	     codepage,
+	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported codepage.",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set codepage.",
 		 function );
 
 		return( -1 );
 	}
-	libcstring_narrow_system_string_codepage = codepage;
-
 	return( 1 );
 }
 
@@ -171,10 +140,8 @@ int libsmdev_set_codepage(
  */
 int libsmdev_check_device(
      const char *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 #if defined( WINAPI )
 	HANDLE file_handle    = NULL;
 	DWORD error_code      = 0;
@@ -189,10 +156,10 @@ int libsmdev_check_device(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -219,10 +186,10 @@ int libsmdev_check_device(
 		switch( error_code )
 		{
 			case ERROR_ACCESS_DENIED:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_ACCESS_DENIED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 				 "%s: access denied to file: %s.",
 				 function,
 				 filename );
@@ -231,10 +198,10 @@ int libsmdev_check_device(
 
 			case ERROR_FILE_NOT_FOUND:
 			case ERROR_PATH_NOT_FOUND:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 				 "%s: no such file: %s.",
 				 function,
 				 filename );
@@ -242,31 +209,15 @@ int libsmdev_check_device(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 0 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 error_code,
+				 "%s: unable to open file: %s.",
+				 function,
+				 filename );
+
 				break;
 		}
 		return( -1 );
@@ -279,10 +230,10 @@ int libsmdev_check_device(
 
 	if( file_type != FILE_TYPE_DISK )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported file type.",
 		 function );
 
@@ -301,10 +252,10 @@ int libsmdev_check_device(
 	if( CloseHandle(
 	     file_handle ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %s.",
 		 function,
 		 filename );
@@ -330,10 +281,10 @@ int libsmdev_check_device(
 		switch( errno )
 		{
 			case EACCES:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_ACCESS_DENIED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 				 "%s: access denied to file: %s.",
 				 function,
 				 filename );
@@ -341,10 +292,10 @@ int libsmdev_check_device(
 				break;
 
 			case ENOENT:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 				 "%s: no such file: %s.",
 				 function,
 				 filename );
@@ -352,31 +303,15 @@ int libsmdev_check_device(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) != 0 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 errno,
+				 "%s: unable to open file: %s.",
+				 function,
+				 filename );
+
 				break;
 		}
 		return( -1 );
@@ -385,10 +320,10 @@ int libsmdev_check_device(
 	     file_descriptor,
 	     &file_stat ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: unable to determine file status information.",
 		 function );
 
@@ -405,10 +340,10 @@ int libsmdev_check_device(
 	if( close(
 	     file_descriptor ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %s.",
 		 function,
 		 filename );
@@ -426,10 +361,8 @@ int libsmdev_check_device(
  */
 int libsmdev_check_device_wide(
      const wchar_t *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 #if defined( WINAPI )
 	HANDLE file_handle          = NULL;
 	DWORD error_code            = 0;
@@ -448,10 +381,10 @@ int libsmdev_check_device_wide(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -478,10 +411,10 @@ int libsmdev_check_device_wide(
 		switch( error_code )
 		{
 			case ERROR_ACCESS_DENIED:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_ACCESS_DENIED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 				 "%s: access denied to file: %ls.",
 				 function,
 				 filename );
@@ -490,10 +423,10 @@ int libsmdev_check_device_wide(
 
 			case ERROR_FILE_NOT_FOUND:
 			case ERROR_PATH_NOT_FOUND:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 				 "%s: no such file: %ls.",
 				 function,
 				 filename );
@@ -501,31 +434,15 @@ int libsmdev_check_device_wide(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 0 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 error_code,
+				 "%s: unable to open file: %ls.",
+				 function,
+				 filename );
+
 				break;
 		}
 		return( -1 );
@@ -538,10 +455,10 @@ int libsmdev_check_device_wide(
 
 	if( file_type != FILE_TYPE_DISK )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported file type.",
 		 function );
 
@@ -560,10 +477,10 @@ int libsmdev_check_device_wide(
 	if( CloseHandle(
 	     file_handle ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %ls.",
 		 function,
 		 filename );
@@ -617,10 +534,10 @@ int libsmdev_check_device_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine narrow character filename size.",
 		 function );
 
@@ -631,10 +548,10 @@ int libsmdev_check_device_wide(
 
 	if( narrow_filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create narrow character filename.",
 		 function );
 
@@ -684,10 +601,10 @@ int libsmdev_check_device_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set narrow character filename.",
 		 function );
 
@@ -717,10 +634,10 @@ int libsmdev_check_device_wide(
 		switch( errno )
 		{
 			case EACCES:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_ACCESS_DENIED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 				 "%s: access denied to file: %s.",
 				 function,
 				 filename );
@@ -728,10 +645,10 @@ int libsmdev_check_device_wide(
 				break;
 
 			case ENOENT:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 				 "%s: no such file: %s.",
 				 function,
 				 filename );
@@ -739,31 +656,15 @@ int libsmdev_check_device_wide(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) != 0 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 errno,
+				 "%s: unable to open file: %s.",
+				 function,
+				 filename );
+
 				break;
 		}
 		return( -1 );
@@ -772,10 +673,10 @@ int libsmdev_check_device_wide(
 	     file_descriptor,
 	     &file_stat ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: unable to determine file status information.",
 		 function );
 
@@ -792,10 +693,10 @@ int libsmdev_check_device_wide(
 	if( close(
 	     file_descriptor ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %s.",
 		 function,
 		 filename );

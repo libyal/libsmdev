@@ -1,0 +1,22 @@
+Source: libsmdev
+Section: unknown
+Priority: extra
+Maintainer: Joachim Metz <joachim.metz@gmail.com>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.3
+Homepage: http://code.google.com/p/libsmlibs/
+
+Package: libsmdev
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Library to access and read storage media (SM) devices
+ libsmdev is a library to access and read storage media (SM) devices.
+
+Package: libsmdev-dev
+Section: libdevel
+Architecture: any
+Depends: libsmdev (= ${Source-Version})
+Description: Header files and libraries for developing applications for libsmdev
+ Header files and libraries for developing applications for libsmdev.
+

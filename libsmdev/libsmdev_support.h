@@ -1,7 +1,7 @@
 /*
  * Support functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libsmdev_extern.h"
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -54,25 +53,25 @@ int libsmdev_get_access_flags_write(
 LIBSMDEV_EXTERN \
 int libsmdev_get_codepage(
      int *codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_set_codepage(
      int codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 
 LIBSMDEV_EXTERN \
 int libsmdev_check_device(
      const char *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBSMDEV_EXTERN \
 int libsmdev_check_device_wide(
      const wchar_t *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 #endif
 
 #if defined( __cplusplus )

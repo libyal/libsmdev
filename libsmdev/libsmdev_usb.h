@@ -1,7 +1,7 @@
 /*
  * USB functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -38,7 +38,7 @@ int libsmdev_usb_ioctl(
      int interface_number,
      int request,
      void *request_data,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_usb_control_command(
      int file_descriptor,
@@ -48,11 +48,11 @@ int libsmdev_usb_control_command(
      uint16_t index,
      uint8_t *buffer,
      size_t buffer_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_usb_test(
      int file_descriptor,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif
 

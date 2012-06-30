@@ -1,4 +1,6 @@
 TODO
+* replace error string by libcerror
+
 * what if session offset > size
 * optical disc
   - add track type support
@@ -38,6 +40,10 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20120630
+* applied updates
+* changed codepage functions in support to use libclocale
 
 20120212
 * updated libnotify

@@ -1,7 +1,7 @@
 /* 
  * Array type functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -81,71 +81,71 @@ struct libsmdev_array
 int libsmdev_array_initialize(
      libsmdev_array_t **array,
      int number_of_entries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_array_free(
      libsmdev_array_t **array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_array_empty(
      libsmdev_array_t *array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_array_clear(
      libsmdev_array_t *array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_array_clone(
      libsmdev_array_t **destination_array,
      libsmdev_array_t *source_array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      int (*entry_clone_function)(
             intptr_t **destination,
             intptr_t *source,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_array_resize(
      libsmdev_array_t *array,
      int number_of_entries,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_array_get_number_of_entries(
      libsmdev_array_t *array,
      int *number_of_entries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_array_get_entry_by_index(
      libsmdev_array_t *array,
      int entry_index,
      intptr_t **entry,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_array_set_entry_by_index(
      libsmdev_array_t *array,
      int entry_index,
      intptr_t *entry,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_array_append_entry(
      libsmdev_array_t *array,
      int *entry_index,
      intptr_t *entry,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_array_insert_entry(
      libsmdev_array_t *array,
@@ -154,9 +154,9 @@ int libsmdev_array_insert_entry(
      int (*entry_compare_function)(
             intptr_t *first_entry,
             intptr_t *second_entry,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      uint8_t insert_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+# debian/rules that uses debhelper >= 7.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+
+%:
+	dh  $@
+
+install_libsmdev:
+	# Set up libsmdev package directories and files
+	mkdir -p debian/libsmdev/usr/lib
+	install -p -m755 debian/tmp/usr/lib/lib*.so.*.*.* debian/libsmdev/usr/lib
+
+install_libsmdev_dev:
+	# Set up libsmdev-dev package directories and files
+	mkdir -p debian/libsmdev-dev/usr/include
+	mkdir -p debian/libsmdev-dev/usr/include/libsmdev
+	mkdir -p debian/libsmdev-dev/usr/lib
+	mkdir -p debian/libsmdev-dev/usr/lib/pkgconfig
+	mkdir -p debian/libsmdev-dev/usr/share/man/man3
+	install -p -m755 debian/tmp/usr/include/*.h debian/libsmdev-dev/usr/include
+	install -p -m755 debian/tmp/usr/include/libsmdev/*.h debian/libsmdev-dev/usr/include/libsmdev
+	install -p -m755 debian/tmp/usr/lib/*.la debian/libsmdev-dev/usr/lib
+	install -p -m755 debian/tmp/usr/lib/lib*.a debian/libsmdev-dev/usr/lib
+	install -p -m755 debian/tmp/usr/lib/lib*.so debian/libsmdev-dev/usr/lib
+	install -p -m755 debian/tmp/usr/lib/pkgconfig/* debian/libsmdev-dev/usr/lib/pkgconfig
+	install -p -m755 debian/tmp/usr/share/man/man3/* debian/libsmdev-dev/usr/share/man/man3
+
+override_dh_auto_test:
+
+override_dh_installinit: install_libsmdev install_libsmdev_dev
+
+override_dh_installmenu:
+
+override_dh_installmime:
+
+override_dh_installmodules:
+
+override_dh_installlogcheck:
+
+override_dh_installlogrotate:
+
+override_dh_installpam:
+
+override_dh_installppp:
+
+override_dh_installudev:
+
+override_dh_installwm:
+
+override_dh_installxfonts:
+
+override_dh_gconf:
+
+override_dh_icons:
+
+override_dh_perl:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -Llibsmdev -l${PWD}/debian/tmp/usr/lib
+
+override_dh_makeshlibs:
+	dh_makeshlibs -Xlibsmdev-dev
+

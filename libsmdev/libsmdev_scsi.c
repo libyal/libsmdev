@@ -1,7 +1,7 @@
 /*
  * SCSI functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,10 +24,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
 #endif
@@ -45,6 +41,9 @@
 #endif
 
 #include "libsmdev_definitions.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_scsi.h"
 
 /* Timeout in milli seconds: 1 second
@@ -64,7 +63,7 @@ int libsmdev_scsi_command(
      size_t response_size,
      uint8_t *sense,
      size_t sense_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	struct sg_io_hdr sg_io_header;
 
@@ -72,10 +71,10 @@ int libsmdev_scsi_command(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -83,10 +82,10 @@ int libsmdev_scsi_command(
 	}
 	if( command == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid command.",
 		 function );
 
@@ -94,10 +93,10 @@ int libsmdev_scsi_command(
 	}
 	if( command_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid command size value exceeds maximum.",
 		 function );
 
@@ -105,10 +104,10 @@ int libsmdev_scsi_command(
 	}
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid response.",
 		 function );
 
@@ -116,10 +115,10 @@ int libsmdev_scsi_command(
 	}
 	if( response_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid response size value exceeds maximum.",
 		 function );
 
@@ -127,10 +126,10 @@ int libsmdev_scsi_command(
 	}
 	if( sense == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid sense.",
 		 function );
 
@@ -138,10 +137,10 @@ int libsmdev_scsi_command(
 	}
 	if( sense_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid sense size value exceeds maximum.",
 		 function );
 
@@ -152,10 +151,10 @@ int libsmdev_scsi_command(
 	     0,
 	     sizeof( struct sg_io_hdr ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear SCSI SG IO header.",
 		 function );
 
@@ -176,10 +175,10 @@ int libsmdev_scsi_command(
 	     SG_IO,
 	     &sg_io_header ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: SG_IO.",
 		 function );
 
@@ -189,10 +188,10 @@ int libsmdev_scsi_command(
 	 */
 	if( ( sg_io_header.info & SG_INFO_OK_MASK ) != SG_INFO_OK )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: error while querying device: scsi status: %X, host status: %X, driver status: %X.",
 		 function,
 		 sg_io_header.status,
@@ -211,7 +210,7 @@ int libsmdev_scsi_ioctrl(
      int file_descriptor,
      void *request_data,
      size_t request_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *ioctrl_request    = 0;
 	static char *function      = "libsmdev_scsi_ioctrl";
@@ -219,10 +218,10 @@ int libsmdev_scsi_ioctrl(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -235,10 +234,10 @@ int libsmdev_scsi_ioctrl(
 
 	if( ioctrl_request == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create SCSI ioctrl request.",
 		 function );
 
@@ -249,10 +248,10 @@ int libsmdev_scsi_ioctrl(
 	     0,
 	     ioctrl_request_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear SCSI ioctrl request.",
 		 function );
 
@@ -268,10 +267,10 @@ int libsmdev_scsi_ioctrl(
 	     request_data,
 	     request_data_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 		 "%s: unable to set SCSI ioctrl request.",
 		 function );
 
@@ -285,10 +284,10 @@ int libsmdev_scsi_ioctrl(
 	     SCSI_IOCTL_SEND_COMMAND,
 	     ioctrl_request ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: SCSI_IOCTL_SEND_COMMAND.",
 		 function );
 
@@ -312,7 +311,7 @@ ssize_t libsmdev_scsi_inquiry(
          uint8_t code_page,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
 	libsmdev_scsi_inquiry_cdb_t command;
 
@@ -323,10 +322,10 @@ ssize_t libsmdev_scsi_inquiry(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -334,10 +333,10 @@ ssize_t libsmdev_scsi_inquiry(
 	}
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid response.",
 		 function );
 
@@ -345,10 +344,10 @@ ssize_t libsmdev_scsi_inquiry(
 	}
 	if( response_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid response size value exceeds maximum.",
 		 function );
 
@@ -359,10 +358,10 @@ ssize_t libsmdev_scsi_inquiry(
 	     0,
 	     sizeof( libsmdev_scsi_inquiry_cdb_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear command.",
 		 function );
 
@@ -385,10 +384,10 @@ ssize_t libsmdev_scsi_inquiry(
 	     LIBSMDEV_SCSI_SENSE_SIZE,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: SCSI INQUIRY command failed.",
 		 function );
 
@@ -407,22 +406,22 @@ ssize_t libsmdev_scsi_inquiry(
 	}
 	if( response_count > (ssize_t) response_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: response too small.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: response:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 response,
 		 response_count,
 		 0 );
@@ -439,7 +438,7 @@ ssize_t libsmdev_scsi_read_toc(
          uint8_t format,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
 	libsmdev_scsi_read_toc_cdb_t command;
 
@@ -450,10 +449,10 @@ ssize_t libsmdev_scsi_read_toc(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -461,10 +460,10 @@ ssize_t libsmdev_scsi_read_toc(
 	}
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid response.",
 		 function );
 
@@ -472,10 +471,10 @@ ssize_t libsmdev_scsi_read_toc(
 	}
 	if( response_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid response size value exceeds maximum.",
 		 function );
 
@@ -486,10 +485,10 @@ ssize_t libsmdev_scsi_read_toc(
 	     0,
 	     sizeof( libsmdev_scsi_read_toc_cdb_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear command.",
 		 function );
 
@@ -512,10 +511,10 @@ ssize_t libsmdev_scsi_read_toc(
 	     LIBSMDEV_SCSI_SENSE_SIZE,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: SCSI READ TOC command failed.",
 		 function );
 
@@ -527,22 +526,22 @@ ssize_t libsmdev_scsi_read_toc(
 
 	if( response_count > (ssize_t) response_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: response too small.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: response:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 response,
 		 response_count,
 		 0 );
@@ -558,7 +557,7 @@ ssize_t libsmdev_scsi_read_disc_information(
          int file_descriptor,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
 	libsmdev_scsi_read_disc_information_cdb_t command;
 
@@ -569,10 +568,10 @@ ssize_t libsmdev_scsi_read_disc_information(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -580,10 +579,10 @@ ssize_t libsmdev_scsi_read_disc_information(
 	}
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid response.",
 		 function );
 
@@ -591,10 +590,10 @@ ssize_t libsmdev_scsi_read_disc_information(
 	}
 	if( response_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid response size value exceeds maximum.",
 		 function );
 
@@ -605,10 +604,10 @@ ssize_t libsmdev_scsi_read_disc_information(
 	     0,
 	     sizeof( libsmdev_scsi_read_disc_information_cdb_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear command.",
 		 function );
 
@@ -630,10 +629,10 @@ ssize_t libsmdev_scsi_read_disc_information(
 	     LIBSMDEV_SCSI_SENSE_SIZE,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: SCSI READ DISC INFORMATION command failed.",
 		 function );
 
@@ -645,22 +644,22 @@ ssize_t libsmdev_scsi_read_disc_information(
 
 	if( response_count > (ssize_t) response_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: response too small.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: response:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 response,
 		 response_count,
 		 0 );
@@ -677,7 +676,7 @@ ssize_t libsmdev_scsi_read_track_information(
          uint32_t offset,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
 	libsmdev_scsi_read_track_information_cdb_t command;
 
@@ -688,10 +687,10 @@ ssize_t libsmdev_scsi_read_track_information(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -699,10 +698,10 @@ ssize_t libsmdev_scsi_read_track_information(
 	}
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid response.",
 		 function );
 
@@ -710,10 +709,10 @@ ssize_t libsmdev_scsi_read_track_information(
 	}
 	if( response_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid response size value exceeds maximum.",
 		 function );
 
@@ -724,10 +723,10 @@ ssize_t libsmdev_scsi_read_track_information(
 	     0,
 	     sizeof( libsmdev_scsi_read_track_information_cdb_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear command.",
 		 function );
 
@@ -754,10 +753,10 @@ ssize_t libsmdev_scsi_read_track_information(
 	     LIBSMDEV_SCSI_SENSE_SIZE,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: SCSI READ TRACK INFORMATION command failed.",
 		 function );
 
@@ -769,22 +768,22 @@ ssize_t libsmdev_scsi_read_track_information(
 
 	if( response_count > (ssize_t) response_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: response too small.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: response:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 response,
 		 response_count,
 		 0 );
@@ -798,7 +797,7 @@ ssize_t libsmdev_scsi_read_track_information(
  */
 int libsmdev_scsi_get_identier(
      int file_descriptor,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 #if defined( SG_GET_SCSI_ID )
 	struct
@@ -812,10 +811,10 @@ int libsmdev_scsi_get_identier(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -827,22 +826,22 @@ int libsmdev_scsi_get_identier(
 	     SCSI_IOCTL_GET_IDLUN,
 	     &identifier ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: SCSI_IOCTL_GET_IDLUN.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: identifier:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 (uint8_t *) &identifier,
 		 sizeof( identifier ),
 		 0 );
@@ -858,7 +857,7 @@ int libsmdev_scsi_get_identier(
 int libsmdev_scsi_get_bus_type(
      int file_descriptor,
      uint8_t *bus_type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 #if defined( SCSI_IOCTL_PROBE_HOST )
 	union 
@@ -874,10 +873,10 @@ int libsmdev_scsi_get_bus_type(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -885,10 +884,10 @@ int libsmdev_scsi_get_bus_type(
 	}
 	if( bus_type == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid bus type.",
 		 function );
 
@@ -904,10 +903,10 @@ int libsmdev_scsi_get_bus_type(
 	     SCSI_IOCTL_PROBE_HOST,
 	     &sg_probe_host ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: SCSI_IOCTL_PROBE_HOST.",
 		 function );
 
@@ -919,15 +918,15 @@ int libsmdev_scsi_get_bus_type(
 	                        sg_probe_host.buffer );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: SCSI_IOCTL_PROBE_HOST (length: %d): %s\n",
 		 function,
 		 sg_probe_host_length,
 		 sg_probe_host.buffer );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -988,16 +987,16 @@ int libsmdev_scsi_get_pci_bus_address(
      int file_descriptor,
      uint8_t *pci_bus_address,
      size_t pci_bus_address_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_scsi_get_bus_type";
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -1005,10 +1004,10 @@ int libsmdev_scsi_get_pci_bus_address(
 	}
 	if( pci_bus_address == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid PCI bus address.",
 		 function );
 
@@ -1016,10 +1015,10 @@ int libsmdev_scsi_get_pci_bus_address(
 	}
 	if( pci_bus_address_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid PCI bus address size value exceeds maximum.",
 		 function );
 
@@ -1027,10 +1026,10 @@ int libsmdev_scsi_get_pci_bus_address(
 	}
 	if( pci_bus_address_size <= 8 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: invalid PCI bus address size value too small.",
 		 function );
 
@@ -1041,10 +1040,10 @@ int libsmdev_scsi_get_pci_bus_address(
 	     0,
 	     pci_bus_address_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear PCI bus address.",
 		 function );
 
@@ -1056,10 +1055,10 @@ int libsmdev_scsi_get_pci_bus_address(
 	     SCSI_IOCTL_GET_PCI,
 	     pci_bus_address ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: SCSI_IOCTL_GET_PCI.",
 		 function );
 
@@ -1068,14 +1067,14 @@ int libsmdev_scsi_get_pci_bus_address(
 	pci_bus_address[ pci_bus_address_size - 1 ] = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: SCSI_IOCTL_GET_PCI: %s\n",
 		 function,
 		 pci_bus_address );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif

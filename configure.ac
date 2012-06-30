@@ -2,8 +2,8 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20120212],
- [jbmetz@users.sourceforge.net])
+ [20120630],
+ [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
  [include/libsmdev.h.in])
@@ -26,8 +26,13 @@ AC_PROG_CC
 AC_PROG_GCC_TRADITIONAL
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+
+dnl Check for libtool
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
+
+dnl Check for pkg-config
+AC_PATH_PROG(PKGCONFIG,[pkg-config])
 
 dnl Support of internationalization (i18n)
 AM_GNU_GETTEXT([external])
@@ -47,12 +52,27 @@ AX_TYPES_CHECK_LOCAL
 
 dnl Checks for libraries and library functions
 AX_COMMON_CHECK_LOCAL
-AX_LIBCSTRING_CHECK_LOCAL
-AX_LIBERROR_CHECK_LOCAL
-AX_LIBNOTIFY_CHECK_LOCAL
+
+dnl Check for enabling libcstring for cross-platform C string functions
+AX_LIBCSTRING_CHECK_ENABLE
+
+dnl Check for enabling libcerror for cross-platform C error functions
+AX_LIBCERROR_CHECK_ENABLE
+
+dnl Check for enabling libclocale for cross-platform C locale functions
+AX_LIBCLOCALE_CHECK_ENABLE
+
+dnl Check for enabling libcnotify for cross-platform C notification functions
+AX_LIBCNOTIFY_CHECK_ENABLE
 
 dnl Check for enabling libuna for Unicode string support
 AX_LIBUNA_CHECK_ENABLE
+
+dnl Check for enabling libcfile for cross-platform C file functions
+AX_LIBCFILE_CHECK_ENABLE
+
+dnl Check for enabling libcpath for cross-platform C path functions
+AX_LIBCPATH_CHECK_ENABLE
 
 dnl Check for library function support
 AX_LIBSMDEV_CHECK_LOCAL
@@ -63,16 +83,20 @@ AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
 dnl Check if libsmdev should be build with debug output
 AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
-dnl Check if requires and build requires should be set in spec file
+dnl Check if DLL support is needed in smdevtools
 AS_IF(
- [test "x$ac_cv_libuna" = xyes],
- [AC_SUBST(
-  [libsmdev_spec_requires],
-  [Requires:])
- AC_SUBST(
-  [libsmdev_spec_build_requires],
-  [BuildRequires:])
+ [test x"$enable_shared" = xyes],
+ [AS_CASE(
+  [$host],
+  [*cygwin* | *mingw*],
+  [AC_SUBST(
+   [LIBSMDEV_DLL_IMPORT],
+   ["-DLIBSMDEV_DLL_IMPORT"])
+  ])
  ])
+
+dnl Set additional compiler flags
+CFLAGS="$CFLAGS -Wall";
 
 dnl Set memwatch support
 ac_cv_enable_memwatch=no
@@ -90,29 +114,33 @@ AM_CONDITIONAL(
  [HAVE_MEMWATCH],
  [test "x$ac_cv_enable_memwatch" != xno])
 
-dnl Set additional compiler flags
-CFLAGS="$CFLAGS -Wall";
-
-dnl Check if DLL support is needed in smdevtools
+dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test x"$enable_shared" = xyes],
- [AS_CASE(
-  [$host],
-  [*cygwin* | *mingw*],
-  [AC_SUBST(
-   [LIBSMDEV_DLL_IMPORT],
-   ["-DLIBSMDEV_DLL_IMPORT"])
-  ])
+ [test "x$ac_cv_libcstring" = xyes || test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libclocale" = xyes || test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes],
+ [AC_SUBST(
+  [libsmdev_spec_requires],
+  [Requires:])
+ AC_SUBST(
+  [libsmdev_spec_build_requires],
+  [BuildRequires:])
  ])
+
+dnl Set the date for dpkg files
+AC_SUBST(
+ [DATE],
+ [`date -R 2> /dev/null`])
 
 dnl Have configure make the Makefiles
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([common/Makefile])
 AC_CONFIG_FILES([libcstring/Makefile])
-AC_CONFIG_FILES([liberror/Makefile])
-AC_CONFIG_FILES([libnotify/Makefile])
+AC_CONFIG_FILES([libcerror/Makefile])
+AC_CONFIG_FILES([libclocale/Makefile])
+AC_CONFIG_FILES([libcnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
+AC_CONFIG_FILES([libcfile/Makefile])
+AC_CONFIG_FILES([libcpath/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
@@ -126,6 +154,8 @@ AC_CONFIG_FILES([include/libsmdev/types.h])
 AC_CONFIG_FILES([libsmdev/libsmdev_definitions.h])
 dnl Have configure make distribution specific files
 AC_CONFIG_FILES([common/types.h])
+AC_CONFIG_FILES([dpkg/changelog])
+AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libsmdev/libsmdev.rc])
 AC_CONFIG_FILES([libsmdev.pc])
 AC_CONFIG_FILES([libsmdev.spec])
@@ -137,11 +167,16 @@ AC_OUTPUT
 dnl Print a summary
 AC_MSG_NOTICE([
 Building:
-   libuna support:                             $ac_cv_libuna
+   libcstring support:          $ac_cv_libcstring
+   libcerror support:           $ac_cv_libcerror
+   libuna support:              $ac_cv_libuna
+   libclocale support:          $ac_cv_libclocale
+   libcfile support:            $ac_cv_libcfile
+   libcpath support:            $ac_cv_libcpath
 
 Features:
-   Wide character type support:                $ac_cv_enable_wide_character_type
-   Verbose output:                             $ac_cv_enable_verbose_output
-   Debug output:                               $ac_cv_enable_debug_output
+   Wide character type support: $ac_cv_enable_wide_character_type
+   Verbose output:              $ac_cv_enable_verbose_output
+   Debug output:                $ac_cv_enable_debug_output
 ]);
 

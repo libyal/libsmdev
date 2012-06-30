@@ -1,7 +1,7 @@
 /*
  * Handle functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,11 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
 #include "libsmdev_array_type.h"
 #include "libsmdev_extern.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_offset_list.h"
 #include "libsmdev_types.h"
 
@@ -101,15 +100,15 @@ struct libsmdev_internal_handle
 
 	/* The vendor string
 	 */
-	libcstring_character_t vendor[ 64 ];
+	uint8_t vendor[ 64 ];
 
 	/* The model string
 	 */
-	libcstring_character_t model[ 64 ];
+	uint8_t model[ 64 ];
 
 	/* The serial number string
 	 */
-	libcstring_character_t serial_number[ 64 ];
+	uint8_t serial_number[ 64 ];
 
 	/* The tracks array
 	 */
@@ -151,17 +150,17 @@ struct libsmdev_internal_handle
 LIBSMDEV_EXTERN \
 int libsmdev_handle_initialize(
      libsmdev_handle_t **handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_free(
      libsmdev_handle_t **handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_signal_abort(
      libsmdev_handle_t *handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_open(
@@ -169,7 +168,7 @@ int libsmdev_handle_open(
      char * const filenames[],
      int number_of_filenames,
      int access_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBSMDEV_EXTERN \
@@ -178,27 +177,27 @@ int libsmdev_handle_open_wide(
      wchar_t * const filenames[],
      int number_of_filenames,
      int access_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 #endif
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_close(
      libsmdev_handle_t *handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_read_buffer(
          libsmdev_handle_t *handle,
          void *buffer,
          size_t buffer_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
          void *buffer,
          size_t buffer_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 #if defined( WINAPI ) && ( WINVER < 0x0500 )
 BOOL libsmdev_SetFilePointerEx(
@@ -213,62 +212,62 @@ off64_t libsmdev_handle_seek_offset(
          libsmdev_handle_t *handle,
          off64_t offset,
          int whence,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_offset(
      libsmdev_handle_t *handle,
      off64_t *offset,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename_size(
                      libsmdev_handle_t *handle,
                      size_t *filename_size,
-                     liberror_error_t **error );
+                     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename(
      libsmdev_handle_t *handle,
      char *filename,
      size_t filename_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_handle_set_filename(
      libsmdev_handle_t *handle,
      const char *filename,
      size_t filename_length,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename_size_wide(
      libsmdev_handle_t *handle,
      size_t *filename_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename_wide(
      libsmdev_handle_t *handle,
      wchar_t *filename,
      size_t filename_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_handle_set_filename_wide(
      libsmdev_handle_t *handle,
      const wchar_t *filename,
      size_t filename_length,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 #endif
 
 int libsmdev_file_exists(
      const char *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 int libsmdev_file_exists_wide(
      const wchar_t *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 #endif
 
 #if defined( __cplusplus )

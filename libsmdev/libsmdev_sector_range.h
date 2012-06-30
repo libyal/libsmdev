@@ -1,7 +1,7 @@
 /*
  * Sector range functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,6 +24,8 @@
 
 #include <common.h>
 #include <types.h>
+
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -48,23 +50,23 @@ struct libsmdev_sector_range
 
 int libsmdev_sector_range_initialize(
      libsmdev_sector_range_t **sector_range,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_sector_range_free(
      libsmdev_sector_range_t **sector_range,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_sector_range_get(
      libsmdev_sector_range_t *sector_range,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_sector_range_set(
      libsmdev_sector_range_t *sector_range,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

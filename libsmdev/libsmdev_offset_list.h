@@ -1,7 +1,7 @@
 /*
  * Offset list
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,8 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
+#include "libsmdev_libcerror.h"
 #include "libsmdev_list_type.h"
 
 #if defined( __cplusplus )
@@ -73,65 +72,65 @@ struct libsmdev_offset_list
 
 int libsmdev_offset_list_value_initialize(
      libsmdev_offset_list_value_t **offset_list_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_value_free(
      libsmdev_offset_list_value_t **offset_list_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_value_clone(
      libsmdev_offset_list_value_t **destination_offset_list_value,
      libsmdev_offset_list_value_t *source_offset_list_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_initialize(
      libsmdev_offset_list_t **offset_list,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_free(
      libsmdev_offset_list_t **offset_list,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_empty(
      libsmdev_offset_list_t *offset_list,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_clone(
      libsmdev_offset_list_t **destination_offset_list,
      libsmdev_offset_list_t *source_offset_list,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_get_number_of_elements(
      libsmdev_offset_list_t *offset_list,
      int *number_of_elements,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_append_offset(
      libsmdev_offset_list_t *offset_list,
      off64_t offset,
      size64_t size,
      uint8_t merge_ranges,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_get_offset(
      libsmdev_offset_list_t *offset_list,
      int index,
      off64_t *offset,
      size64_t *size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_get_offset_by_value(
      libsmdev_offset_list_t *offset_list,
      off64_t offset_value,
      off64_t *offset,
      size64_t *size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_offset_list_range_is_present(
      libsmdev_offset_list_t *offset_list,
      off64_t offset,
      size64_t size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

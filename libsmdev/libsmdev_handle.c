@@ -1,7 +1,7 @@
 /*
  * Handle functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,10 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
 #endif
@@ -47,6 +43,9 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_offset_list.h"
@@ -66,17 +65,17 @@
  */
 int libsmdev_handle_initialize(
      libsmdev_handle_t **handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_initialize";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -84,10 +83,10 @@ int libsmdev_handle_initialize(
 	}
 	if( *handle != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid handle value already set.",
 		 function );
 
@@ -98,10 +97,10 @@ int libsmdev_handle_initialize(
 
 	if( internal_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create internal handle.",
 		 function );
 
@@ -112,10 +111,10 @@ int libsmdev_handle_initialize(
 	     0,
 	     sizeof( libsmdev_internal_handle_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear handle.",
 		 function );
 
@@ -129,10 +128,10 @@ int libsmdev_handle_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create tracks array.",
 		 function );
 
@@ -143,10 +142,10 @@ int libsmdev_handle_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create sessions array.",
 		 function );
 
@@ -157,10 +156,10 @@ int libsmdev_handle_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create lead-outs array.",
 		 function );
 
@@ -170,10 +169,10 @@ int libsmdev_handle_initialize(
 	     &( internal_handle->errors ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create errors offset list.",
 		 function );
 
@@ -225,7 +224,7 @@ on_error:
  */
 int libsmdev_handle_free(
      libsmdev_handle_t **handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_internal_handle_free";
@@ -233,10 +232,10 @@ int libsmdev_handle_free(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -257,10 +256,10 @@ int libsmdev_handle_free(
 			     *handle,
 			     error ) != 0 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_CLOSE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 				 "%s: unable to close handle.",
 				 function );
 
@@ -274,13 +273,13 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->tracks_array ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free tracks array.",
 			 function );
 
@@ -288,13 +287,13 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->sessions_array ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free sessions array.",
 			 function );
 
@@ -302,13 +301,13 @@ int libsmdev_handle_free(
 		}
 		if( libsmdev_array_free(
 		     &( internal_handle->lead_outs_array ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free lead-outs array.",
 			 function );
 
@@ -318,10 +317,10 @@ int libsmdev_handle_free(
 		     &( internal_handle->errors ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free errors offset list.",
 			 function );
 
@@ -338,16 +337,16 @@ int libsmdev_handle_free(
  */
 int libsmdev_handle_signal_abort(
      libsmdev_handle_t *handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_handle_signal_abort";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -366,10 +365,8 @@ int libsmdev_handle_open(
      char * const filenames[],
      int number_of_filenames,
      int access_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_open";
 	size64_t media_size                         = 0;
@@ -385,10 +382,10 @@ int libsmdev_handle_open(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -398,10 +395,10 @@ int libsmdev_handle_open(
 
 	if( internal_handle->filename != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid handle - name already exists.",
 		 function );
 
@@ -409,10 +406,10 @@ int libsmdev_handle_open(
 	}
 	if( filenames == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filenames.",
 		 function );
 
@@ -420,10 +417,10 @@ int libsmdev_handle_open(
 	}
 	if( number_of_filenames <= 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid number of filenames value out of bounds.",
 		 function );
 
@@ -431,10 +428,10 @@ int libsmdev_handle_open(
 	}
 	if( number_of_filenames != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: currently only one device file supported.",
 		 function );
 
@@ -442,10 +439,10 @@ int libsmdev_handle_open(
 	}
 	if( filenames[ 0 ] == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing device filename.",
 		 function );
 
@@ -454,13 +451,13 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty tracks array.",
 		 function );
 
@@ -469,13 +466,13 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty sessions array.",
 		 function );
 
@@ -484,13 +481,13 @@ int libsmdev_handle_open(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty lead-outs array.",
 		 function );
 
@@ -500,10 +497,10 @@ int libsmdev_handle_open(
 	     internal_handle->errors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty errors offset list.",
 		 function );
 
@@ -518,10 +515,10 @@ int libsmdev_handle_open(
 	     filename_length + 1,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set filename in handle.",
 		 function );
 
@@ -546,10 +543,10 @@ int libsmdev_handle_open(
 	}
 	else
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -582,10 +579,10 @@ int libsmdev_handle_open(
 			switch( error_code )
 			{
 				case ERROR_ACCESS_DENIED:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 					 "%s: access denied to device: %s.",
 					 function,
 					 filenames[ 0 ] );
@@ -594,10 +591,10 @@ int libsmdev_handle_open(
 
 				case ERROR_FILE_NOT_FOUND:
 				case ERROR_PATH_NOT_FOUND:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 					 "%s: no such file: %s.",
 					 function,
 					 filenames[ 0 ] );
@@ -605,31 +602,15 @@ int libsmdev_handle_open(
 					break;
 
 				default:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     error_code,
-					     error ) != 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 filenames[ 0 ],
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s.",
-						 function,
-						 filenames[ 0 ] );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 error_code,
+					 "%s: unable to open file: %s.",
+					 function,
+					 filenames[ 0 ] );
+
 					break;
 			}
 			goto on_error;
@@ -651,10 +632,10 @@ int libsmdev_handle_open(
 	}
 	else
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -677,10 +658,10 @@ int libsmdev_handle_open(
 			switch( errno )
 			{
 				case EACCES:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 					 "%s: access denied to device: %s.",
 					 function,
 					 filenames[ 0 ] );
@@ -688,10 +669,10 @@ int libsmdev_handle_open(
 					break;
 
 				case ENOENT:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 					 "%s: no such file: %s.",
 					 function,
 					 filenames[ 0 ] );
@@ -699,31 +680,15 @@ int libsmdev_handle_open(
 					break;
 
 				default:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     errno,
-					     error ) != 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 filenames[ 0 ],
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %s.",
-						 function,
-						 filenames[ 0 ] );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 errno,
+					 "%s: unable to open file: %s.",
+					 function,
+					 filenames[ 0 ] );
+
 					break;
 			}
 			goto on_error;
@@ -738,10 +703,10 @@ int libsmdev_handle_open(
 		     0,
 		     POSIX_FADV_SEQUENTIAL ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_GENERIC,
 			 "%s: unable to advice file descriptor.",
 			 function );
 
@@ -755,10 +720,10 @@ int libsmdev_handle_open(
 	     &media_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve media size.",
 		 function );
 
@@ -805,12 +770,10 @@ int libsmdev_handle_open_wide(
      wchar_t * const filenames[],
      int number_of_filenames,
      int access_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
-	static char *function                       = "libsmdev_handle_open";
+	static char *function                       = "libsmdev_handle_open_wide";
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 
@@ -827,10 +790,10 @@ int libsmdev_handle_open_wide(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -840,10 +803,10 @@ int libsmdev_handle_open_wide(
 
 	if( internal_handle->filename != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid handle - name already exists.",
 		 function );
 
@@ -851,10 +814,10 @@ int libsmdev_handle_open_wide(
 	}
 	if( filenames == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filenames.",
 		 function );
 
@@ -862,10 +825,10 @@ int libsmdev_handle_open_wide(
 	}
 	if( number_of_filenames <= 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid number of filenames value out of bounds.",
 		 function );
 
@@ -873,10 +836,10 @@ int libsmdev_handle_open_wide(
 	}
 	if( number_of_filenames != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: currently only one device file supported.",
 		 function );
 
@@ -884,10 +847,10 @@ int libsmdev_handle_open_wide(
 	}
 	if( filenames[ 0 ] == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing device filename.",
 		 function );
 
@@ -896,13 +859,13 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty tracks array.",
 		 function );
 
@@ -911,13 +874,13 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty sessions array.",
 		 function );
 
@@ -926,13 +889,13 @@ int libsmdev_handle_open_wide(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty lead-outs array.",
 		 function );
 
@@ -942,10 +905,10 @@ int libsmdev_handle_open_wide(
 	     internal_handle->errors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty errors offset list.",
 		 function );
 
@@ -960,10 +923,10 @@ int libsmdev_handle_open_wide(
 	     filename_length + 1,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set filename in handle.",
 		 function );
 
@@ -988,10 +951,10 @@ int libsmdev_handle_open_wide(
 	}
 	else
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -1024,10 +987,10 @@ int libsmdev_handle_open_wide(
 			switch( error_code )
 			{
 				case ERROR_ACCESS_DENIED:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 					 "%s: access denied to device: %ls.",
 					 function,
 					 filenames[ 0 ] );
@@ -1036,10 +999,10 @@ int libsmdev_handle_open_wide(
 
 				case ERROR_FILE_NOT_FOUND:
 				case ERROR_PATH_NOT_FOUND:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 					 "%s: no such file: %ls.",
 					 function,
 					 filenames[ 0 ] );
@@ -1047,31 +1010,15 @@ int libsmdev_handle_open_wide(
 					break;
 
 				default:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     error_code,
-					     error ) != 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 filenames[ 0 ],
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls.",
-						 function,
-						 filenames[ 0 ] );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 error_code,
+					 "%s: unable to open file: %ls.",
+					 function,
+					 filenames[ 0 ] );
+
 					break;
 			}
 			goto on_error;
@@ -1093,10 +1040,10 @@ int libsmdev_handle_open_wide(
 	}
 	else
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -1149,10 +1096,10 @@ int libsmdev_handle_open_wide(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_CONVERSION,
-			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBCERROR_CONVERSION_ERROR_GENERIC,
 			 "%s: unable to determine narrow character filename size.",
 			 function );
 
@@ -1163,10 +1110,10 @@ int libsmdev_handle_open_wide(
 
 		if( narrow_filename == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create narrow character filename.",
 			 function );
 
@@ -1216,10 +1163,10 @@ int libsmdev_handle_open_wide(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_CONVERSION,
-			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBCERROR_CONVERSION_ERROR_GENERIC,
 			 "%s: unable to set narrow character filename.",
 			 function );
 
@@ -1241,10 +1188,10 @@ int libsmdev_handle_open_wide(
 			switch( errno )
 			{
 				case EACCES:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_ACCESS_DENIED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_ACCESS_DENIED,
 					 "%s: access denied to device: %ls.",
 					 function,
 					 filenames[ 0 ] );
@@ -1252,10 +1199,10 @@ int libsmdev_handle_open_wide(
 					break;
 
 				case ENOENT:
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_INVALID_RESOURCE,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
 					 "%s: no such file: %ls.",
 					 function,
 					 filenames[ 0 ] );
@@ -1263,31 +1210,15 @@ int libsmdev_handle_open_wide(
 					break;
 
 				default:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     errno,
-					     error ) != 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 filenames[ 0 ],
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to open file: %ls.",
-						 function,
-						 filenames[ 0 ] );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 errno,
+					 "%s: unable to open file: %ls.",
+					 function,
+					 filenames[ 0 ] );
+
 					break;
 			}
 			goto on_error;
@@ -1302,10 +1233,10 @@ int libsmdev_handle_open_wide(
 		     0,
 		     POSIX_FADV_SEQUENTIAL ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_GENERIC,
 			 "%s: unable to advice file descriptor.",
 			 function );
 
@@ -1319,10 +1250,10 @@ int libsmdev_handle_open_wide(
 	     &media_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve media size.",
 		 function );
 
@@ -1366,10 +1297,8 @@ on_error:
  */
 int libsmdev_handle_close(
      libsmdev_handle_t *handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_close";
 	int result                                  = 0;
@@ -1380,10 +1309,10 @@ int libsmdev_handle_close(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1394,10 +1323,10 @@ int libsmdev_handle_close(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file handle.",
 		 function );
 
@@ -1408,39 +1337,24 @@ int libsmdev_handle_close(
 	{
 		error_code = GetLastError();
 
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     error_code,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to close handle with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to close handle.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 error_code,
+		 "%s: unable to close handle.",
+		 function );
+
 		result = -1;
 	}
 	internal_handle->file_handle = INVALID_HANDLE_VALUE;
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file descriptor.",
 		 function );
 
@@ -1449,29 +1363,14 @@ int libsmdev_handle_close(
 	if( close(
 	     internal_handle->file_descriptor ) != 0 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to close file descriptor with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to close file descriptor.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 errno,
+		 "%s: unable to close file descriptor.",
+		 function );
+
 		result = -1;
 	}
 	internal_handle->file_descriptor = -1;
@@ -1479,13 +1378,13 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->tracks_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty tracks array.",
 		 function );
 
@@ -1494,13 +1393,13 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->sessions_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty sessions array.",
 		 function );
 
@@ -1509,13 +1408,13 @@ int libsmdev_handle_close(
 	if( libsmdev_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty lead-outs array.",
 		 function );
 
@@ -1525,10 +1424,10 @@ int libsmdev_handle_close(
 	     internal_handle->errors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to empty errors offset list.",
 		 function );
 
@@ -1544,9 +1443,11 @@ ssize_t libsmdev_handle_read_buffer(
          libsmdev_handle_t *handle,
          void *buffer,
          size_t buffer_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
+#if defined( HAVE_VERBOSE_OUTPUT )
 	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
+#endif
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_read_buffer";
@@ -1568,10 +1469,10 @@ ssize_t libsmdev_handle_read_buffer(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1581,10 +1482,10 @@ ssize_t libsmdev_handle_read_buffer(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -1593,10 +1494,10 @@ ssize_t libsmdev_handle_read_buffer(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file handle.",
 		 function );
 
@@ -1605,10 +1506,10 @@ ssize_t libsmdev_handle_read_buffer(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file descriptor.",
 		 function );
 
@@ -1617,10 +1518,10 @@ ssize_t libsmdev_handle_read_buffer(
 #endif
 	if( buffer == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid buffer.",
 		 function );
 
@@ -1630,10 +1531,10 @@ ssize_t libsmdev_handle_read_buffer(
 #if UINT_MAX < SIZE_MAX
 	if( buffer_size > (size_t) UINT_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid buffer size value exceeds maximum.",
 		 function );
 
@@ -1643,10 +1544,10 @@ ssize_t libsmdev_handle_read_buffer(
 #else
 	if( buffer_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid buffer size value exceeds maximum.",
 		 function );
 
@@ -1659,10 +1560,10 @@ ssize_t libsmdev_handle_read_buffer(
 	{
 		if( internal_handle->offset >= (off64_t) internal_handle->media_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: offset exceeds media size.",
 			 function );
 
@@ -1684,9 +1585,9 @@ ssize_t libsmdev_handle_read_buffer(
 			break;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: reading buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
 			 function,
 			 internal_handle->offset + (off64_t) buffer_offset,
@@ -1718,38 +1619,23 @@ ssize_t libsmdev_handle_read_buffer(
 					break;
 
 				default:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     error_code,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device.",
-						 function );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 error_code,
+					 "%s: unable to read from device.",
+					 function );
+
 					return( -1 );
 			}
 		}
 		if( read_count < 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: invalid read count: %" PRIzd " returned.",
 			 function,
 			 read_count );
@@ -1785,29 +1671,14 @@ ssize_t libsmdev_handle_read_buffer(
 			{
 				error_code = GetLastError();
 
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset.",
-					 function,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to seek current offset with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_SEEK_FAILED,
+				 error_code,
+				 "%s: unable to seek current offset.",
+				 function );
+
 				return( -1 );
 			}
 #if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x520
@@ -1820,9 +1691,9 @@ ssize_t libsmdev_handle_read_buffer(
 			if( current_offset != calculated_current_offset )
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: correcting offset drift (actual: %" PRIi64 ", calculated: %" PRIi64 ").\n",
 					 function,
 					 current_offset,
@@ -1831,10 +1702,10 @@ ssize_t libsmdev_handle_read_buffer(
 #endif
 				if( current_offset < calculated_current_offset )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: unable to to correct negative offset drift.",
 					 function );
 
@@ -1845,10 +1716,10 @@ ssize_t libsmdev_handle_read_buffer(
 		}
 		if( read_count > (ssize_t) read_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid read count value exceeds read size.",
 			 function );
 
@@ -1868,9 +1739,9 @@ ssize_t libsmdev_handle_read_buffer(
 			      read_size );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: read buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
 			 function,
 			 internal_handle->offset + (off64_t) buffer_offset,
@@ -1887,34 +1758,19 @@ ssize_t libsmdev_handle_read_buffer(
 				case EPERM:
 				case ENXIO:
 				case ENODEV:
-					if( libsmdev_error_string_copy_from_error_number(
-					     error_string,
-					     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-					     errno,
-					     error ) != 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-						 function,
-						 error_string );
-					}
-					else
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_OPEN_FAILED,
-						 "%s: unable to read from device.",
-						 function );
-					}
+					libcerror_system_set_error(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_OPEN_FAILED,
+					 errno,
+					 "%s: unable to read from device.",
+					 function );
+
 					return( -1 );
 
 				default:
 #if defined( HAVE_VERBOSE_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						if( libsmdev_error_string_copy_from_error_number(
 						     error_string,
@@ -1922,14 +1778,14 @@ ssize_t libsmdev_handle_read_buffer(
 						     errno,
 						     error ) != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: unable to read from device with error: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 error_string );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: unable to read from device.\n",
 							 function );
 						}
@@ -1944,29 +1800,14 @@ ssize_t libsmdev_handle_read_buffer(
 
 			if( current_offset < 0 )
 			{
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) == 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to seek current offset.",
-					 function );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_SEEK_FAILED,
+				 errno,
+				 "%s: unable to seek current offset.",
+				 function );
+
 				return( -1 );
 			}
 			calculated_current_offset = internal_handle->offset + (off64_t) buffer_offset;
@@ -1976,9 +1817,9 @@ ssize_t libsmdev_handle_read_buffer(
 			if( current_offset != calculated_current_offset )
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: correcting offset drift (actual: %" PRIi64 ", calculated: %" PRIi64 ").\n",
 					 function,
 					 current_offset,
@@ -1987,10 +1828,10 @@ ssize_t libsmdev_handle_read_buffer(
 #endif
 				if( current_offset < calculated_current_offset )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: unable to to correct negative offset drift.",
 					 function );
 
@@ -2001,10 +1842,10 @@ ssize_t libsmdev_handle_read_buffer(
 		}
 		if( read_count > (ssize_t) read_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid read count value exceeds read size.",
 			 function );
 
@@ -2030,9 +1871,9 @@ ssize_t libsmdev_handle_read_buffer(
 		number_of_read_errors++;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: read error: %" PRIi16 " at offset %" PRIi64 ".\n",
 			 function,
 			 number_of_read_errors,
@@ -2061,9 +1902,9 @@ ssize_t libsmdev_handle_read_buffer(
 			if( ( internal_handle->error_flags & LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) != 0 )
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: zero-ing buffer of size: %" PRIzd " bytes at offset %" PRIzd ".\n",
 					 function,
 					 error_granularity_size,
@@ -2076,10 +1917,10 @@ ssize_t libsmdev_handle_read_buffer(
 				     0,
 				     error_granularity_size ) == NULL )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_MEMORY,
-					 LIBERROR_MEMORY_ERROR_SET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 					 "%s: unable to zero buffer on error.",
 					 function );
 
@@ -2090,9 +1931,9 @@ ssize_t libsmdev_handle_read_buffer(
 			else
 			{
 #if defined( HAVE_VERBOSE_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: zero-ing remainder of buffer of size: %" PRIzd " bytes at offset %" PRIzd ".\n",
 					 function,
 					 error_granularity_skip_size,
@@ -2105,10 +1946,10 @@ ssize_t libsmdev_handle_read_buffer(
 				     0,
 				     error_granularity_skip_size ) == NULL )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_MEMORY,
-					 LIBERROR_MEMORY_ERROR_SET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 					 "%s: unable to zero remainder of buffer on error.",
 					 function );
 
@@ -2117,9 +1958,9 @@ ssize_t libsmdev_handle_read_buffer(
 				read_error_size = error_granularity_skip_size;
 			}
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: adding read error at offset: %" PRIi64 ", number of bytes: %" PRIzd ".\n",
 				 function,
 				 current_offset,
@@ -2133,19 +1974,19 @@ ssize_t libsmdev_handle_read_buffer(
 			     1,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append read error to offset list.",
 				 function );
 
 				return( -1 );
 			}
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: skipping %" PRIu32 " bytes.\n",
 				 function,
 				 error_granularity_skip_size );
@@ -2176,31 +2017,15 @@ ssize_t libsmdev_handle_read_buffer(
 			{
 				error_code = GetLastError();
 
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 error_granularity_skip_size,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable skip %" PRIu32 " bytes after sector.",
-					 function,
-					 error_granularity_skip_size );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 error_code,
+				 "%s: unable skip %" PRIu32 " bytes after sector.",
+				 function,
+				 error_granularity_skip_size );
+
 				return( -1 );
 			}
 #else
@@ -2209,31 +2034,15 @@ ssize_t libsmdev_handle_read_buffer(
 			     error_granularity_skip_size,
 			     SEEK_CUR ) == -1 )
 			{
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) == 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable skip %" PRIu32 " bytes after sector with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 error_granularity_skip_size,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_SEEK_FAILED,
-					 "%s: unable to skip %" PRIu32 " bytes after sector.",
-					 function,
-					 error_granularity_skip_size );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_SEEK_FAILED,
+				 errno,
+				 "%s: unable to skip %" PRIu32 " bytes after sector.",
+				 function,
+				 error_granularity_skip_size );
+
 				return( -1 );
 			}
 #endif /* defined( WINAPI ) */
@@ -2254,10 +2063,8 @@ ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
          void *buffer,
          size_t buffer_size,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_write_buffer";
 	ssize_t write_count                         = 0;
@@ -2268,10 +2075,10 @@ ssize_t libsmdev_handle_write_buffer(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2281,10 +2088,10 @@ ssize_t libsmdev_handle_write_buffer(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -2293,10 +2100,10 @@ ssize_t libsmdev_handle_write_buffer(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file handle.",
 		 function );
 
@@ -2305,10 +2112,10 @@ ssize_t libsmdev_handle_write_buffer(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file descriptor.",
 		 function );
 
@@ -2317,10 +2124,10 @@ ssize_t libsmdev_handle_write_buffer(
 #endif
 	if( buffer == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid buffer.",
 		 function );
 
@@ -2330,10 +2137,10 @@ ssize_t libsmdev_handle_write_buffer(
 #if UINT_MAX < SIZE_MAX
 	if( buffer_size > (size_t) UINT_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid buffer size value exceeds maximum.",
 		 function );
 
@@ -2349,37 +2156,22 @@ ssize_t libsmdev_handle_write_buffer(
 	{
 		error_code = GetLastError();
 
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     error_code,
-		     error ) != 0 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 error_code,
+		 "%s: unable to write to device.",
+		 function );
+
 		return( -1 );
 	}
 	if( write_count < 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
 		 "%s: invalid write count: %" PRIzd " returned.",
 		 function,
 		 write_count );
@@ -2389,10 +2181,10 @@ ssize_t libsmdev_handle_write_buffer(
 #else
 	if( buffer_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid buffer size value exceeds maximum.",
 		 function );
 
@@ -2405,29 +2197,14 @@ ssize_t libsmdev_handle_write_buffer(
 
 	if( write_count < 0 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) != 0 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to write to device.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 errno,
+		 "%s: unable to write to device.",
+		 function );
+
 		return( -1 );
 	}
 #endif
@@ -2541,10 +2318,8 @@ off64_t libsmdev_handle_seek_offset(
          libsmdev_handle_t *handle,
          off64_t offset,
          int whence,
-         liberror_error_t **error )
+         libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_seek_offset";
 
@@ -2556,10 +2331,10 @@ off64_t libsmdev_handle_seek_offset(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2569,10 +2344,10 @@ off64_t libsmdev_handle_seek_offset(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -2581,10 +2356,10 @@ off64_t libsmdev_handle_seek_offset(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file handle.",
 		 function );
 
@@ -2593,10 +2368,10 @@ off64_t libsmdev_handle_seek_offset(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file descriptor.",
 		 function );
 
@@ -2605,10 +2380,10 @@ off64_t libsmdev_handle_seek_offset(
 #endif
 	if( offset > (off64_t) INT64_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid offset value exceeds maximum.",
 		 function );
 
@@ -2618,10 +2393,10 @@ off64_t libsmdev_handle_seek_offset(
 	 && ( whence != SEEK_END )
 	 && ( whence != SEEK_SET ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported whence.",
 		 function );
 
@@ -2663,31 +2438,15 @@ off64_t libsmdev_handle_seek_offset(
 	{
 		error_code = GetLastError();
 
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     error_code,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 offset,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device.",
-			 function,
-			 offset );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 error_code,
+		 "%s: unable to find offset: %" PRIi64 " in device.",
+		 function,
+		 offset );
+
 		return( -1 );
 	}
 #if defined( __BORLANDC__ ) && __BORLANDC__ <= 0x520
@@ -2698,10 +2457,10 @@ off64_t libsmdev_handle_seek_offset(
 
 	if( offset < 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
 		 "%s: invalid offset: %" PRIi64 " returned.",
 		 function,
 		 offset );
@@ -2716,31 +2475,15 @@ off64_t libsmdev_handle_seek_offset(
 
 	if( offset < 0 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 offset,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to find offset: %" PRIi64 " in device.",
-			 function,
-			 offset );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 errno,
+		 "%s: unable to find offset: %" PRIi64 " in device.",
+		 function,
+		 offset );
+
 		return( -1 );
 	}
 #endif
@@ -2755,17 +2498,17 @@ off64_t libsmdev_handle_seek_offset(
 int libsmdev_handle_get_offset(
      libsmdev_handle_t *handle,
      off64_t *offset,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_offset";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2775,10 +2518,10 @@ int libsmdev_handle_get_offset(
 
 	if( offset == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid offset.",
 		 function );
 
@@ -2796,7 +2539,7 @@ int libsmdev_handle_get_offset(
 int libsmdev_handle_get_filename_size(
      libsmdev_handle_t *handle,
      size_t *filename_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size";
@@ -2807,10 +2550,10 @@ int libsmdev_handle_get_filename_size(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2820,10 +2563,10 @@ int libsmdev_handle_get_filename_size(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -2831,10 +2574,10 @@ int libsmdev_handle_get_filename_size(
 	}
 	if( filename_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename size.",
 		 function );
 
@@ -2881,10 +2624,10 @@ int libsmdev_handle_get_filename_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -2904,7 +2647,7 @@ int libsmdev_handle_get_filename(
      libsmdev_handle_t *handle,
      char *filename,
      size_t filename_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename";
@@ -2916,10 +2659,10 @@ int libsmdev_handle_get_filename(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2929,10 +2672,10 @@ int libsmdev_handle_get_filename(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -2940,10 +2683,10 @@ int libsmdev_handle_get_filename(
 	}
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -2990,10 +2733,10 @@ int libsmdev_handle_get_filename(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -3004,10 +2747,10 @@ int libsmdev_handle_get_filename(
 #endif
 	if( filename_size < narrow_filename_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: filename too small.",
 		 function );
 
@@ -3058,10 +2801,10 @@ int libsmdev_handle_get_filename(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3073,10 +2816,10 @@ int libsmdev_handle_get_filename(
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3094,7 +2837,7 @@ int libsmdev_handle_set_filename(
      libsmdev_handle_t *handle,
      const char *filename,
      size_t filename_length,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                      = "libsmdev_handle_set_filename";
@@ -3105,10 +2848,10 @@ int libsmdev_handle_set_filename(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -3118,10 +2861,10 @@ int libsmdev_handle_set_filename(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -3129,10 +2872,10 @@ int libsmdev_handle_set_filename(
 	}
 	if( filename_length == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
 		 "%s: invalid filename length is zero.",
 		 function );
 
@@ -3140,10 +2883,10 @@ int libsmdev_handle_set_filename(
 	}
 	if( filename_length >= (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid filename length value exceeds maximum.",
 		 function );
 
@@ -3157,10 +2900,10 @@ int libsmdev_handle_set_filename(
 		if( internal_handle->file_descriptor != -1 )
 #endif
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 			 "%s: filename already set: %" PRIs_LIBCSTRING_SYSTEM ".",
 			 function,
 			 internal_handle->filename );
@@ -3214,10 +2957,10 @@ int libsmdev_handle_set_filename(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -3231,10 +2974,10 @@ int libsmdev_handle_set_filename(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create filename.",
 		 function );
 
@@ -3285,10 +3028,10 @@ int libsmdev_handle_set_filename(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3306,10 +3049,10 @@ int libsmdev_handle_set_filename(
 	     filename,
 	     filename_length + 1 ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3335,7 +3078,7 @@ int libsmdev_handle_set_filename(
 int libsmdev_handle_get_filename_size_wide(
      libsmdev_handle_t *handle,
      size_t *filename_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size_wide";
@@ -3346,10 +3089,10 @@ int libsmdev_handle_get_filename_size_wide(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -3359,10 +3102,10 @@ int libsmdev_handle_get_filename_size_wide(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -3370,10 +3113,10 @@ int libsmdev_handle_get_filename_size_wide(
 	}
 	if( filename_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename size.",
 		 function );
 
@@ -3422,10 +3165,10 @@ int libsmdev_handle_get_filename_size_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -3443,7 +3186,7 @@ int libsmdev_handle_get_filename_wide(
      libsmdev_handle_t *handle,
      wchar_t *filename,
      size_t filename_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_wide";
@@ -3455,10 +3198,10 @@ int libsmdev_handle_get_filename_wide(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -3468,10 +3211,10 @@ int libsmdev_handle_get_filename_wide(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing filename.",
 		 function );
 
@@ -3479,10 +3222,10 @@ int libsmdev_handle_get_filename_wide(
 	}
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -3531,10 +3274,10 @@ int libsmdev_handle_get_filename_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -3543,10 +3286,10 @@ int libsmdev_handle_get_filename_wide(
 #endif
 	if( filename_size < wide_filename_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: filename too small.",
 		 function );
 
@@ -3558,10 +3301,10 @@ int libsmdev_handle_get_filename_wide(
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3613,10 +3356,10 @@ int libsmdev_handle_get_filename_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3633,7 +3376,7 @@ int libsmdev_handle_set_filename_wide(
      libsmdev_handle_t *handle,
      const wchar_t *filename,
      size_t filename_length,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_filename_wide";
@@ -3644,10 +3387,10 @@ int libsmdev_handle_set_filename_wide(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -3657,10 +3400,10 @@ int libsmdev_handle_set_filename_wide(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -3668,10 +3411,10 @@ int libsmdev_handle_set_filename_wide(
 	}
 	if( filename_length == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
 		 "%s: invalid filename length is zero.",
 		 function );
 
@@ -3679,10 +3422,10 @@ int libsmdev_handle_set_filename_wide(
 	}
 	if( filename_length >= (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid filename length value exceeds maximum.",
 		 function );
 
@@ -3696,10 +3439,10 @@ int libsmdev_handle_set_filename_wide(
 		if( internal_handle->file_descriptor != -1 )
 #endif
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 			 "%s: filename already set: %" PRIs_LIBCSTRING_SYSTEM ".",
 			 function,
 			 internal_handle->filename );
@@ -3755,10 +3498,10 @@ int libsmdev_handle_set_filename_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine filename size.",
 		 function );
 
@@ -3771,10 +3514,10 @@ int libsmdev_handle_set_filename_wide(
 
 	if( internal_handle->filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create filename.",
 		 function );
 
@@ -3786,10 +3529,10 @@ int libsmdev_handle_set_filename_wide(
 	     filename,
 	     filename_length + 1 ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3847,10 +3590,10 @@ int libsmdev_handle_set_filename_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set filename.",
 		 function );
 
@@ -3874,10 +3617,8 @@ int libsmdev_handle_set_filename_wide(
  */
 int libsmdev_file_exists(
      const char *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	static char *function = "libsmdev_file_exists";
 	int result            = 1;
 
@@ -3890,10 +3631,10 @@ int libsmdev_file_exists(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -3931,31 +3672,15 @@ int libsmdev_file_exists(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 error_code,
+				 "%s: unable to open file: %s.",
+				 function,
+				 filename );
+
 				result = -1;
 
 				break;
@@ -3964,10 +3689,10 @@ int libsmdev_file_exists(
 	else if( CloseHandle(
 	          file_handle ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %s.",
 		 function,
 		 filename );
@@ -3995,31 +3720,15 @@ int libsmdev_file_exists(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %s.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 errno,
+				 "%s: unable to open file: %s.",
+				 function,
+				 filename );
+
 				result = -1;
 
 				break;
@@ -4028,10 +3737,10 @@ int libsmdev_file_exists(
 	else if( close(
 		  file_descriptor ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %s.",
 		 function,
 		 filename );
@@ -4049,10 +3758,8 @@ int libsmdev_file_exists(
  */
 int libsmdev_file_exists_wide(
      const wchar_t *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 	static char *function       = "libsmdev_file_exists_wide";
 	int result                  = 1;
 
@@ -4068,10 +3775,10 @@ int libsmdev_file_exists_wide(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -4109,31 +3816,15 @@ int libsmdev_file_exists_wide(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     error_code,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 error_code,
+				 "%s: unable to open file: %ls.",
+				 function,
+				 filename );
+
 				result = -1;
 
 				break;
@@ -4142,10 +3833,10 @@ int libsmdev_file_exists_wide(
 	else if( CloseHandle(
 	          file_handle ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close file: %ls.",
 		 function,
 		 filename );
@@ -4199,10 +3890,10 @@ int libsmdev_file_exists_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to determine narrow character filename size.",
 		 function );
 
@@ -4213,10 +3904,10 @@ int libsmdev_file_exists_wide(
 
 	if( narrow_filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create narrow character filename.",
 		 function );
 
@@ -4266,10 +3957,10 @@ int libsmdev_file_exists_wide(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set narrow character filename.",
 		 function );
 
@@ -4301,31 +3992,15 @@ int libsmdev_file_exists_wide(
 				break;
 
 			default:
-				if( libsmdev_error_string_copy_from_error_number(
-				     error_string,
-				     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-				     errno,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls with error: %" PRIs_LIBCSTRING_SYSTEM "",
-					 function,
-					 filename,
-					 error_string );
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_OPEN_FAILED,
-					 "%s: unable to open file: %ls.",
-					 function,
-					 filename );
-				}
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_OPEN_FAILED,
+				 errno,
+				 "%s: unable to open file: %ls.",
+				 function,
+				 filename );
+
 				result = -1;
 
 				break;
@@ -4334,29 +4009,15 @@ int libsmdev_file_exists_wide(
 	else if( close(
 		  file_descriptor ) != 0 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to close file descriptor with error: %" PRIs_LIBCSTRING_SYSTEM "",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to close file descriptor.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 errno,
+		 "%s: unable to close file descriptor.",
+		 function );
+
+		return( -1 );
 	}
 #endif
 	return( result );

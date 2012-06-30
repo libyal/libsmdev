@@ -1,7 +1,7 @@
 /*
  * Meta data functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,10 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libsmdev_extern.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
 #include "libsmdev_types.h"
 
 #if defined( __cplusplus )
@@ -39,29 +38,29 @@ LIBSMDEV_EXTERN \
 int libsmdev_handle_get_media_size(
      libsmdev_handle_t *handle,
      size64_t *media_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_bytes_per_sector(
      libsmdev_handle_t *handle,
      uint32_t *bytes_per_sector,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_internal_handle_determine_media_information(
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_media_type(
      libsmdev_handle_t *handle,
      uint8_t *media_type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_bus_type(
      libsmdev_handle_t *handle,
      uint8_t *bus_type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_utf8_information_value(
@@ -70,7 +69,7 @@ int libsmdev_handle_get_utf8_information_value(
      size_t identifier_length,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_utf16_information_value(
@@ -79,13 +78,13 @@ int libsmdev_handle_get_utf16_information_value(
      size_t identifier_length,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_sessions(
      libsmdev_handle_t *handle,
      int *number_of_sessions,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_session(
@@ -93,25 +92,25 @@ int libsmdev_handle_get_session(
      int index,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_handle_append_session(
      libsmdev_internal_handle_t *internal_handle,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_handle_append_lead_out(
      libsmdev_internal_handle_t *internal_handle,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_tracks(
      libsmdev_handle_t *handle,
      int *number_of_tracks,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_track(
@@ -120,56 +119,56 @@ int libsmdev_handle_get_track(
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      uint8_t *type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_handle_append_track(
      libsmdev_internal_handle_t *internal_handle,
      uint64_t start_sector,
      uint64_t number_of_sectors,
      uint8_t type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t *number_of_error_retries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_set_number_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t number_of_error_retries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_error_granularity(
      libsmdev_handle_t *handle,
      size_t *error_granularity,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_set_error_granularity(
      libsmdev_handle_t *handle,
      size_t error_granularity,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_error_flags(
      libsmdev_handle_t *handle,
      uint8_t *error_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_set_error_flags(
      libsmdev_handle_t *handle,
      uint8_t error_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_errors(
      libsmdev_handle_t *handle,
      int *number_of_errors,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_error(
@@ -177,7 +176,7 @@ int libsmdev_handle_get_error(
      int index,
      off64_t *offset,
      size64_t *size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

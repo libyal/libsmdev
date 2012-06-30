@@ -1,7 +1,7 @@
 /*
  * Error string functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,9 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
@@ -35,6 +32,8 @@
 #endif
 
 #include "libsmdev_error_string.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcstring.h"
 
 /* Retrieves a descriptive string of the error number
  * Returns 1 if successful or -1 on error
@@ -43,7 +42,7 @@ int libsmdev_error_string_copy_from_error_number(
      libcstring_system_character_t *string,
      size_t string_size,
      int error_number,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function              = "libsmdev_error_string_copy_from_error_number";
 
@@ -58,10 +57,10 @@ int libsmdev_error_string_copy_from_error_number(
 
 	if( string == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid string.",
 		 function );
 
@@ -69,10 +68,10 @@ int libsmdev_error_string_copy_from_error_number(
 	}
 	if( string_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid string size value exceeds maximum.",
 		 function );
 
@@ -105,10 +104,10 @@ int libsmdev_error_string_copy_from_error_number(
 	     NULL ) == 0 )
 #endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set string.",
 		 function );
 
@@ -130,10 +129,10 @@ int libsmdev_error_string_copy_from_error_number(
 	     error_number ) != 0 )
 #endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set string.",
 		 function );
 
@@ -161,10 +160,10 @@ int libsmdev_error_string_copy_from_error_number(
 	     string_size ) != 0 )
 #endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set string.",
 		 function );
 
@@ -191,10 +190,10 @@ int libsmdev_error_string_copy_from_error_number(
 
 	if( static_error_string == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to create static error string.",
 		 function );
 
@@ -208,10 +207,10 @@ int libsmdev_error_string_copy_from_error_number(
 	     static_error_string,
 	     static_error_string_length ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set string.",
 		 function );
 

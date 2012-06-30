@@ -1,7 +1,7 @@
 /*
  * Debug functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <libnotify.h>
+#include <libcnotify.h>
 
 #include "libsmdev_debug.h"
 

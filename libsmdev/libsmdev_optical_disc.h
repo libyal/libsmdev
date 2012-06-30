@@ -1,7 +1,7 @@
 /*
  * Optical disk functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -38,17 +37,17 @@ extern "C" {
 int libsmdev_optical_disc_get_table_of_contents(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_optical_disc_get_table_of_contents_scsi(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif
 

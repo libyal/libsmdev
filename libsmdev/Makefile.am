@@ -1,10 +1,13 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	-I$(top_srcdir)/libcstring \
-	-I$(top_srcdir)/liberror \
-	-I$(top_srcdir)/libnotify \
+	@LIBCSTRING_CPPFLAGS@ \
+	@LIBCERROR_CPPFLAGS@ \
+	@LIBCLOCALE_CPPFLAGS@ \
+	@LIBCNOTIFY_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
+	@LIBCFILE_CPPFLAGS@ \
+	@LIBCPATH_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
 
 lib_LTLIBRARIES = libsmdev.la
@@ -20,6 +23,10 @@ libsmdev_la_SOURCES = \
 	libsmdev_extern.h \
 	libsmdev_handle.c libsmdev_handle.h \
 	libsmdev_legacy.c libsmdev_legacy.h \
+	libsmdev_libcerror.h \
+	libsmdev_libclocale.h \
+	libsmdev_libcnotify.h \
+	libsmdev_libcstring.h \
 	libsmdev_libuna.h \
 	libsmdev_list_type.c libsmdev_list_type.h \
 	libsmdev_metadata.c libsmdev_metadata.h \
@@ -36,10 +43,13 @@ libsmdev_la_SOURCES = \
 	libsmdev_usb.c libsmdev_usb.h
 
 libsmdev_la_LIBADD = \
-	../libcstring/libcstring.la \
-	../liberror/liberror.la \
-	../libnotify/libnotify.la \
-	@LIBUNA_LIBADD@
+	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBCPATH_LIBADD@
 
 libsmdev_la_LDFLAGS = -no-undefined -version-info 1:0:0
 

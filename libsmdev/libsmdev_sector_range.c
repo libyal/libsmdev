@@ -1,7 +1,7 @@
 /*
  * Sector range functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,8 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
+#include "libsmdev_libcerror.h"
 #include "libsmdev_sector_range.h"
 
 /* Initialize a session value
@@ -33,16 +32,16 @@
  */
 int libsmdev_sector_range_initialize(
      libsmdev_sector_range_t **sector_range,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_sector_range_initialize";
 
 	if( sector_range == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid session value.",
 		 function );
 
@@ -50,10 +49,10 @@ int libsmdev_sector_range_initialize(
 	}
 	if( *sector_range != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid sector range value already set.",
 		 function );
 
@@ -64,10 +63,10 @@ int libsmdev_sector_range_initialize(
 
 	if( *sector_range == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create session value.",
 		 function );
 
@@ -78,10 +77,10 @@ int libsmdev_sector_range_initialize(
 	     0,
 	     sizeof( libsmdev_sector_range_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear session value.",
 		 function );
 
@@ -105,16 +104,16 @@ on_error:
  */
 int libsmdev_sector_range_free(
      libsmdev_sector_range_t **sector_range,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_sector_range_free";
 
 	if( sector_range == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid session value.",
 		 function );
 
@@ -137,16 +136,16 @@ int libsmdev_sector_range_get(
      libsmdev_sector_range_t *sector_range,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_sector_range_get";
 
 	if( sector_range == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid session value.",
 		 function );
 
@@ -154,10 +153,10 @@ int libsmdev_sector_range_get(
 	}
 	if( start_sector == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid start sector.",
 		 function );
 
@@ -165,10 +164,10 @@ int libsmdev_sector_range_get(
 	}
 	if( number_of_sectors == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of sectors.",
 		 function );
 
@@ -187,16 +186,16 @@ int libsmdev_sector_range_set(
      libsmdev_sector_range_t *sector_range,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_sector_range_set";
 
 	if( sector_range == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid session value.",
 		 function );
 
@@ -204,10 +203,10 @@ int libsmdev_sector_range_set(
 	}
 	if( start_sector > (uint64_t) INT64_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid start sector value exceeds maximum.",
 		 function );
 
@@ -215,10 +214,10 @@ int libsmdev_sector_range_set(
 	}
 	if( number_of_sectors > (uint64_t) INT64_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid number of sectors value exceeds maximum.",
 		 function );
 

@@ -1,7 +1,7 @@
 /*
  * Track value functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,6 +24,8 @@
 
 #include <common.h>
 #include <types.h>
+
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -56,30 +58,30 @@ struct libsmdev_track_value
 
 int libsmdev_track_value_initialize(
      libsmdev_track_value_t **track_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_track_value_free(
      libsmdev_track_value_t **track_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_track_value_get(
      libsmdev_track_value_t *track_value,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      uint8_t *type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_track_value_set(
      libsmdev_track_value_t *track_value,
      uint64_t start_sector,
      uint64_t number_of_sectors,
      uint8_t type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_track_value_get_bytes_per_sector(
      libsmdev_track_value_t *track_value,
      uint32_t *bytes_per_sector,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

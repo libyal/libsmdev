@@ -1,7 +1,7 @@
 /*
  * Legacy functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libsmdev_extern.h"
+#include "libsmdev_libcerror.h"
 #include "libsmdev_types.h"
 
 #if defined( __cplusplus )
@@ -43,19 +42,19 @@ int libsmdev_handle_get_information_value(
      size_t information_value_identifier_length,
      uint8_t *information_value,
      size_t information_value_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_amount_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t *amount_of_error_retries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_set_amount_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t amount_of_error_retries,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 

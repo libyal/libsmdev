@@ -1,7 +1,7 @@
 /*
  * USB functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,10 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
 #endif
@@ -43,7 +39,9 @@
 #include <errno.h>
 #endif
 
-#include "libsmdev_error_string.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_scsi.h"
 #include "libsmdev_usb.h"
 
@@ -61,10 +59,8 @@ int libsmdev_usb_ioctl(
      int interface_number,
      int request,
      void *request_data,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 #if defined( USBDEVFS_IOCTL )
 	struct usbdevfs_ioctl ioctl_request;
 #endif
@@ -73,10 +69,10 @@ int libsmdev_usb_ioctl(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -92,29 +88,14 @@ int libsmdev_usb_ioctl(
 	     USBDEVFS_IOCTL,
 	     &ioctl_request ) == -1 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_IOCTL with error: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_IOCTL.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+		 errno,
+		 "%s: unable to query device for: USBDEVFS_IOCTL.",
+		 function );
+
 		return( -1 );
 	}
 #endif
@@ -132,10 +113,8 @@ int libsmdev_usb_control_command(
      uint16_t index,
      uint8_t *buffer,
      size_t buffer_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 #if defined( USBDEVFS_CONTROL )
 	struct usbdevfs_ctrltransfer control_request;
 #endif
@@ -144,10 +123,10 @@ int libsmdev_usb_control_command(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -155,10 +134,10 @@ int libsmdev_usb_control_command(
 	}
 	if( buffer == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid buffer.",
 		 function );
 
@@ -166,10 +145,10 @@ int libsmdev_usb_control_command(
 	}
 	if( buffer_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid buffer size value exceeds maximum.",
 		 function );
 
@@ -189,36 +168,21 @@ int libsmdev_usb_control_command(
 	     USBDEVFS_CONTROL,
 	     (void *) &control_request ) == -1 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_CONTROL with error: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_CONTROL.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+		 errno,
+		 "%s: unable to query device for: USBDEVFS_CONTROL.",
+		 function );
+
 		return( -1 );
 	}
 #endif
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_print_data(
+		libcnotify_print_data(
 		 buffer,
 		 buffer_size,
 		 0 );
@@ -232,10 +196,8 @@ int libsmdev_usb_control_command(
  */
 int libsmdev_usb_test(
      int file_descriptor,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	libcstring_system_character_t error_string[ LIBSMDEV_ERROR_STRING_DEFAULT_SIZE ];
-
 #if defined( USBDEVFS_CONNECTINFO )
 	struct usbdevfs_connectinfo connection_information;
 #endif
@@ -244,10 +206,10 @@ int libsmdev_usb_test(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -259,35 +221,20 @@ int libsmdev_usb_test(
 	     USBDEVFS_CONNECTINFO,
 	     &connection_information ) == -1 )
 	{
-		if( libsmdev_error_string_copy_from_error_number(
-		     error_string,
-		     LIBSMDEV_ERROR_STRING_DEFAULT_SIZE,
-		     errno,
-		     error ) == 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_CONNECTINFO with error: %" PRIs_LIBCSTRING_SYSTEM ".",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: USBDEVFS_CONNECTINFO.",
-			 function );
-		}
+		libcerror_system_set_error(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+		 errno,
+		 "%s: unable to query device for: USBDEVFS_CONNECTINFO.",
+		 function );
+
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_print_data(
+		libcnotify_print_data(
 		 (uint8_t *) &connection_information,
 		 sizeof( struct usbdevfs_connectinfo ),
 		 0 );
@@ -304,7 +251,7 @@ int libsmdev_usb_test(
  */
 int libsmdev_usb_test(
      int file_descriptor,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	struct usb_device_descriptor device_descriptor;
 
@@ -313,10 +260,10 @@ int libsmdev_usb_test(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -332,10 +279,10 @@ int libsmdev_usb_test(
 	     255,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to send control command.",
 		 function );
 

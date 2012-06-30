@@ -1,7 +1,7 @@
 /*
  * Legacy functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,9 +23,8 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libsmdev_legacy.h"
+#include "libsmdev_libcerror.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_types.h"
 
@@ -41,7 +40,7 @@ int libsmdev_handle_get_information_value(
      size_t information_value_identifier_length,
      uint8_t *information_value,
      size_t information_value_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libsmdev_handle_get_utf8_information_value(
 	         handle,
@@ -58,7 +57,7 @@ int libsmdev_handle_get_information_value(
 int libsmdev_handle_get_amount_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t *amount_of_error_retries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libsmdev_handle_get_number_of_error_retries(
 	         handle,
@@ -72,7 +71,7 @@ int libsmdev_handle_get_amount_of_error_retries(
 int libsmdev_handle_set_amount_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t amount_of_error_retries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libsmdev_handle_set_number_of_error_retries(
 	         handle,

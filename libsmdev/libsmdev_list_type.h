@@ -1,7 +1,7 @@
 /*
  * List type functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -97,91 +97,91 @@ struct libsmdev_list
 
 int libsmdev_list_element_initialize(
      libsmdev_list_element_t **element,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_element_free(
      libsmdev_list_element_t **element,
      int (*value_free_function)(
             intptr_t **value,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_list_element_get_value(
      libsmdev_list_element_t *element,
      intptr_t **value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_element_set_value(
      libsmdev_list_element_t *element,
      intptr_t *value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_initialize(
      libsmdev_list_t **list,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_free(
      libsmdev_list_t **list,
      int (*value_free_function)(
             intptr_t **value,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_list_empty(
      libsmdev_list_t *list,
      int (*value_free_function)(
             intptr_t **value,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_list_clone(
      libsmdev_list_t **destination_list,
      libsmdev_list_t *source_list,
      int (*value_free_function)(
             intptr_t **value,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,
             intptr_t *source,
-            liberror_error_t **error ),
-     liberror_error_t **error );
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
 
 int libsmdev_list_get_number_of_elements(
      libsmdev_list_t *list,
      int *number_of_elements,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_get_element_by_index(
      libsmdev_list_t *list,
      int list_element_index,
      libsmdev_list_element_t **element,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_get_value_by_index(
      libsmdev_list_t *list,
      int list_element_index,
      intptr_t **value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_prepend_element(
      libsmdev_list_t *list,
      libsmdev_list_element_t *element,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_prepend_value(
      libsmdev_list_t *list,
      intptr_t *value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_append_element(
      libsmdev_list_t *list,
      libsmdev_list_element_t *element,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_append_value(
      libsmdev_list_t *list,
      intptr_t *value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_insert_element(
      libsmdev_list_t *list,
@@ -189,9 +189,9 @@ int libsmdev_list_insert_element(
      int (*value_compare_function)(
             intptr_t *first,
             intptr_t *second,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      uint8_t insert_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_insert_value(
      libsmdev_list_t *list,
@@ -199,14 +199,14 @@ int libsmdev_list_insert_value(
      int (*value_compare_function)(
             intptr_t *first,
             intptr_t *second,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      uint8_t insert_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_list_remove_element(
      libsmdev_list_t *list,
      libsmdev_list_element_t *element,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

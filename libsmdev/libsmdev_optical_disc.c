@@ -1,7 +1,7 @@
 /*
  * Optical disk functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,9 +24,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
 #endif
@@ -37,6 +34,8 @@
 
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_optical_disc.h"
 #include "libsmdev_sector_range.h"
@@ -66,7 +65,7 @@
 int libsmdev_optical_disc_get_table_of_contents(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libsmdev_optical_disc_get_table_of_contents";
 	int result            = 0;
@@ -78,10 +77,10 @@ int libsmdev_optical_disc_get_table_of_contents(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve table of contents using SCSI commands.",
 		 function );
 
@@ -94,10 +93,10 @@ int libsmdev_optical_disc_get_table_of_contents(
 		     internal_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve table of contents using IO control.",
 			 function );
 
@@ -113,7 +112,7 @@ int libsmdev_optical_disc_get_table_of_contents(
 int libsmdev_optical_disc_get_table_of_contents_scsi(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t track_info_data[ 64 ];
 
@@ -144,10 +143,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -160,10 +159,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 	if( toc_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create TOC data.",
 		 function );
 
@@ -174,10 +173,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	     0,
 	     sizeof( uint8_t ) * toc_data_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear TOC data.",
 		 function );
 
@@ -196,11 +195,11 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		if( ( error != NULL )
 		 && ( *error != NULL ) )
 		{
-			libnotify_print_error_backtrace(
+			libcnotify_print_error_backtrace(
 			 *error );
 		}
 #endif
-		liberror_error_free(
+		libcerror_error_free(
 		 error );
 
 		byte_stream_copy_to_uint16_big_endian(
@@ -215,10 +214,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 			if( reallocation == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 				 "%s: unable to resize TOC data.",
 				 function );
 
@@ -239,11 +238,11 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				if( ( error != NULL )
 				 && ( *error != NULL ) )
 				{
-					libnotify_print_error_backtrace(
+					libcnotify_print_error_backtrace(
 					 *error );
 				}
 #endif
-				liberror_error_free(
+				libcerror_error_free(
 				 error );
 			}
 		}
@@ -253,12 +252,12 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	if( toc_data_size > 4 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: header:\n",
 			 function );
-			libnotify_print_data(
+			libcnotify_print_data(
 			 toc_data,
 			 4,
 			 0 );
@@ -267,14 +266,14 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		number_of_sessions = (uint16_t) toc_data[ 3 ];
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: number of sessions\t\t\t: %" PRIu8 "\n",
 			 function,
 			 number_of_sessions );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "\n" );
 		}
 #endif
@@ -284,13 +283,13 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		while( toc_data_offset < (size_t) toc_data_size )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: entry: %02" PRIu16 ":\n",
 				 function,
 				 entry_iterator );
-				libnotify_print_data(
+				libcnotify_print_data(
 				 toc_entries,
 				 11,
 				 0 );
@@ -329,11 +328,11 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				 next_session_offset );
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
 				if( toc_entries[ 3 ] <= 0x63 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: session: %02" PRIu16 " track: %02" PRIu8 "\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
@@ -345,7 +344,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				}
 				else if( toc_entries[ 3 ] == 0xa0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: session: %02" PRIu8 " first track number\t: %" PRIu8 "\n",
 					 function,
 					 toc_entries[ 0 ],
@@ -353,7 +352,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				}
 				else if( toc_entries[ 3 ] == 0xa1 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: session: %02" PRIu8 " last track number\t\t: %" PRIu8 "\n",
 					 function,
 					 toc_entries[ 0 ],
@@ -361,7 +360,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				}
 				else if( toc_entries[ 3 ] == 0xa2 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: session: %02" PRIu8 " lead out\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
@@ -372,7 +371,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				}
 				else if( toc_entries[ 3 ] == 0xb0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: session: %02" PRIu16 " end\t\t\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 " (offset: %" PRIu32 ")\n",
 					 function,
 					 toc_entries[ 0 ],
@@ -381,7 +380,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					 toc_entries[ 6 ],
 					 next_session_offset );
 				}
-				libnotify_printf(
+				libcnotify_printf(
 				 "\n" );
 			}
 #endif
@@ -396,10 +395,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					}
 					if( track_offset < last_track_offset )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid track offset value out of bounds.",
 						 function );
 
@@ -407,10 +406,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					}
 					if( ( track_index + 1 ) != track_number )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid track number value out of bounds.",
 						 function );
 
@@ -420,10 +419,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					{
 						if( track_number != last_track_number )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid track number value out of bounds.",
 							 function );
 
@@ -435,10 +434,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					     0,
 					     64 ) == NULL )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_MEMORY,
-						 LIBERROR_MEMORY_ERROR_SET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 						 "%s: unable to clear track info data.",
 						 function );
 
@@ -453,10 +452,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 					if( response_count == -1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable retrieve track info data: %d.",
 						 function,
 						 track_index );
@@ -464,13 +463,13 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 						goto on_error;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: track information data: %d:\n",
 						 function,
 						 track_index );
-						libnotify_print_data(
+						libcnotify_print_data(
 						 track_info_data,
 						 response_count,
 						 0 );
@@ -478,10 +477,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 #endif
 					if( track_info_data[ 2 ] != toc_entries[ 0 ] )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid track information data - session number value out of bounds.",
 						 function );
 
@@ -489,10 +488,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					}
 					if( track_info_data[ 3 ] != track_number )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid track information data - track number value out of bounds.",
 						 function );
 
@@ -525,10 +524,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					     track_type,
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 						 "%s: unable to append track: %d.",
 						 function,
 						 track_index );
@@ -548,10 +547,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			{
 				if( session_offset >= next_session_offset )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: invalid session offset value out of bounds.",
 					 function );
 
@@ -559,10 +558,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				}
 				if( ( session_index + 1 ) != toc_entries[ 0 ] )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: invalid session number value out of bounds.",
 					 function );
 
@@ -581,10 +580,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 					     lead_out_size,
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 						 "%s: unable to append lead_out: %d.",
 						 function,
 						 lead_out_index );
@@ -605,10 +604,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				     session_size,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 					 "%s: unable to append session: %d.",
 					 function,
 					 session_index );
@@ -628,10 +627,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		{
 			if( track_offset < last_track_offset )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: invalid track offset value out of bounds.",
 				 function );
 
@@ -642,10 +641,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			     0,
 			     64 ) == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 				 "%s: unable to clear track info data.",
 				 function );
 
@@ -660,10 +659,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 			if( response_count == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable retrieve track info data: %d.",
 				 function,
 				 track_index );
@@ -671,13 +670,13 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: track information data: %d:\n",
 				 function,
 				 track_index );
-				libnotify_print_data(
+				libcnotify_print_data(
 				 track_info_data,
 				 response_count,
 				 0 );
@@ -685,10 +684,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 #endif
 			if( track_info_data[ 2 ] != toc_entries[ 0 ] )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: invalid track information data - session number value out of bounds.",
 				 function );
 
@@ -696,10 +695,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			}
 			if( track_info_data[ 3 ] != toc_entries[ 3 ] )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: invalid track information data - track number value out of bounds.",
 				 function );
 
@@ -732,10 +731,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			     track_type,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append last track: %d.",
 				 function,
 				 track_index );
@@ -745,10 +744,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		}
 		if( session_index != number_of_sessions )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid session index value out of bounds.",
 			 function );
 
@@ -772,19 +771,19 @@ on_error:
 	libsmdev_array_resize(
 	 internal_handle->tracks_array,
 	 0,
-	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
 	libsmdev_array_resize(
 	 internal_handle->lead_outs_array,
 	 0,
-	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
 	libsmdev_array_resize(
 	 internal_handle->sessions_array,
 	 0,
-	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_sector_range_free,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
 	return( -1 );
@@ -796,7 +795,7 @@ on_error:
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
      int file_descriptor,
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	struct cdrom_tochdr toc_header;
 	struct cdrom_tocentry toc_entry;
@@ -819,10 +818,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 	if( file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file descriptor.",
 		 function );
 
@@ -833,10 +832,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     &number_of_sessions,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve number of sessions.",
 		 function );
 
@@ -847,10 +846,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     &number_of_tracks,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve number of tracks.",
 		 function );
 
@@ -861,10 +860,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     CDROMREADTOCHDR,
 	     &toc_header ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: CDROMREADTOCHDR.",
 		 function );
 
@@ -874,9 +873,9 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	last_entry  = toc_header.cdth_trk1;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: number of entries\t: %" PRIu8 "\n",
 		 function,
 		 last_entry );
@@ -891,10 +890,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		     0,
 		     sizeof( struct cdrom_tocentry ) ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 			 "%s: unable clear toc entry.",
 			 function );
 
@@ -908,10 +907,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		     CDROMREADTOCENTRY,
 		     &toc_entry ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: CDROMREADTOCENTRY.",
 			 function );
 
@@ -931,10 +930,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		}
 		else
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported CDTE format.",
 			 function );
 
@@ -949,38 +948,38 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: entry: %" PRIu16 "",
 			 function,
 			 entry_iterator );
 
 			if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 " (audio)" );
 			}
 			else
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 " (data)" );
 			}
 			if( toc_entry.cdte_format == CDROM_LBA )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 " start\t: %" PRIu32 "",
 				 toc_entry.cdte_addr.lba );
 			}
 			else if( toc_entry.cdte_format == CDROM_MSF )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 " start\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 "",
 				 toc_entry.cdte_addr.msf.minute,
 				 toc_entry.cdte_addr.msf.second,
 				 toc_entry.cdte_addr.msf.frame );
 			}
-			libnotify_printf(
+			libcnotify_printf(
 			 " (offset: %" PRIu32 ")\n",
 			 offset );
 		}
@@ -990,10 +989,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			if( ( offset < last_track_offset )
 			 || ( offset < last_session_offset ) )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: invalid offset value out of bounds.",
 				 function );
 
@@ -1008,10 +1007,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 				{
 					if( last_track_size < 11400 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid last track size value out of bounds.",
 						 function );
 
@@ -1023,10 +1022,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 				{
 					if( last_track_size < 6900 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid last track size value out of bounds.",
 						 function );
 
@@ -1042,10 +1041,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			     last_track_type,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 				 "%s: unable to append track: %" PRIu8 ".",
 				 function,
 				 track_index );
@@ -1065,10 +1064,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 				     last_session_size,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 					 "%s: unable to append session: %" PRIu8 ".",
 					 function,
 					 session_index );
@@ -1088,10 +1087,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     0,
 	     sizeof( struct cdrom_tocentry ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable clear toc entry.",
 		 function );
 
@@ -1105,10 +1104,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     CDROMREADTOCENTRY,
 	     &toc_entry ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: CDROMREADTOCENTRY.",
 		 function );
 
@@ -1128,46 +1127,46 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	}
 	else
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported CDTE format.",
 		 function );
 
 		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "\tLead out" );
 
 		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 " (audio)" );
 		}
 		else
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 " (data)" );
 		}
 		if( toc_entry.cdte_format == CDROM_LBA )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 " start:\t%" PRIu32 "",
 			 toc_entry.cdte_addr.lba );
 		}
 		else if( toc_entry.cdte_format == CDROM_MSF )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
 			 toc_entry.cdte_addr.msf.minute,
 			 toc_entry.cdte_addr.msf.second,
 			 toc_entry.cdte_addr.msf.frame );
 		}
-		libnotify_printf(
+		libcnotify_printf(
 		 " (offset: %" PRIu32 ")\n\n",
 		 offset );
 	}
@@ -1175,10 +1174,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	if( ( offset < last_track_offset )
 	 || ( offset < last_session_offset ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid offset value out of bounds.",
 		 function );
 
@@ -1193,10 +1192,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     last_track_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append last track: %" PRIu8 ".",
 		 function,
 		 track_index );
@@ -1211,10 +1210,10 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	     last_session_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append session: %" PRIu8 ".",
 		 function,
 		 session_index );
@@ -1227,7 +1226,7 @@ on_error:
 	libsmdev_array_resize(
 	 internal_handle->tracks_array,
 	 0,
-	 (int (*)(intptr_t **, liberror_error_t **)) &libsmdev_track_value_free,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
 	return( -1 );

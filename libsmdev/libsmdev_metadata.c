@@ -1,7 +1,7 @@
 /*
  * Meta data functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -22,10 +22,6 @@
 #include <common.h>
 #include <memory.h>
 #include <types.h>
-
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
 
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
@@ -63,6 +59,9 @@ typedef size_t u64;
 #include "libsmdev_ata.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcerror.h"
+#include "libsmdev_libcnotify.h"
+#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disc.h"
@@ -197,7 +196,7 @@ STORAGE_DESCRIPTOR_HEADER, *PSTORAGE_DESCRIPTOR_HEADER;
 int libsmdev_handle_get_media_size(
      libsmdev_handle_t *handle,
      size64_t *media_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 #if defined( WINAPI )
 	DISK_GEOMETRY disk_geometry;
@@ -219,10 +218,10 @@ int libsmdev_handle_get_media_size(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -233,10 +232,10 @@ int libsmdev_handle_get_media_size(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file handle.",
 		 function );
 
@@ -245,10 +244,10 @@ int libsmdev_handle_get_media_size(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid handle - missing file descriptor.",
 		 function );
 
@@ -257,10 +256,10 @@ int libsmdev_handle_get_media_size(
 #endif
 	if( media_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid media size.",
 		 function );
 
@@ -283,10 +282,10 @@ int libsmdev_handle_get_media_size(
 
 			if( error_code != ERROR_NOT_SUPPORTED )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 				 "%s: unable to query device for: IOCTL_DISK_GET_LENGTH_INFO.",
 				 function );
 
@@ -304,10 +303,10 @@ int libsmdev_handle_get_media_size(
 			     &response_count,
 			     NULL ) == 0 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
 				 function );
 
@@ -331,10 +330,10 @@ int libsmdev_handle_get_media_size(
 		     BLKGETSIZE64,
 		     &( internal_handle->media_size ) ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: BLKGETSIZE64.",
 			 function );
 
@@ -348,10 +347,10 @@ int libsmdev_handle_get_media_size(
 		     DIOCGMEDIASIZE,
 		     &( internal_handle->media_size ) ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: DIOCGMEDIASIZE.",
 			 function );
 
@@ -365,10 +364,10 @@ int libsmdev_handle_get_media_size(
 		     DIOCGDINFO,
 		     &disk_label ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: DIOCGDINFO.",
 			 function );
 
@@ -385,10 +384,10 @@ int libsmdev_handle_get_media_size(
 			     DKIOCGETBLOCKSIZE,
 			     &( internal_handle->bytes_per_sector ) ) == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 				 "%s: unable to query device for: DKIOCGETBLOCKSIZE.",
 				 function );
 
@@ -401,10 +400,10 @@ int libsmdev_handle_get_media_size(
 		     DKIOCGETBLOCKCOUNT,
 		     &block_count ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: DKIOCGETBLOCKCOUNT.",
 			 function );
 
@@ -414,9 +413,9 @@ int libsmdev_handle_get_media_size(
 		internal_handle->media_size_set = 1;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: block size: %" PRIu32 " block count: %" PRIu64 " ",
 			 function,
 			 internal_handle->bytes_per_sector,
@@ -425,9 +424,9 @@ int libsmdev_handle_get_media_size(
 #endif
 #endif
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: media size: %" PRIu64 "\n",
 			 function,
 			 internal_handle->media_size );
@@ -436,10 +435,10 @@ int libsmdev_handle_get_media_size(
 	}
 	if( internal_handle->media_size_set == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported platform.",
 		 function );
 
@@ -456,7 +455,7 @@ int libsmdev_handle_get_media_size(
 int libsmdev_handle_get_bytes_per_sector(
      libsmdev_handle_t *handle,
      uint32_t *bytes_per_sector,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 #if defined( WINAPI )
 	DISK_GEOMETRY disk_geometry;
@@ -471,10 +470,10 @@ int libsmdev_handle_get_bytes_per_sector(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -485,10 +484,10 @@ int libsmdev_handle_get_bytes_per_sector(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file handle.",
 		 function );
 
@@ -497,10 +496,10 @@ int libsmdev_handle_get_bytes_per_sector(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file descriptor.",
 		 function );
 
@@ -509,10 +508,10 @@ int libsmdev_handle_get_bytes_per_sector(
 #endif
 	if( bytes_per_sector == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid bytes per sector.",
 		 function );
 
@@ -535,10 +534,10 @@ int libsmdev_handle_get_bytes_per_sector(
 
 			if( error_code != ERROR_NOT_SUPPORTED )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY_EX.",
 				 function );
 
@@ -556,10 +555,10 @@ int libsmdev_handle_get_bytes_per_sector(
 			     &response_count,
 			     NULL ) == 0 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_IOCTL_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
 				 function );
 
@@ -579,10 +578,10 @@ int libsmdev_handle_get_bytes_per_sector(
 		     BLKSSZGET,
 		     &( internal_handle->bytes_per_sector ) ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: BLKSSZGET.",
 			 function );
 
@@ -596,10 +595,10 @@ int libsmdev_handle_get_bytes_per_sector(
 		     DKIOCGETBLOCKSIZE,
 		     &( internal_handle->bytes_per_sector ) ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_IOCTL_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 			 "%s: unable to query device for: DKIOCGETBLOCKSIZE.",
 			 function );
 
@@ -610,19 +609,19 @@ int libsmdev_handle_get_bytes_per_sector(
 	}
 	if( internal_handle->bytes_per_sector_set == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported platform.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: sector size: %" PRIu32 "\n",
 		 function,
 		 internal_handle->bytes_per_sector );
@@ -639,7 +638,7 @@ int libsmdev_handle_get_bytes_per_sector(
  */
 int libsmdev_internal_handle_determine_media_information(
      libsmdev_internal_handle_t *internal_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 #if defined( WINAPI )
 	STORAGE_PROPERTY_QUERY query;
@@ -668,10 +667,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 	if( internal_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid device handle.",
 		 function );
 
@@ -684,10 +683,10 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file handle.",
 		 function );
 
@@ -698,10 +697,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     0,
 	     sizeof( STORAGE_PROPERTY_QUERY ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear storage property query.",
 		 function );
 
@@ -715,10 +714,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 	if( response == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to response.",
 		 function );
 
@@ -729,10 +728,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     0,
 	     response_size ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear response.",
 		 function );
 
@@ -751,10 +750,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     &response_count,
 	     NULL ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_IOCTL_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
 		 "%s: unable to query device for: IOCTL_STORAGE_QUERY_PROPERTY.",
 		 function );
 
@@ -765,10 +764,10 @@ int libsmdev_internal_handle_determine_media_information(
 	}
 	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > response_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
 		 "%s: response buffer too small.\n",
 		 function );
 
@@ -780,9 +779,9 @@ int libsmdev_internal_handle_determine_media_information(
 	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > sizeof( STORAGE_DEVICE_DESCRIPTOR ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_print_data(
+			libcnotify_print_data(
 			 response,
 			 (size_t) response_count,
 			 0 );
@@ -802,10 +801,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set vendor.",
 				 function );
 
@@ -826,10 +825,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set model.",
 				 function );
 
@@ -850,10 +849,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set serial number.",
 				 function );
 
@@ -885,85 +884,85 @@ int libsmdev_internal_handle_determine_media_information(
 				break;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "Bus type:\t\t" );
 
 			switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
 			{
 				case BusTypeScsi:
-					libnotify_printf(
+					libcnotify_printf(
 					 "SCSI" );
 					break;
 
 				case BusTypeAtapi:
-					libnotify_printf(
+					libcnotify_printf(
 					 "ATAPI" );
 					break;
 
 				case BusTypeAta:
-					libnotify_printf(
+					libcnotify_printf(
 					 "ATA" );
 					break;
 
 				case BusType1394:
-					libnotify_printf(
+					libcnotify_printf(
 					 "FireWire (IEEE1394)" );
 					break;
 
 				case BusTypeSsa:
-					libnotify_printf(
+					libcnotify_printf(
 					 "Serial Storage Architecture (SSA)" );
 					break;
 
 				case BusTypeFibre:
-					libnotify_printf(
+					libcnotify_printf(
 					 "Fibre Channel" );
 					break;
 
 				case BusTypeUsb:
-					libnotify_printf(
+					libcnotify_printf(
 					 "USB" );
 					break;
 
 				case BusTypeRAID:
-					libnotify_printf(
+					libcnotify_printf(
 					 "RAID" );
 					break;
 
 				case BusTypeiScsi:
-					libnotify_printf(
+					libcnotify_printf(
 					 "iSCSI" );
 					break;
 
 				case BusTypeSas:
-					libnotify_printf(
+					libcnotify_printf(
 					 "SAS" );
 					break;
 
 				case BusTypeSata:
-					libnotify_printf(
+					libcnotify_printf(
 					 "SATA" );
 					break;
 
 				case BusTypeSd:
-					libnotify_printf(
+					libcnotify_printf(
 					 "Secure Digital (SD)" );
 					break;
 
 				case BusTypeMmc:
-					libnotify_printf(
+					libcnotify_printf(
 					 "Multi Media Card (MMC)" );
 					break;
 
 				default:
-					libnotify_printf(
+					libcnotify_printf(
 					 "Unknown: %d",
 					 ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType );
 					break;
 			}
-			libnotify_printf(
+			libcnotify_printf(
 			 "\n" );
 		}
 #endif
@@ -973,10 +972,10 @@ int libsmdev_internal_handle_determine_media_information(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file descriptor.",
 		 function );
 
@@ -987,10 +986,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     0,
 	     255 ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear response.",
 		 function );
 
@@ -1004,10 +1003,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     &( internal_handle->bus_type ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine bus type.",
 		 function );
 
@@ -1027,11 +1026,11 @@ int libsmdev_internal_handle_determine_media_information(
 		if( ( error != NULL )
 		 && ( *error != NULL ) )
 		{
-			libnotify_print_error_backtrace(
+			libcnotify_print_error_backtrace(
 			 *error );
 		}
 #endif
-		liberror_error_free(
+		libcerror_error_free(
 		 error );
 	}
 /* TODO handle garbarge return ? */
@@ -1042,19 +1041,19 @@ int libsmdev_internal_handle_determine_media_information(
 		internal_handle->device_type = ( response[ 0 ] & 0x1f );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: removable\t\t: %" PRIu8 "\n",
 			 function,
 			 internal_handle->removable );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: device type\t: 0x%" PRIx8 "\n",
 			 function,
 			 internal_handle->device_type );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "\n" );
 		}
 #endif
@@ -1062,9 +1061,9 @@ int libsmdev_internal_handle_determine_media_information(
 	if( response_count >= 16 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_print_data(
+			libcnotify_print_data(
 			 response,
 			 response_count,
 			 0 );
@@ -1079,10 +1078,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 		if( result == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set vendor.",
 			 function );
 
@@ -1100,10 +1099,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 		if( result == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set model.",
 			 function );
 
@@ -1121,9 +1120,9 @@ int libsmdev_internal_handle_determine_media_information(
 	if( response_count > 4 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_print_data(
+			libcnotify_print_data(
 			 response,
 			 response_count,
 			 0 );
@@ -1138,10 +1137,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 		if( result == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set serial number.",
 			 function );
 
@@ -1161,11 +1160,11 @@ int libsmdev_internal_handle_determine_media_information(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 		else
@@ -1179,10 +1178,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set serial number.",
 				 function );
 
@@ -1197,10 +1196,10 @@ int libsmdev_internal_handle_determine_media_information(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set model.",
 				 function );
 
@@ -1210,19 +1209,19 @@ int libsmdev_internal_handle_determine_media_information(
 			internal_handle->device_type = ( device_configuration.config & 0x1f00 ) >> 8;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: removable\t\t: %" PRIu8 "\n",
 				 function,
 				 internal_handle->removable );
 
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: device type\t: 0x%" PRIx8 "\n",
 				 function,
 				 internal_handle->device_type );
 
-				libnotify_printf(
+				libcnotify_printf(
 				 "\n" );
 			}
 #endif
@@ -1241,11 +1240,11 @@ int libsmdev_internal_handle_determine_media_information(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 	}
@@ -1255,10 +1254,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     internal_handle->file_descriptor,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine SCSI identifier.",
 		 function );
 
@@ -1273,10 +1272,10 @@ int libsmdev_internal_handle_determine_media_information(
 	     pci_bus_address_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine PCI bus address.",
 		 function );
 
@@ -1289,10 +1288,10 @@ int libsmdev_internal_handle_determine_media_information(
 		     internal_handle->file_descriptor,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to test USB.",
 			 function );
 
@@ -1313,17 +1312,17 @@ int libsmdev_internal_handle_determine_media_information(
 int libsmdev_handle_get_media_type(
      libsmdev_handle_t *handle,
      uint8_t *media_type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_media_type";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1334,10 +1333,10 @@ int libsmdev_handle_get_media_type(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file handle.",
 		 function );
 
@@ -1346,10 +1345,10 @@ int libsmdev_handle_get_media_type(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file descriptor.",
 		 function );
 
@@ -1358,10 +1357,10 @@ int libsmdev_handle_get_media_type(
 #endif
 	if( media_type == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid media type.",
 		 function );
 
@@ -1373,10 +1372,10 @@ int libsmdev_handle_get_media_type(
 		     internal_handle,
 		     error ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine media information.",
 			 function );
 
@@ -1404,17 +1403,17 @@ int libsmdev_handle_get_media_type(
 int libsmdev_handle_get_bus_type(
      libsmdev_handle_t *handle,
      uint8_t *bus_type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_bus_type";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1425,10 +1424,10 @@ int libsmdev_handle_get_bus_type(
 #if defined( WINAPI )
 	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file handle.",
 		 function );
 
@@ -1437,10 +1436,10 @@ int libsmdev_handle_get_bus_type(
 #else
 	if( internal_handle->file_descriptor == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid device handle - missing file descriptor.",
 		 function );
 
@@ -1449,10 +1448,10 @@ int libsmdev_handle_get_bus_type(
 #endif
 	if( bus_type == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid bus type.",
 		 function );
 
@@ -1464,10 +1463,10 @@ int libsmdev_handle_get_bus_type(
 		     internal_handle,
 		     error ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine media information.",
 			 function );
 
@@ -1489,7 +1488,7 @@ int libsmdev_handle_get_utf8_information_value(
      size_t identifier_length,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	uint8_t *information_value                  = NULL;
@@ -1499,10 +1498,10 @@ int libsmdev_handle_get_utf8_information_value(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1512,10 +1511,10 @@ int libsmdev_handle_get_utf8_information_value(
 
 	if( identifier == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid identifier.",
 		 function );
 
@@ -1527,10 +1526,10 @@ int libsmdev_handle_get_utf8_information_value(
 		     internal_handle,
 		     error ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine media information.",
 			 function );
 
@@ -1577,15 +1576,15 @@ int libsmdev_handle_get_utf8_information_value(
 	}
 	/* Determine the header value size
 	 */
-	information_value_size = 1 + libcstring_string_length(
+	information_value_size = 1 + libcstring_narrow_string_length(
 	                              (char *) information_value );
 
 	if( utf8_string_size < information_value_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: UTF-8 string too small.",
 		 function );
 
@@ -1612,7 +1611,7 @@ int libsmdev_handle_get_utf16_information_value(
      size_t identifier_length,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	uint8_t *information_value                  = NULL;
@@ -1622,10 +1621,10 @@ int libsmdev_handle_get_utf16_information_value(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1635,10 +1634,10 @@ int libsmdev_handle_get_utf16_information_value(
 
 	if( identifier == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid identifier.",
 		 function );
 
@@ -1650,10 +1649,10 @@ int libsmdev_handle_get_utf16_information_value(
 		     internal_handle,
 		     error ) == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine media information.",
 			 function );
 
@@ -1700,15 +1699,15 @@ int libsmdev_handle_get_utf16_information_value(
 	}
 	/* Determine the header value size
 	 */
-	information_value_size = 1 + libcstring_string_length(
+	information_value_size = 1 + libcstring_narrow_string_length(
 	                              (char *) information_value );
 
 	if( utf16_string_size < information_value_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: UTF-16 string too small.",
 		 function );
 
@@ -1731,17 +1730,17 @@ int libsmdev_handle_get_utf16_information_value(
 int libsmdev_handle_get_number_of_sessions(
      libsmdev_handle_t *handle,
      int *number_of_sessions,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_number_of_sessions";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1754,10 +1753,10 @@ int libsmdev_handle_get_number_of_sessions(
 	     number_of_sessions,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of entries in sessions array.",
 		 function );
 
@@ -1774,7 +1773,7 @@ int libsmdev_handle_get_session(
      int index,
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	libsmdev_sector_range_t *sector_range       = NULL;
@@ -1782,10 +1781,10 @@ int libsmdev_handle_get_session(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -1799,10 +1798,10 @@ int libsmdev_handle_get_session(
 	     (intptr_t **) &sector_range,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve session sector range: %d from array.",
 		 function,
 		 index );
@@ -1815,10 +1814,10 @@ int libsmdev_handle_get_session(
 	     number_of_sectors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve sector range.",
 		 function );
 
@@ -1834,7 +1833,7 @@ int libsmdev_handle_append_session(
      libsmdev_internal_handle_t *internal_handle,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_sector_range_t *sector_range = NULL;
 	static char *function                 = "libsmdev_handle_append_session";
@@ -1842,10 +1841,10 @@ int libsmdev_handle_append_session(
 
 	if( internal_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal handle.",
 		 function );
 
@@ -1855,10 +1854,10 @@ int libsmdev_handle_append_session(
 	     &sector_range,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create sector range.",
 		 function );
 
@@ -1870,10 +1869,10 @@ int libsmdev_handle_append_session(
 	     number_of_sectors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set sector range.",
 		 function );
 
@@ -1885,10 +1884,10 @@ int libsmdev_handle_append_session(
 	     (intptr_t *) sector_range,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append session sector range to array.",
 		 function );
 
@@ -1913,7 +1912,7 @@ int libsmdev_handle_append_lead_out(
      libsmdev_internal_handle_t *internal_handle,
      uint64_t start_sector,
      uint64_t number_of_sectors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_sector_range_t *sector_range = NULL;
 	static char *function                 = "libsmdev_handle_append_lead_out";
@@ -1921,10 +1920,10 @@ int libsmdev_handle_append_lead_out(
 
 	if( internal_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal handle.",
 		 function );
 
@@ -1934,10 +1933,10 @@ int libsmdev_handle_append_lead_out(
 	     &sector_range,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create sector range.",
 		 function );
 
@@ -1949,10 +1948,10 @@ int libsmdev_handle_append_lead_out(
 	     number_of_sectors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set sector range.",
 		 function );
 
@@ -1964,10 +1963,10 @@ int libsmdev_handle_append_lead_out(
 	     (intptr_t *) sector_range,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append lead-out sector range to array.",
 		 function );
 
@@ -1991,17 +1990,17 @@ on_error:
 int libsmdev_handle_get_number_of_tracks(
      libsmdev_handle_t *handle,
      int *number_of_tracks,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_number_of_tracks";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2014,10 +2013,10 @@ int libsmdev_handle_get_number_of_tracks(
 	     number_of_tracks,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of entries in tracks array.",
 		 function );
 
@@ -2035,7 +2034,7 @@ int libsmdev_handle_get_track(
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      uint8_t *type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	libsmdev_track_value_t *track_value         = NULL;
@@ -2043,10 +2042,10 @@ int libsmdev_handle_get_track(
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2060,10 +2059,10 @@ int libsmdev_handle_get_track(
 	     (intptr_t **) &track_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve track value: %d from array.",
 		 function,
 		 index );
@@ -2077,10 +2076,10 @@ int libsmdev_handle_get_track(
 	     type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve track value.",
 		 function );
 
@@ -2097,7 +2096,7 @@ int libsmdev_handle_append_track(
      uint64_t start_sector,
      uint64_t number_of_sectors,
      uint8_t type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_track_value_t *track_value = NULL;
 	static char *function               = "libsmdev_handle_append_track";
@@ -2105,10 +2104,10 @@ int libsmdev_handle_append_track(
 
 	if( internal_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal handle.",
 		 function );
 
@@ -2118,10 +2117,10 @@ int libsmdev_handle_append_track(
 	     &track_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create track value.",
 		 function );
 
@@ -2134,10 +2133,10 @@ int libsmdev_handle_append_track(
 	     type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set track value.",
 		 function );
 
@@ -2149,10 +2148,10 @@ int libsmdev_handle_append_track(
 	     (intptr_t *) track_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append track to array.",
 		 function );
 
@@ -2176,17 +2175,17 @@ on_error:
 int libsmdev_handle_get_number_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t *number_of_error_retries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_number_of_error_retries";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2196,10 +2195,10 @@ int libsmdev_handle_get_number_of_error_retries(
 
 	if( number_of_error_retries == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of error retries.",
 		 function );
 
@@ -2216,17 +2215,17 @@ int libsmdev_handle_get_number_of_error_retries(
 int libsmdev_handle_set_number_of_error_retries(
      libsmdev_handle_t *handle,
      uint8_t number_of_error_retries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_number_of_error_retries";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2246,17 +2245,17 @@ int libsmdev_handle_set_number_of_error_retries(
 int libsmdev_handle_get_error_granularity(
      libsmdev_handle_t *handle,
      size_t *error_granularity,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_error_granularity";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2266,10 +2265,10 @@ int libsmdev_handle_get_error_granularity(
 
 	if( error_granularity == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid read granularity.",
 		 function );
 
@@ -2287,17 +2286,17 @@ int libsmdev_handle_get_error_granularity(
 int libsmdev_handle_set_error_granularity(
      libsmdev_handle_t *handle,
      size_t error_granularity,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_error_granularity";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2307,10 +2306,10 @@ int libsmdev_handle_set_error_granularity(
 
 	if( error_granularity > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid error granularity value exceeds maximum.",
 		 function );
 
@@ -2327,17 +2326,17 @@ int libsmdev_handle_set_error_granularity(
 int libsmdev_handle_get_error_flags(
      libsmdev_handle_t *handle,
      uint8_t *error_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_error_flags";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2347,10 +2346,10 @@ int libsmdev_handle_get_error_flags(
 
 	if( error_flags == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid error flags.",
 		 function );
 
@@ -2367,17 +2366,17 @@ int libsmdev_handle_get_error_flags(
 int libsmdev_handle_set_error_flags(
      libsmdev_handle_t *handle,
      uint8_t error_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_error_flags";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2387,10 +2386,10 @@ int libsmdev_handle_set_error_flags(
 
 	if( ( error_flags & ~( LIBSMDEV_ERROR_FLAG_ZERO_ON_ERROR ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported error flags.",
 		 function );
 
@@ -2407,17 +2406,17 @@ int libsmdev_handle_set_error_flags(
 int libsmdev_handle_get_number_of_errors(
      libsmdev_handle_t *handle,
      int *number_of_errors,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_number_of_errors";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2430,10 +2429,10 @@ int libsmdev_handle_get_number_of_errors(
 	     number_of_errors,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of elements in errors offset list.",
 		 function );
 
@@ -2450,17 +2449,17 @@ int libsmdev_handle_get_error(
      int index,
      off64_t *offset,
      size64_t *size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_error";
 
 	if( handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid handle.",
 		 function );
 
@@ -2475,10 +2474,10 @@ int libsmdev_handle_get_error(
 	     size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve error: %d from errors offset list.",
 		 function,
 		 index );

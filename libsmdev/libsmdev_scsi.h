@@ -1,7 +1,7 @@
 /*
  * SCSI functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libsmdev_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -260,13 +260,13 @@ int libsmdev_scsi_command(
      size_t response_size,
      uint8_t *sense,
      size_t sense_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_scsi_ioctrl(
      int file_descriptor,
      void *request_data,
      size_t request_data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_inquiry(
          int file_descriptor,
@@ -274,42 +274,42 @@ ssize_t libsmdev_scsi_inquiry(
          uint8_t code_page,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_toc(
          int file_descriptor,
          uint8_t format,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_disc_information(
          int file_descriptor,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_track_information(
          int file_descriptor,
          uint32_t offset,
          uint8_t *response,
          size_t response_size,
-         liberror_error_t **error );
+         libcerror_error_t **error );
 
 int libsmdev_scsi_get_identier(
      int file_descriptor,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_scsi_get_bus_type(
      int file_descriptor,
      uint8_t *bus_type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libsmdev_scsi_get_pci_bus_address(
      int file_descriptor,
      uint8_t *pci_bus_address,
      size_t pci_bus_address_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif
 
