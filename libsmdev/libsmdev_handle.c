@@ -44,6 +44,7 @@
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libclocale.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
@@ -1056,7 +1057,7 @@ int libsmdev_handle_open_wide(
 	}
 	if( internal_handle->file_descriptor == -1 )
 	{
-		if( libcstring_narrow_system_string_codepage == 0 )
+		if( libclocale_codepage == 0 )
 		{
 #if SIZEOF_WCHAR_T == 4
 			result = libuna_utf8_string_size_from_utf32(
@@ -1080,14 +1081,14 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_size_from_utf32(
 				  (libuna_utf32_character_t *) filenames[ 0 ],
 				  filename_length + 1,
-				  libcstring_narrow_system_string_codepage,
+				  libclocale_codepage,
 				  &narrow_filename_size,
 				  error );
 #elif SIZEOF_WCHAR_T == 2
 			result = libuna_byte_stream_size_from_utf16(
 				  (libuna_utf16_character_t *) filenames[ 0 ],
 				  filename_length + 1,
-				  libcstring_narrow_system_string_codepage,
+				  libclocale_codepage,
 				  &narrow_filename_size,
 				  error );
 #else
@@ -1119,7 +1120,7 @@ int libsmdev_handle_open_wide(
 
 			goto on_error;
 		}
-		if( libcstring_narrow_system_string_codepage == 0 )
+		if( libclocale_codepage == 0 )
 		{
 #if SIZEOF_WCHAR_T == 4
 			result = libuna_utf8_string_copy_from_utf32(
@@ -1145,7 +1146,7 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_copy_from_utf32(
 				  (uint8_t *) narrow_filename,
 				  narrow_filename_size,
-				  libcstring_narrow_system_string_codepage,
+				  libclocale_codepage,
 				  (libuna_utf32_character_t *) filenames[ 0 ],
 				  filename_length + 1,
 				  error );
@@ -1153,7 +1154,7 @@ int libsmdev_handle_open_wide(
 			result = libuna_byte_stream_copy_from_utf16(
 				  (uint8_t *) narrow_filename,
 				  narrow_filename_size,
-				  libcstring_narrow_system_string_codepage,
+				  libclocale_codepage,
 				  (libuna_utf16_character_t *) filenames[ 0 ],
 				  filename_length + 1,
 				  error );
@@ -2584,7 +2585,7 @@ int libsmdev_handle_get_filename_size(
 		return( -1 );
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -2608,14 +2609,14 @@ int libsmdev_handle_get_filename_size(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          filename_size,
 		          error );
 #else
@@ -2693,7 +2694,7 @@ int libsmdev_handle_get_filename(
 		return( -1 );
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -2717,14 +2718,14 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -2757,7 +2758,7 @@ int libsmdev_handle_get_filename(
 		return( -1 );
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -2783,7 +2784,7 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) filename,
 		          filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          error );
@@ -2791,7 +2792,7 @@ int libsmdev_handle_get_filename(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) filename,
 		          filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          error );
@@ -2917,7 +2918,7 @@ int libsmdev_handle_set_filename(
 		internal_handle->filename_size = 0;
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -2941,14 +2942,14 @@ int libsmdev_handle_set_filename(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -2984,7 +2985,7 @@ int libsmdev_handle_set_filename(
 		return( -1 );
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_copy_from_utf8(
@@ -3012,7 +3013,7 @@ int libsmdev_handle_set_filename(
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_copy_from_byte_stream(
@@ -3020,7 +3021,7 @@ int libsmdev_handle_set_filename(
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -3125,7 +3126,7 @@ int libsmdev_handle_get_filename_size_wide(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	*filename_size = internal_handle->filename_size;
 #else
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -3149,14 +3150,14 @@ int libsmdev_handle_get_filename_size_wide(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          filename_size,
 		          error );
 #else
@@ -3234,7 +3235,7 @@ int libsmdev_handle_get_filename_wide(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	wide_filename_size = internal_handle->filename_size;
 #else
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
@@ -3258,14 +3259,14 @@ int libsmdev_handle_get_filename_wide(
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &wide_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &wide_filename_size,
 		          error );
 #else
@@ -3312,7 +3313,7 @@ int libsmdev_handle_get_filename_wide(
 	}
 	filename[ internal_handle->filename_size - 1 ] = 0;
 #else
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_copy_from_utf8(
@@ -3340,7 +3341,7 @@ int libsmdev_handle_get_filename_wide(
 		          filename_size,
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_copy_from_byte_stream(
@@ -3348,7 +3349,7 @@ int libsmdev_handle_get_filename_wide(
 		          filename_size,
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -3458,7 +3459,7 @@ int libsmdev_handle_set_filename_wide(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	internal_handle->filename_size = filename_length + 1;
 #else
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -3482,14 +3483,14 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -3546,7 +3547,7 @@ int libsmdev_handle_set_filename_wide(
 	}
 	internal_handle->filename[ filename_length ] = 0;
 #else
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -3572,7 +3573,7 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3580,7 +3581,7 @@ int libsmdev_handle_set_filename_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) internal_handle->filename,
 		          internal_handle->filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3850,7 +3851,7 @@ int libsmdev_file_exists_wide(
 	/* Convert the filename to a narrow string
 	 * if the platform has no wide character open function
 	 */
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -3874,14 +3875,14 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -3913,7 +3914,7 @@ int libsmdev_file_exists_wide(
 
 		return( -1 );
 	}
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -3939,7 +3940,7 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -3947,7 +3948,7 @@ int libsmdev_file_exists_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );

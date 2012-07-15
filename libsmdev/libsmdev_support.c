@@ -494,7 +494,7 @@ int libsmdev_check_device_wide(
 	filename_length = libcstring_wide_string_length(
 	                   filename );
 
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
@@ -518,14 +518,14 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          &narrow_filename_size,
 		          error );
 #else
@@ -557,7 +557,7 @@ int libsmdev_check_device_wide(
 
 		return( -1 );
 	}
-	if( libcstring_narrow_system_string_codepage == 0 )
+	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_copy_from_utf32(
@@ -583,7 +583,7 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_copy_from_utf32(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf32_character_t *) filename,
 		          filename_length + 1,
 		          error );
@@ -591,7 +591,7 @@ int libsmdev_check_device_wide(
 		result = libuna_byte_stream_copy_from_utf16(
 		          (uint8_t *) narrow_filename,
 		          narrow_filename_size,
-		          libcstring_narrow_system_string_codepage,
+		          libclocale_codepage,
 		          (libuna_utf16_character_t *) filename,
 		          filename_length + 1,
 		          error );

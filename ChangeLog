@@ -41,6 +41,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20120715
+* changes for updates
+
 20120630
 * applied updates
 * changed codepage functions in support to use libclocale
