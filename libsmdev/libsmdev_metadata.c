@@ -59,6 +59,7 @@ typedef size_t u64;
 #include "libsmdev_ata.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_libcstring.h"
@@ -1748,7 +1749,7 @@ int libsmdev_handle_get_number_of_sessions(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_array_get_number_of_entries(
+	if( libcdata_array_get_number_of_entries(
 	     internal_handle->sessions_array,
 	     number_of_sessions,
 	     error ) != 1 )
@@ -1792,7 +1793,7 @@ int libsmdev_handle_get_session(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_handle->sessions_array,
 	     index,
 	     (intptr_t **) &sector_range,
@@ -1878,7 +1879,7 @@ int libsmdev_handle_append_session(
 
 		goto on_error;
 	}
-	if( libsmdev_array_append_entry(
+	if( libcdata_array_append_entry(
 	     internal_handle->sessions_array,
 	     &entry_index,
 	     (intptr_t *) sector_range,
@@ -1957,7 +1958,7 @@ int libsmdev_handle_append_lead_out(
 
 		goto on_error;
 	}
-	if( libsmdev_array_append_entry(
+	if( libcdata_array_append_entry(
 	     internal_handle->lead_outs_array,
 	     &entry_index,
 	     (intptr_t *) sector_range,
@@ -2008,7 +2009,7 @@ int libsmdev_handle_get_number_of_tracks(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_array_get_number_of_entries(
+	if( libcdata_array_get_number_of_entries(
 	     internal_handle->tracks_array,
 	     number_of_tracks,
 	     error ) != 1 )
@@ -2053,7 +2054,7 @@ int libsmdev_handle_get_track(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_handle->tracks_array,
 	     index,
 	     (intptr_t **) &track_value,
@@ -2142,7 +2143,7 @@ int libsmdev_handle_append_track(
 
 		goto on_error;
 	}
-	if( libsmdev_array_append_entry(
+	if( libcdata_array_append_entry(
 	     internal_handle->tracks_array,
 	     &entry_index,
 	     (intptr_t *) track_value,

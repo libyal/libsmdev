@@ -39,10 +39,10 @@
 #include <errno.h>
 #endif
 
-#include "libsmdev_array_type.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_error_string.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libclocale.h"
 #include "libsmdev_libcnotify.h"
@@ -124,7 +124,7 @@ int libsmdev_handle_initialize(
 
 		return( -1 );
 	}
-	if( libsmdev_array_initialize(
+	if( libcdata_array_initialize(
 	     &( internal_handle->tracks_array ),
 	     0,
 	     error ) != 1 )
@@ -138,7 +138,7 @@ int libsmdev_handle_initialize(
 
 		goto on_error;
 	}
-	if( libsmdev_array_initialize(
+	if( libcdata_array_initialize(
 	     &( internal_handle->sessions_array ),
 	     0,
 	     error ) != 1 )
@@ -152,7 +152,7 @@ int libsmdev_handle_initialize(
 
 		goto on_error;
 	}
-	if( libsmdev_array_initialize(
+	if( libcdata_array_initialize(
 	     &( internal_handle->lead_outs_array ),
 	     0,
 	     error ) != 1 )
@@ -195,21 +195,21 @@ on_error:
 	{
 		if( internal_handle->lead_outs_array != NULL )
 		{
-			libsmdev_array_free(
+			libcdata_array_free(
 			 &( internal_handle->lead_outs_array ),
 			 NULL,
 			 NULL );
 		}
 		if( internal_handle->sessions_array != NULL )
 		{
-			libsmdev_array_free(
+			libcdata_array_free(
 			 &( internal_handle->sessions_array ),
 			 NULL,
 			 NULL );
 		}
 		if( internal_handle->tracks_array != NULL )
 		{
-			libsmdev_array_free(
+			libcdata_array_free(
 			 &( internal_handle->tracks_array ),
 			 NULL,
 			 NULL );
@@ -272,7 +272,7 @@ int libsmdev_handle_free(
 			memory_free(
 			 internal_handle->filename );
 		}
-		if( libsmdev_array_free(
+		if( libcdata_array_free(
 		     &( internal_handle->tracks_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 		     error ) != 1 )
@@ -286,7 +286,7 @@ int libsmdev_handle_free(
 
 			result = -1;
 		}
-		if( libsmdev_array_free(
+		if( libcdata_array_free(
 		     &( internal_handle->sessions_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
@@ -300,7 +300,7 @@ int libsmdev_handle_free(
 
 			result = -1;
 		}
-		if( libsmdev_array_free(
+		if( libcdata_array_free(
 		     &( internal_handle->lead_outs_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 		     error ) != 1 )
@@ -449,7 +449,7 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->tracks_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
@@ -464,7 +464,7 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -479,7 +479,7 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -857,7 +857,7 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->tracks_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
@@ -872,7 +872,7 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -887,7 +887,7 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -1376,7 +1376,7 @@ int libsmdev_handle_close(
 	}
 	internal_handle->file_descriptor = -1;
 #endif
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->tracks_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
@@ -1391,7 +1391,7 @@ int libsmdev_handle_close(
 
 		result = -1;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->sessions_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -1406,7 +1406,7 @@ int libsmdev_handle_close(
 
 		result = -1;
 	}
-	if( libsmdev_array_resize(
+	if( libcdata_array_resize(
 	     internal_handle->lead_outs_array,
 	     0,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,

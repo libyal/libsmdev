@@ -1,5 +1,7 @@
 TODO
-* replace error string by libcerror
+* Move (libsmdev) error string functions to libcerror ?
+  - replace error string by libcerror
+* refactor list type and offset list
 
 * what if session offset > size
 * optical disc
@@ -41,11 +43,14 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20121217
+* updated dependencies
+
 20120715
 * changes for updates
 
 20120630
-* applied updates
+* updated dependencies
 * changed codepage functions in support to use libclocale
 
 20120212

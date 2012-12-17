@@ -25,8 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include "libsmdev_array_type.h"
 #include "libsmdev_extern.h"
+#include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_offset_list.h"
@@ -112,15 +112,15 @@ struct libsmdev_internal_handle
 
 	/* The tracks array
 	 */
-	libsmdev_array_t *tracks_array;
+	libcdata_array_t *tracks_array;
 
 	/* The sessions array
 	 */
-	libsmdev_array_t *sessions_array;
+	libcdata_array_t *sessions_array;
 
 	/* The lead-outs array
 	 */
-	libsmdev_array_t *lead_outs_array;
+	libcdata_array_t *lead_outs_array;
 
 	/* Value to indicate the media information values were set
 	 */

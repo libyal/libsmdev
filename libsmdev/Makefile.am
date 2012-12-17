@@ -3,18 +3,18 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
+	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
+	@LIBCSPLIT_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBCFILE_CPPFLAGS@ \
-	@LIBCPATH_CPPFLAGS@ \
-	@MEMWATCH_CPPFLAGS@
+	@LIBCPATH_CPPFLAGS@
 
 lib_LTLIBRARIES = libsmdev.la
 
 libsmdev_la_SOURCES = \
 	libsmdev.c \
-	libsmdev_array_type.c libsmdev_array_type.h \
 	libsmdev_ata.c libsmdev_ata.h \
 	libsmdev_codepage.h \
 	libsmdev_definitions.h \
@@ -23,6 +23,7 @@ libsmdev_la_SOURCES = \
 	libsmdev_extern.h \
 	libsmdev_handle.c libsmdev_handle.h \
 	libsmdev_legacy.c libsmdev_legacy.h \
+	libsmdev_libcdata.h \
 	libsmdev_libcerror.h \
 	libsmdev_libclocale.h \
 	libsmdev_libcnotify.h \
@@ -45,8 +46,10 @@ libsmdev_la_SOURCES = \
 libsmdev_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
 	@LIBCPATH_LIBADD@

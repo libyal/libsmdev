@@ -34,6 +34,7 @@
 
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
+#include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_metadata.h"
@@ -768,19 +769,19 @@ on_error:
 		memory_free(
 		 toc_data );
 	}
-	libsmdev_array_resize(
+	libcdata_array_resize(
 	 internal_handle->tracks_array,
 	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
-	libsmdev_array_resize(
+	libcdata_array_resize(
 	 internal_handle->lead_outs_array,
 	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
-	libsmdev_array_resize(
+	libcdata_array_resize(
 	 internal_handle->sessions_array,
 	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
@@ -1223,7 +1224,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	return( 1 );
 
 on_error:
-	libsmdev_array_resize(
+	libcdata_array_resize(
 	 internal_handle->tracks_array,
 	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,

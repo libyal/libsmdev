@@ -60,6 +60,9 @@
 /* Define to 1 if you have the `fgetws' function. */
 #undef HAVE_FGETWS
 
+/* Define to 1 if you have the `fileno' function. */
+#undef HAVE_FILENO
+
 /* Define to 1 if you have the `fopen' function. */
 #undef HAVE_FOPEN
 
@@ -111,6 +114,12 @@
 /* Define to 1 if you have the <langinfo.h> header file. */
 #undef HAVE_LANGINFO_H
 
+/* Define to 1 if you have the `cdata' library (-lcdata). */
+#undef HAVE_LIBCDATA
+
+/* Define to 1 if you have the <libcdata.h> header file. */
+#undef HAVE_LIBCDATA_H
+
 /* Define to 1 if you have the `cerror' library (-lcerror). */
 #undef HAVE_LIBCERROR
 
@@ -140,6 +149,12 @@
 
 /* Define to 1 if you have the <libcpath.h> header file. */
 #undef HAVE_LIBCPATH_H
+
+/* Define to 1 if you have the `csplit' library (-lcsplit). */
+#undef HAVE_LIBCSPLIT
+
+/* Define to 1 if you have the <libcsplit.h> header file. */
+#undef HAVE_LIBCSPLIT_H
 
 /* Define to 1 if you have the `cstring' library (-lcstring). */
 #undef HAVE_LIBCSTRING
@@ -180,6 +195,9 @@
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
+/* Define to 1 if the local version of libcdata is used. */
+#undef HAVE_LOCAL_LIBCDATA
+
 /* Define to 1 if the local version of libcerror is used. */
 #undef HAVE_LOCAL_LIBCERROR
 
@@ -194,6 +212,9 @@
 
 /* Define to 1 if the local version of libcpath is used. */
 #undef HAVE_LOCAL_LIBCPATH
+
+/* Define to 1 if the local version of libcsplit is used. */
+#undef HAVE_LOCAL_LIBCSPLIT
 
 /* Define to 1 if the local version of libcstring is used. */
 #undef HAVE_LOCAL_LIBCSTRING
@@ -278,6 +299,9 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
