@@ -1,7 +1,10 @@
 TODO
+* integrate libcfile
+  - replace DeviceIoControl and ioctl calls
+  - replace fadvice
 * Move (libsmdev) error string functions to libcerror ?
-  - replace error string by libcerror
-* refactor list type and offset list
+  - expose libcerror_system_copy_string_from_error_number in libcerror
+  - replace libsmdev_error_string_copy_from_error_number by libcerror equiv
 
 * what if session offset > size
 * optical disc
@@ -36,12 +39,18 @@ Beta release
 * remove deprecated functions in libsmdev_legacy.[ch]
 
 Deployment
-* update msvscpp files
-* add borlandc files
 * add macosx files
 
 Test:
 * add autoconf/make test suite
+
+20130327
+* 2013 update
+* updated dependencies
+* changes for project move
+* changes for libcdata
+* updated msvscpp files
+* fixes in pc and spec files
 
 20121217
 * updated dependencies

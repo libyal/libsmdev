@@ -1,7 +1,7 @@
 /*
- * Error string functions
+ * The internal libcfile header
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,29 +19,31 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBSMDEV_ERROR_STRING_H )
-#define _LIBSMDEV_ERROR_STRING_H
+#if !defined( _LIBSMDEV_LIBCFILE_H )
+#define _LIBSMDEV_LIBCFILE_H
 
 #include <common.h>
-#include <types.h>
 
-#include "libsmdev_libcerror.h"
-#include "libsmdev_libcstring.h"
+/* Define HAVE_LOCAL_LIBCFILE for local use of libcfile
+ */
+#if defined( HAVE_LOCAL_LIBCFILE )
 
-#if defined( __cplusplus )
-extern "C" {
+#include <libcfile_definitions.h>
+#include <libcfile_file.h>
+#include <libcfile_support.h>
+#include <libcfile_types.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBCFILE_DLL_IMPORT
+ * before including libcfile.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCFILE_DLL_IMPORT
 #endif
 
-#define LIBSMDEV_ERROR_STRING_DEFAULT_SIZE	128
+#include <libcfile.h>
 
-int libsmdev_error_string_copy_from_error_number(
-     libcstring_system_character_t *error_string,
-     size_t error_string_size,
-     int error_number,
-     libcerror_error_t **error );
-
-#if defined( __cplusplus )
-}
 #endif
 
 #endif

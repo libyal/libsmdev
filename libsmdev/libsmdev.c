@@ -1,7 +1,7 @@
 /*
  * Library to access and read storage media (SM) devices
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

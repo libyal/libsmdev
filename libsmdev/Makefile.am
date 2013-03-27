@@ -19,20 +19,18 @@ libsmdev_la_SOURCES = \
 	libsmdev_codepage.h \
 	libsmdev_definitions.h \
 	libsmdev_error.c libsmdev_error.h \
-	libsmdev_error_string.c libsmdev_error_string.h \
 	libsmdev_extern.h \
 	libsmdev_handle.c libsmdev_handle.h \
 	libsmdev_legacy.c libsmdev_legacy.h \
 	libsmdev_libcdata.h \
 	libsmdev_libcerror.h \
+	libsmdev_libcfile.h \
 	libsmdev_libclocale.h \
 	libsmdev_libcnotify.h \
 	libsmdev_libcstring.h \
 	libsmdev_libuna.h \
-	libsmdev_list_type.c libsmdev_list_type.h \
 	libsmdev_metadata.c libsmdev_metadata.h \
 	libsmdev_notify.c libsmdev_notify.h \
-	libsmdev_offset_list.c libsmdev_offset_list.h \
 	libsmdev_optical_disc.c libsmdev_optical_disc.h \
 	libsmdev_scsi.c libsmdev_scsi.h \
 	libsmdev_sector_range.c libsmdev_sector_range.h \

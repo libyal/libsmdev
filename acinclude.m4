@@ -1,3 +1,7 @@
+dnl Functions for libsmdev
+dnl
+dnl Version: 20130327
+
 dnl Function to detect if posix_fadvise is available
 AC_DEFUN([AX_LIBSMDEV_CHECK_FUNC_POSIX_FADVISE],
  [AC_CHECK_FUNCS([posix_fadvise])
@@ -71,7 +75,7 @@ AC_DEFUN([AX_LIBSMDEV_CHECK_LOCAL],
  dnl Headers included in libsmdev/libsmdev_metadata.c
  AS_IF(
   [test "x$ac_cv_enable_winapi" = xno],
-  [AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h])
+  [AC_CHECK_HEADERS([cygwin/fs.h linux/fs.h sys/disk.h sys/disklabel.h])
  ])
 
  dnl Headers included in libsmdev/libsmdev_ata.c

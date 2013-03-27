@@ -1,7 +1,7 @@
 /*
  * Handle functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,11 +28,11 @@
 #include "libsmdev_extern.h"
 #include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 #include "libsmdev_libcstring.h"
-#include "libsmdev_offset_list.h"
 #include "libsmdev_types.h"
 
-#if defined( _MSC_VER ) || defined( __BORLANDC__ )
+#if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
 
 /* This inclusion is needed otherwise some linkers
  * mess up exporting the legacy functions
@@ -56,15 +56,9 @@ struct libsmdev_internal_handle
 	 */
 	size_t filename_size;
 
-#if defined( WINAPI )
-	/* The device file handle
+	/* The device file
 	 */
-	HANDLE file_handle;
-#else
-	/* The device file descriptor
-	 */
-	int file_descriptor;
-#endif
+	libcfile_file_t *device_file;
 
 	/* The current offset
 	 */
@@ -138,9 +132,9 @@ struct libsmdev_internal_handle
 	 */
 	uint8_t error_flags;
 
-	/* The read/write errors offset list
+	/* The read/write errors range list
 	 */
-	libsmdev_offset_list_t *errors;
+	libcdata_range_list_t *errors_range_list;
 
 	/* Value to indicate if abort was signalled
 	 */
@@ -188,24 +182,16 @@ int libsmdev_handle_close(
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_read_buffer(
          libsmdev_handle_t *handle,
-         void *buffer,
+         uint8_t *buffer,
          size_t buffer_size,
          libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
-         void *buffer,
+         const uint8_t *buffer,
          size_t buffer_size,
          libcerror_error_t **error );
-
-#if defined( WINAPI ) && ( WINVER < 0x0500 )
-BOOL libsmdev_SetFilePointerEx(
-      HANDLE file_handle,
-      LARGE_INTEGER distance_to_move_large_integer,
-      LARGE_INTEGER *new_file_pointer_large_integer,
-      DWORD move_method );
-#endif
 
 LIBSMDEV_EXTERN \
 off64_t libsmdev_handle_seek_offset(
@@ -222,9 +208,9 @@ int libsmdev_handle_get_offset(
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename_size(
-                     libsmdev_handle_t *handle,
-                     size_t *filename_size,
-                     libcerror_error_t **error );
+     libsmdev_handle_t *handle,
+     size_t *filename_size,
+     libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename(
@@ -257,16 +243,6 @@ int libsmdev_handle_set_filename_wide(
      libsmdev_handle_t *handle,
      const wchar_t *filename,
      size_t filename_length,
-     libcerror_error_t **error );
-#endif
-
-int libsmdev_file_exists(
-     const char *filename,
-     libcerror_error_t **error );
-
-#if defined( HAVE_WIDE_CHARACTER_TYPE )
-int libsmdev_file_exists_wide(
-     const wchar_t *filename,
      libcerror_error_t **error );
 #endif
 

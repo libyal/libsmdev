@@ -1,7 +1,7 @@
 /*
  * Meta data functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,12 +23,11 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_SYS_IOCTL_H )
-#include <sys/ioctl.h>
+#if defined( WINAPI )
+#include <io.h>
 #endif
 
 #if defined( WINAPI )
-#include <io.h>
 #include <winioctl.h>
 
 #elif defined( HAVE_CYGWIN_FS_H )
@@ -61,10 +60,10 @@ typedef size_t u64;
 #include "libsmdev_handle.h"
 #include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
-#include "libsmdev_offset_list.h"
 #include "libsmdev_optical_disc.h"
 #include "libsmdev_scsi.h"
 #include "libsmdev_string.h"
@@ -199,21 +198,6 @@ int libsmdev_handle_get_media_size(
      size64_t *media_size,
      libcerror_error_t **error )
 {
-#if defined( WINAPI )
-	DISK_GEOMETRY disk_geometry;
-	GET_LENGTH_INFORMATION length_information;
-
-	DWORD error_code                            = 0;
-	DWORD response_count                        = 0;
-#else
-#if !defined( DIOCGMEDIASIZE ) && defined( DIOCGDINFO )
-	struct disklabel disk_label;
-#endif
-#if defined( DKIOCGETBLOCKCOUNT )
-	uint64_t block_count                        = 0;
-#endif
-#endif
-
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_media_size";
 
@@ -230,31 +214,17 @@ int libsmdev_handle_get_media_size(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-#if defined( WINAPI )
-	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	if( internal_handle->device_file == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing file handle.",
+		 "%s: invalid handle - missing device file.",
 		 function );
 
 		return( -1 );
 	}
-#else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid handle - missing file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 	if( media_size == NULL )
 	{
 		libcerror_error_set(
@@ -268,182 +238,21 @@ int libsmdev_handle_get_media_size(
 	}
 	if( internal_handle->media_size_set == 0 )
 	{
-#if defined( WINAPI )
-		if( DeviceIoControl(
-		     internal_handle->file_handle,
-		     IOCTL_DISK_GET_LENGTH_INFO,
-		     NULL,
-		     0,
-		     &length_information,
-		     sizeof( GET_LENGTH_INFORMATION ),
-		     &response_count,
-		     NULL ) == 0 )
-		{
-			error_code = GetLastError();
-
-			if( error_code != ERROR_NOT_SUPPORTED )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-				 "%s: unable to query device for: IOCTL_DISK_GET_LENGTH_INFO.",
-				 function );
-
-				return( -1 );
-			}
-			/* Floppy device does not support IOCTL_DISK_GET_LENGTH_INFO
-			 */
-			if( DeviceIoControl(
-			     internal_handle->file_handle,
-			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
-			     NULL,
-			     0,
-			     &disk_geometry,
-			     sizeof( DISK_GEOMETRY ),
-			     &response_count,
-			     NULL ) == 0 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
-				 function );
-
-				return( -1 );
-			}
-			internal_handle->media_size     = disk_geometry.Cylinders.QuadPart
-			                                * disk_geometry.TracksPerCylinder
-			                                * disk_geometry.SectorsPerTrack
-			                                * disk_geometry.BytesPerSector;
-			internal_handle->media_size_set = 1;
-		}
-		else
-		{
-			internal_handle->media_size     = ( (size64_t) length_information.Length.HighPart << 32 )
-			                                + length_information.Length.LowPart;
-			internal_handle->media_size_set = 1;
-		}
-#elif defined( BLKGETSIZE64 )
-		if( ioctl(
-		     internal_handle->file_descriptor,
-		     BLKGETSIZE64,
-		     &( internal_handle->media_size ) ) == -1 )
+		if( libcfile_file_get_size(
+		     internal_handle->device_file,
+		     &( internal_handle->media_size ),
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: BLKGETSIZE64.",
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine device file size.",
 			 function );
 
 			return( -1 );
 		}
 		internal_handle->media_size_set = 1;
-
-#elif defined( DIOCGMEDIASIZE )
-		if( ioctl(
-		     internal_handle->file_descriptor,
-		     DIOCGMEDIASIZE,
-		     &( internal_handle->media_size ) ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: DIOCGMEDIASIZE.",
-			 function );
-
-			return( -1 );
-		}
-		internal_handle->media_size_set = 1;
-
-#elif defined( DIOCGDINFO )
-		if( ioctl(
-		     internal_handle->file_descriptor,
-		     DIOCGDINFO,
-		     &disk_label ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: DIOCGDINFO.",
-			 function );
-
-			return( -1 );
-		}
-		internal_handle->media_size     = disk_label.d_secperunit * disk_label.d_secsize;
-		internal_handle->media_size_set = 1;
-
-#elif defined( DKIOCGETBLOCKCOUNT )
-		if( internal_handle->bytes_per_sector_set == 0 )
-		{
-			if( ioctl(
-			     internal_handle->file_descriptor,
-			     DKIOCGETBLOCKSIZE,
-			     &( internal_handle->bytes_per_sector ) ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-				 "%s: unable to query device for: DKIOCGETBLOCKSIZE.",
-				 function );
-
-				return( -1 );
-			}
-			internal_handle->bytes_per_sector_set = 1;
-		}
-		if( ioctl(
-		     internal_handle->file_descriptor,
-		     DKIOCGETBLOCKCOUNT,
-		     &block_count ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: DKIOCGETBLOCKCOUNT.",
-			 function );
-
-			return( -1 );
-		}
-		internal_handle->media_size     = (size64_t) block_count * (size64_t) internal_handle->bytes_per_sector;
-		internal_handle->media_size_set = 1;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: block size: %" PRIu32 " block count: %" PRIu64 " ",
-			 function,
-			 internal_handle->bytes_per_sector,
-			 block_count );
-		}
-#endif
-#endif
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: media size: %" PRIu64 "\n",
-			 function,
-			 internal_handle->media_size );
-		}
-#endif
-	}
-	if( internal_handle->media_size_set == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported platform.",
-		 function );
-
-		return( -1 );
 	}
 	*media_size = internal_handle->media_size;
 
@@ -461,13 +270,15 @@ int libsmdev_handle_get_bytes_per_sector(
 #if defined( WINAPI )
 	DISK_GEOMETRY disk_geometry;
 	DISK_GEOMETRY_EX disk_geometry_extended;
-
-	DWORD error_code                            = 0;
-	DWORD response_count                        = 0;
 #endif
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_bytes_per_sector";
+
+#if defined( WINAPI )
+	uint32_t error_code                         = 0;
+	DWORD response_count                        = 0;
+#endif
 
 	if( handle == NULL )
 	{
@@ -521,63 +332,39 @@ int libsmdev_handle_get_bytes_per_sector(
 	if( internal_handle->bytes_per_sector_set == 0 )
 	{
 #if defined( WINAPI )
-		if( DeviceIoControl(
-		     internal_handle->file_handle,
+		if( libcfile_file_io_control_read_with_error_code(
+		     internal_handle->device_file,
 		     IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
-		     NULL,
-		     0,
-		     &disk_geometry_extended,
+		     (uint8_t *) &disk_geometry_extended,
 		     sizeof( DISK_GEOMETRY_EX ),
-		     &response_count,
-		     NULL ) == 0 )
-		{
-			error_code = GetLastError();
-
-			if( error_code != ERROR_NOT_SUPPORTED )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY_EX.",
-				 function );
-
-				return( -1 );
-			}
-			/* Floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
-			 */
-			if( DeviceIoControl(
-			     internal_handle->file_handle,
-			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
-			     NULL,
-			     0,
-			     &disk_geometry,
-			     sizeof( DISK_GEOMETRY ),
-			     &response_count,
-			     NULL ) == 0 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-				 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
-				 function );
-
-				return( -1 );
-			}
-			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.BytesPerSector;
-			internal_handle->bytes_per_sector_set = 1;
-		}
-		else
+		     &error_code,
+		     NULL ) == 1 )
 		{
 			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry_extended.Geometry.BytesPerSector; 
 			internal_handle->bytes_per_sector_set = 1;
 		}
+		else if( error_code == ERROR_NOT_SUPPORTED )
+		{
+			/* A floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+			 */
+			if( libcfile_file_io_control_read(
+			     internal_handle->device_file,
+			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
+			     (uint8_t *) &disk_geometry,
+			     sizeof( DISK_GEOMETRY ),
+			     NULL ) == 1 )
+			{
+				internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.BytesPerSector;
+				internal_handle->bytes_per_sector_set = 1;
+			}
+		}
 #elif defined( BLKSSZGET )
-		if( ioctl(
+		if( libcfile_file_io_control_read(
 		     internal_handle->file_descriptor,
 		     BLKSSZGET,
-		     &( internal_handle->bytes_per_sector ) ) == -1 )
+		     (uint8_t *) &( internal_handle->bytes_per_sector ),
+		     4,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -591,10 +378,12 @@ int libsmdev_handle_get_bytes_per_sector(
 		internal_handle->bytes_per_sector_set = 1;
 
 #elif defined( DKIOCGETBLOCKCOUNT )
-		if( ioctl(
+		if( libcfile_file_io_control_read(
 		     internal_handle->file_descriptor,
 		     DKIOCGETBLOCKSIZE,
-		     &( internal_handle->bytes_per_sector ) ) == -1 )
+		     &( internal_handle->bytes_per_sector ),
+		     4,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -644,13 +433,12 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( WINAPI )
 	STORAGE_PROPERTY_QUERY query;
 
-	uint8_t *response      = NULL;
 	size_t response_size   = 1024;
 	size_t string_length   = 0;
 	DWORD response_count   = 0;
 
 #else
-	uint8_t response[ 255 ];
+	size_t response_size   = 255;
 
 #if defined( HAVE_SCSI_SG_H )
 	ssize_t response_count = 0;
@@ -660,6 +448,7 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 #endif
 
+	uint8_t *response      = NULL;
 	static char *function  = "libsmdev_internal_handle_determine_media_information";
 
 #if defined( WINAPI ) || defined( HAVE_SCSI_SG_H ) || defined( HDIO_GET_IDENTITY )
@@ -693,6 +482,48 @@ int libsmdev_internal_handle_determine_media_information(
 
 		return( -1 );
 	}
+#else
+	if( internal_handle->file_descriptor == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid device handle - missing file descriptor.",
+		 function );
+
+		goto on_error;
+	}
+#endif
+	response = (uint8_t *) memory_allocate(
+	                        sizeof( uint8_t ) * response_size );
+
+	if( response == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to response.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_set(
+	     response,
+	     0,
+	     sizeof( uint8_t ) * response_size ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear response.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( WINAPI )
 	if( memset(
 	     &query,
 	     0,
@@ -705,42 +536,12 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: unable to clear storage property query.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	query.PropertyId = StorageDeviceProperty;
 	query.QueryType  = PropertyStandardQuery;
 
-	response = (uint8_t *) memory_allocate(
-	                        response_size );
-
-	if( response == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to response.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_set(
-	     response,
-	     0,
-	     response_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear response.",
-		 function );
-
-		memory_free(
-		 response );
-
-		return( -1 );
-	}
+/* TODO libcfile refactor requires yet another type of IO control function */
 	if( DeviceIoControl(
 	     internal_handle->file_handle,
 	     IOCTL_STORAGE_QUERY_PROPERTY,
@@ -758,10 +559,7 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: unable to query device for: IOCTL_STORAGE_QUERY_PROPERTY.",
 		 function );
 
-		memory_free(
-		 response );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > response_size )
 	{
@@ -772,10 +570,7 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: response buffer too small.\n",
 		 function );
 
-		memory_free(
-		 response );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > sizeof( STORAGE_DEVICE_DESCRIPTOR ) )
 	{
@@ -809,7 +604,7 @@ int libsmdev_internal_handle_determine_media_information(
 				 "%s: unable to set vendor.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
@@ -833,7 +628,7 @@ int libsmdev_internal_handle_determine_media_information(
 				 "%s: unable to set model.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
@@ -857,7 +652,7 @@ int libsmdev_internal_handle_determine_media_information(
 				 "%s: unable to set serial number.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		internal_handle->removable = ( (STORAGE_DEVICE_DESCRIPTOR *) response )->RemovableMedia;
@@ -968,34 +763,7 @@ int libsmdev_internal_handle_determine_media_information(
 		}
 #endif
 	}
-	memory_free(
-	 response );
 #else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_set(
-	     response,
-	     0,
-	     255 ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear response.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_SCSI_SG_H )
 	/* Use the Linux sg (generic SCSI) driver to determine device information
 	 */
@@ -1011,14 +779,14 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: unable to determine bus type.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	response_count = libsmdev_scsi_inquiry(
 			  internal_handle->file_descriptor,
 			  0x00,
 			  0x00,
 			  response,
-			  255,
+			  response_size,
 			  error );
 
 	if( response_count == -1 )
@@ -1086,7 +854,7 @@ int libsmdev_internal_handle_determine_media_information(
 			 "%s: unable to set vendor.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( response_count >= 32 )
@@ -1107,7 +875,7 @@ int libsmdev_internal_handle_determine_media_information(
 			 "%s: unable to set model.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	response_count = libsmdev_scsi_inquiry(
@@ -1115,7 +883,7 @@ int libsmdev_internal_handle_determine_media_information(
 			  0x01,
 			  0x80,
 			  response,
-			  255,
+			  response_size,
 			  NULL );
 
 	if( response_count > 4 )
@@ -1145,7 +913,7 @@ int libsmdev_internal_handle_determine_media_information(
 			 "%s: unable to set serial number.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 #endif
@@ -1153,7 +921,7 @@ int libsmdev_internal_handle_determine_media_information(
 	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_ATA )
 	{
 		if( libsmdev_ata_get_device_configuration(
-		     internal_handle->file_descriptor,
+		     internal_handle->device_file,
 		     &device_configuration,
 		     error ) == -1 )
 		{
@@ -1186,7 +954,7 @@ int libsmdev_internal_handle_determine_media_information(
 				 "%s: unable to set serial number.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			result = libsmdev_string_trim_copy_from_byte_stream(
 				  internal_handle->model,
@@ -1204,7 +972,7 @@ int libsmdev_internal_handle_determine_media_information(
 				 "%s: unable to set model.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			internal_handle->removable   = ( device_configuration.config & 0x0080 ) >> 7;
 			internal_handle->device_type = ( device_configuration.config & 0x1f00 ) >> 8;
@@ -1262,7 +1030,7 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: unable to determine SCSI identifier.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	uint8_t pci_bus_address[ 64 ];
 	size_t pci_bus_address_size = 64;
@@ -1280,7 +1048,7 @@ int libsmdev_internal_handle_determine_media_information(
 		 "%s: unable to determine PCI bus address.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_LINUX_USB_CH9_H )
 	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_USB )
@@ -1296,7 +1064,7 @@ int libsmdev_internal_handle_determine_media_information(
 			 "%s: unable to test USB.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 #endif
@@ -1304,7 +1072,20 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 	internal_handle->media_information_set = 1;
 
+	memory_free(
+	 response );
+
+	response = NULL;
+
 	return( 1 );
+
+on_error:
+	if( response != NULL )
+	{
+		memory_free(
+		 response );
+	}
+	return( -1 );
 }
 
 /* Retrieves the media type
@@ -2425,8 +2206,8 @@ int libsmdev_handle_get_number_of_errors(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_offset_list_get_number_of_elements(
-	     internal_handle->errors,
+	if( libcdata_range_list_get_number_of_elements(
+	     internal_handle->errors_range_list,
 	     number_of_errors,
 	     error ) != 1 )
 	{
@@ -2434,7 +2215,7 @@ int libsmdev_handle_get_number_of_errors(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in errors offset list.",
+		 "%s: unable to retrieve number of elements in errors range list.",
 		 function );
 
 		return( -1 );
@@ -2468,18 +2249,18 @@ int libsmdev_handle_get_error(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libsmdev_offset_list_get_offset(
-	     internal_handle->errors,
+	if( libcdata_range_list_get_range(
+	     internal_handle->errors_range_list,
 	     index,
-	     offset,
-	     size,
+	     (uint64_t *) offset,
+	     (uint64_t *) size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve error: %d from errors offset list.",
+		 "%s: unable to retrieve error: %d from errors range list.",
 		 function,
 		 index );
 

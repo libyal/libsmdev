@@ -1,7 +1,7 @@
 /*
  * ATA/ATAPI functions
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -34,6 +34,7 @@
 #endif
 
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,7 +42,7 @@ extern "C" {
 
 #if defined( HDIO_GET_IDENTITY )
 int libsmdev_ata_get_device_configuration(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      struct hd_driveid *device_configuration,
      libcerror_error_t **error );
 #endif

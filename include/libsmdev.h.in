@@ -1,7 +1,7 @@
 /*
  * Library to access and read the storage media (SM) devices
  *
- * Copyright (c) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -246,7 +246,7 @@ int libsmdev_handle_close(
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_read_buffer(
          libsmdev_handle_t *handle,
-         void *buffer,
+         uint8_t *buffer,
          size_t buffer_size,
          libsmdev_error_t **error );
 
@@ -256,7 +256,7 @@ ssize_t libsmdev_handle_read_buffer(
 LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
-         void *buffer,
+         const uint8_t *buffer,
          size_t buffer_size,
          libsmdev_error_t **error );
 
