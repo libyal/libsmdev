@@ -7,8 +7,10 @@ MSVSCPP_FILES = \
 	libcpath/libcpath.vcproj \
 	libcstring/libcstring.vcproj \
 	libcsplit/libcsplit.vcproj \
+	libcsystem/libcsystem.vcproj \
 	libsmdev_dll/libsmdev_dll.vcproj \
 	libuna/libuna.vcproj \
+	smdevinfo/smdevinfo.vcproj \
 	libsmdev.sln
 
 SCRIPT_FILES = \

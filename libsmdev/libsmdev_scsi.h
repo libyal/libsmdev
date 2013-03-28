@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -253,7 +254,7 @@ struct libsmdev_scsi_ioctrl_header
 #define LIBSMDEV_SCSI_SENSE_SIZE		32
 
 int libsmdev_scsi_command(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *command,
      size_t command_size,
      uint8_t *response,
@@ -263,13 +264,13 @@ int libsmdev_scsi_command(
      libcerror_error_t **error );
 
 int libsmdev_scsi_ioctrl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      void *request_data,
      size_t request_data_size,
      libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_inquiry(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t inquiry_vital_product_data,
          uint8_t code_page,
          uint8_t *response,
@@ -277,36 +278,36 @@ ssize_t libsmdev_scsi_inquiry(
          libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_toc(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t format,
          uint8_t *response,
          size_t response_size,
          libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_disc_information(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t *response,
          size_t response_size,
          libcerror_error_t **error );
 
 ssize_t libsmdev_scsi_read_track_information(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint32_t offset,
          uint8_t *response,
          size_t response_size,
          libcerror_error_t **error );
 
 int libsmdev_scsi_get_identier(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libcerror_error_t **error );
 
 int libsmdev_scsi_get_bus_type(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *bus_type,
      libcerror_error_t **error );
 
 int libsmdev_scsi_get_pci_bus_address(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *pci_bus_address,
      size_t pci_bus_address_size,
      libcerror_error_t **error );

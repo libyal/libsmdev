@@ -159,8 +159,7 @@ int libsmdev_handle_signal_abort(
 LIBSMDEV_EXTERN \
 int libsmdev_handle_open(
      libsmdev_handle_t *handle,
-     char * const filenames[],
-     int number_of_filenames,
+     const char *filename,
      int access_flags,
      libcerror_error_t **error );
 
@@ -168,8 +167,7 @@ int libsmdev_handle_open(
 LIBSMDEV_EXTERN \
 int libsmdev_handle_open_wide(
      libsmdev_handle_t *handle,
-     wchar_t * const filenames[],
-     int number_of_filenames,
+     const wchar_t *filename,
      int access_flags,
      libcerror_error_t **error );
 #endif

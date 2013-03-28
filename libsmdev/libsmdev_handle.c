@@ -241,7 +241,6 @@ int libsmdev_handle_free(
 	if( *handle != NULL )
 	{
 		internal_handle = (libsmdev_internal_handle_t *) *handle;
-		*handle         = NULL;
 
 		if( internal_handle->device_file != NULL )
 		{
@@ -259,6 +258,8 @@ int libsmdev_handle_free(
 				result = -1;
 			}
 		}
+		*handle = NULL;
+
 		if( internal_handle->filename != NULL )
 		{
 			memory_free(
@@ -355,8 +356,7 @@ int libsmdev_handle_signal_abort(
  */
 int libsmdev_handle_open(
      libsmdev_handle_t *handle,
-     char * const filenames[],
-     int number_of_filenames,
+     const char *filename,
      int access_flags,
      libcerror_error_t **error )
 {
@@ -389,46 +389,13 @@ int libsmdev_handle_open(
 
 		return( -1 );
 	}
-	if( filenames == NULL )
+	if( filename == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid filenames.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_filenames <= 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid number of filenames value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_filenames != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: currently only one device file supported.",
-		 function );
-
-		return( -1 );
-	}
-	if( filenames[ 0 ] == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing device filename.",
+		 "%s: invalid filename.",
 		 function );
 
 		return( -1 );
@@ -489,11 +456,11 @@ int libsmdev_handle_open(
 		goto on_error;
 	}
 	filename_length = libcstring_narrow_string_length(
-	                   filenames[ 0 ] );
+	                   filename );
 
 	if( libsmdev_handle_set_filename(
 	     handle,
-	     filenames[ 0 ],
+	     filename,
 	     filename_length + 1,
 	     error ) != 1 )
 	{
@@ -521,7 +488,7 @@ int libsmdev_handle_open(
 	}
 	if( libcfile_file_open(
 	     internal_handle->device_file,
-	     filenames[ 0 ],
+	     filename,
 	     access_flags,
 	     error ) != 1 )
 	{
@@ -536,7 +503,7 @@ int libsmdev_handle_open(
 	}
 /* TODO libcfile refactor */
 
-#if defined( HAVE_POSIX_FADVISE )
+#if defined( HAVE_POSIX_FADVISE ) && defined( TODO )
 	/* Use this function to double the read-ahead system buffer
 	 * This provides for some additional performance
 	 */
@@ -597,8 +564,7 @@ on_error:
  */
 int libsmdev_handle_open_wide(
      libsmdev_handle_t *handle,
-     wchar_t * const filenames[],
-     int number_of_filenames,
+     const wchar_t *filename,
      int access_flags,
      libcerror_error_t **error )
 {
@@ -631,46 +597,13 @@ int libsmdev_handle_open_wide(
 
 		return( -1 );
 	}
-	if( filenames == NULL )
+	if( filename == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid filenames.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_filenames <= 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid number of filenames value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_filenames != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: currently only one device file supported.",
-		 function );
-
-		return( -1 );
-	}
-	if( filenames[ 0 ] == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing device filename.",
+		 "%s: invalid filename.",
 		 function );
 
 		return( -1 );
@@ -731,11 +664,11 @@ int libsmdev_handle_open_wide(
 		goto on_error;
 	}
 	filename_length = libcstring_wide_string_length(
-	                   filenames[ 0 ] );
+	                   filename );
 
 	if( libsmdev_handle_set_filename_wide(
 	     handle,
-	     filenames[ 0 ],
+	     filename,
 	     filename_length + 1,
 	     error ) != 1 )
 	{
@@ -763,7 +696,7 @@ int libsmdev_handle_open_wide(
 	}
 	if( libcfile_file_open_wide(
 	     internal_handle->device_file,
-	     filenames[ 0 ],
+	     filename,
 	     access_flags,
 	     error ) != 1 )
 	{
@@ -778,7 +711,7 @@ int libsmdev_handle_open_wide(
 	}
 /* TODO libcfile refactor */
 
-#if defined( HAVE_POSIX_FADVISE )
+#if defined( HAVE_POSIX_FADVISE ) && defined( TODO )
 	/* Use this function to double the read-ahead system buffer
 	 * This provides for some additional performance
 	 */
@@ -1107,7 +1040,7 @@ ssize_t libsmdev_handle_read_buffer(
 						 && ( *error != NULL ) )
 						{
 					                libcnotify_print_error_backtrace(
-					                 error );
+					                 *error );
 						}
 					}
 #endif

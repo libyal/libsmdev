@@ -27,6 +27,7 @@
 
 #include "libsmdev_handle.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -35,17 +36,17 @@ extern "C" {
 #if defined( HAVE_LINUX_CDROM_H )
 
 int libsmdev_optical_disc_get_table_of_contents(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 
 int libsmdev_optical_disc_get_table_of_contents_scsi(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 

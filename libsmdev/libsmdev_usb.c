@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+/* Needed for _IOW amd _IOWR */
 #if defined( HAVE_SYS_IOCTL_H )
 #include <sys/ioctl.h>
 #endif
@@ -35,11 +36,8 @@
 #include <linux/usb/ch9.h>
 #endif
 
-#if defined( HAVE_ERRNO_H ) || defined( WINAPI )
-#include <errno.h>
-#endif
-
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_scsi.h"
@@ -51,62 +49,54 @@
 
 #if defined( HAVE_LINUX_USB_CH9_H )
 
+#if defined( USBDEVFS_IOCTL )
+
 /* Sends an USB ioctl to the file descriptor
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_usb_ioctl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      int interface_number,
      int request,
      void *request_data,
      libcerror_error_t **error )
 {
-#if defined( USBDEVFS_IOCTL )
 	struct usbdevfs_ioctl ioctl_request;
-#endif
 
 	static char *function = "libsmdev_usb_ioctl";
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( USBDEVFS_IOCTL )
 	ioctl_request.ifno       = interface_number;
 	ioctl_request.ioctl_code = request;
 	ioctl_request.data       = request_data;
 
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     USBDEVFS_IOCTL,
-	     &ioctl_request ) == -1 )
+	     (uint8_t *) &ioctl_request,
+	     sizeof( struct usbdevfs_ioctl ),
+	     error ) != 1 )
 	{
-		libcerror_system_set_error(
+		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 errno,
 		 "%s: unable to query device for: USBDEVFS_IOCTL.",
 		 function );
 
 		return( -1 );
 	}
-#endif
 	return( 1 );
 }
+
+#endif /* defined( USBDEVFS_IOCTL ) */
+
+#if defined( USBDEVFS_CONTROL )
 
 /* Sends a USB control command to the file descriptor
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_usb_control_command(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t request_type,
      uint8_t request,
      uint16_t value,
@@ -115,23 +105,10 @@ int libsmdev_usb_control_command(
      size_t buffer_size,
      libcerror_error_t **error )
 {
-#if defined( USBDEVFS_CONTROL )
 	struct usbdevfs_ctrltransfer control_request;
-#endif
 
 	static char *function = "libsmdev_usb_control_command";
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( buffer == NULL )
 	{
 		libcerror_error_set(
@@ -154,7 +131,6 @@ int libsmdev_usb_control_command(
 
 		return( -1 );
 	}
-#if defined( USBDEVFS_CONTROL )
 	control_request.bRequestType = request_type;
 	control_request.bRequest     = request;
 	control_request.wValue       = value;
@@ -163,22 +139,22 @@ int libsmdev_usb_control_command(
 	control_request.timeout      = LIBSMDEV_USB_CONTROL_COMMAND_TIMEOUT;
 	control_request.data         = buffer;
 
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     USBDEVFS_CONTROL,
-	     (void *) &control_request ) == -1 )
+	     (uint8_t *) &control_request,
+	     sizeof( struct usbdevfs_ctrltransfer ),
+	     error ) != 1 )
 	{
-		libcerror_system_set_error(
+		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 errno,
 		 "%s: unable to query device for: USBDEVFS_CONTROL.",
 		 function );
 
 		return( -1 );
 	}
-#endif
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -191,41 +167,32 @@ int libsmdev_usb_control_command(
 	return( 1 );
 }
 
+#endif /* defined( USBDEVFS_CONTROL ) */
+
+#if defined( USBDEVFS_CONNECTINFO )
+
 /* Sends a USB ioctl to the file descriptor
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_usb_test(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libcerror_error_t **error )
 {
-#if defined( USBDEVFS_CONNECTINFO )
 	struct usbdevfs_connectinfo connection_information;
-#endif
 
 	static char *function = "libsmdev_usb_test";
 
-	if( file_descriptor == -1 )
+	if( libcfile_file_io_control_read(
+	     device_file,
+	     USBDEVFS_CONNECTINFO,
+	     (uint8_t *) &connection_information,
+	     sizeof( struct usbdevfs_connectinfo ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( USBDEVFS_CONNECTINFO )
-	if( ioctl(
-	     file_descriptor,
-	     USBDEVFS_CONNECTINFO,
-	     &connection_information ) == -1 )
-	{
-		libcerror_system_set_error(
-		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 errno,
 		 "%s: unable to query device for: USBDEVFS_CONNECTINFO.",
 		 function );
 
@@ -240,37 +207,28 @@ int libsmdev_usb_test(
 		 0 );
 	}
 #endif
-#endif
 	return( 1 );
 }
 
-#ifdef X
+#endif /* #if defined( USBDEVFS_CONNECTINFO ) */
+
+#ifdef TODO_TEST
 
 /* Sends a USB control command to the file descriptor
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_usb_test(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libcerror_error_t **error )
 {
+	uint8_t buffer[ 255 ];
+
 	struct usb_device_descriptor device_descriptor;
 
 	static char *function = "libsmdev_usb_test";
-	uint8_t buffer[ 255 ];
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libsmdev_usb_control_command(
-	     file_descriptor,
+	     device_file,
 	     USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE,
 	     USB_REQ_GET_DESCRIPTOR,
 	     USB_DT_DEVICE << 8,
@@ -291,7 +249,7 @@ int libsmdev_usb_test(
 	return( 1 );
 }
 
-#endif
+#endif /* TODO_TEST */
 
 #endif
 

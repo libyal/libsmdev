@@ -274,6 +274,7 @@ int libsmdev_handle_get_bytes_per_sector(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_bytes_per_sector";
+	int result                                  = 0;
 
 #if defined( WINAPI )
 	uint32_t error_code                         = 0;
@@ -293,31 +294,17 @@ int libsmdev_handle_get_bytes_per_sector(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-#if defined( WINAPI )
-	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	if( internal_handle->device_file == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file handle.",
+		 "%s: invalid device handle - missing device file.",
 		 function );
 
 		return( -1 );
 	}
-#else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 	if( bytes_per_sector == NULL )
 	{
 		libcerror_error_set(
@@ -332,39 +319,92 @@ int libsmdev_handle_get_bytes_per_sector(
 	if( internal_handle->bytes_per_sector_set == 0 )
 	{
 #if defined( WINAPI )
-		if( libcfile_file_io_control_read_with_error_code(
-		     internal_handle->device_file,
-		     IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
-		     (uint8_t *) &disk_geometry_extended,
-		     sizeof( DISK_GEOMETRY_EX ),
-		     &error_code,
-		     NULL ) == 1 )
+		result = libcfile_file_io_control_read_with_error_code(
+		          internal_handle->device_file,
+		          IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
+		          (uint8_t *) &disk_geometry_extended,
+		          sizeof( DISK_GEOMETRY_EX ),
+		          &error_code,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY_EX.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+
+			if( error_code == ERROR_NOT_SUPPORTED )
+			{
+				/* A floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+				 */
+				result = libcfile_file_io_control_read(
+				          internal_handle->device_file,
+				          IOCTL_DISK_GET_DRIVE_GEOMETRY,
+				          (uint8_t *) &disk_geometry,
+				          sizeof( DISK_GEOMETRY ),
+				          error );
+
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+					 "%s: unable to query device for: IOCTL_DISK_GET_DRIVE_GEOMETRY.",
+					 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+					if( libcnotify_verbose != 0 )
+					{
+						if( ( error != NULL )
+						 && ( *error != NULL ) )
+						{
+							libcnotify_print_error_backtrace(
+							 *error );
+						}
+					}
+#endif
+					libcerror_error_free(
+					 error );
+				}
+				else
+				{
+					internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.BytesPerSector;
+					internal_handle->bytes_per_sector_set = 1;
+				}
+			}
+		}
+		else
 		{
 			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry_extended.Geometry.BytesPerSector; 
 			internal_handle->bytes_per_sector_set = 1;
 		}
-		else if( error_code == ERROR_NOT_SUPPORTED )
-		{
-			/* A floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
-			 */
-			if( libcfile_file_io_control_read(
-			     internal_handle->device_file,
-			     IOCTL_DISK_GET_DRIVE_GEOMETRY,
-			     (uint8_t *) &disk_geometry,
-			     sizeof( DISK_GEOMETRY ),
-			     NULL ) == 1 )
-			{
-				internal_handle->bytes_per_sector     = (uint32_t) disk_geometry.BytesPerSector;
-				internal_handle->bytes_per_sector_set = 1;
-			}
-		}
 #elif defined( BLKSSZGET )
-		if( libcfile_file_io_control_read(
-		     internal_handle->file_descriptor,
-		     BLKSSZGET,
-		     (uint8_t *) &( internal_handle->bytes_per_sector ),
-		     4,
-		     error ) != 1 )
+		result = libcfile_file_io_control_read(
+		          internal_handle->device_file,
+		          BLKSSZGET,
+		          (uint8_t *) &( internal_handle->bytes_per_sector ),
+		          4,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -373,17 +413,33 @@ int libsmdev_handle_get_bytes_per_sector(
 			 "%s: unable to query device for: BLKSSZGET.",
 			 function );
 
-			return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
 		}
-		internal_handle->bytes_per_sector_set = 1;
-
+		else
+		{
+			internal_handle->bytes_per_sector_set = 1;
+		}
 #elif defined( DKIOCGETBLOCKCOUNT )
-		if( libcfile_file_io_control_read(
-		     internal_handle->file_descriptor,
-		     DKIOCGETBLOCKSIZE,
-		     &( internal_handle->bytes_per_sector ),
-		     4,
-		     error ) != 1 )
+		result = libcfile_file_io_control_read(
+		          internal_handle->device_file,
+		          DKIOCGETBLOCKSIZE,
+		          &( internal_handle->bytes_per_sector ),
+		          4,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -392,9 +448,24 @@ int libsmdev_handle_get_bytes_per_sector(
 			 "%s: unable to query device for: DKIOCGETBLOCKSIZE.",
 			 function );
 
-			return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
 		}
-		internal_handle->bytes_per_sector_set = 1;
+		else
+		{
+			internal_handle->bytes_per_sector_set = 1;
+		}
 #endif
 	}
 	if( internal_handle->bytes_per_sector_set == 0 )
@@ -412,12 +483,11 @@ int libsmdev_handle_get_bytes_per_sector(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: sector size: %" PRIu32 "\n",
+		 "%s: bytes per sector: %" PRIu32 "\n",
 		 function,
 		 internal_handle->bytes_per_sector );
 	}
 #endif
-
 	*bytes_per_sector = internal_handle->bytes_per_sector;
 
 	return( 1 );
@@ -470,31 +540,17 @@ int libsmdev_internal_handle_determine_media_information(
 	{
 		return( 1 );
 	}
-#if defined( WINAPI )
-	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	if( internal_handle->device_file == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file handle.",
+		 "%s: invalid device handle - missing device file.",
 		 function );
 
 		return( -1 );
 	}
-#else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file descriptor.",
-		 function );
-
-		goto on_error;
-	}
-#endif
 	response = (uint8_t *) memory_allocate(
 	                        sizeof( uint8_t ) * response_size );
 
@@ -767,10 +823,12 @@ int libsmdev_internal_handle_determine_media_information(
 #if defined( HAVE_SCSI_SG_H )
 	/* Use the Linux sg (generic SCSI) driver to determine device information
 	 */
-	if( libsmdev_scsi_get_bus_type(
-	     internal_handle->file_descriptor,
-	     &( internal_handle->bus_type ),
-	     error ) != 1 )
+	result = libsmdev_scsi_get_bus_type(
+	          internal_handle->device_file,
+	          &( internal_handle->bus_type ),
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -781,139 +839,174 @@ int libsmdev_internal_handle_determine_media_information(
 
 		goto on_error;
 	}
-	response_count = libsmdev_scsi_inquiry(
-			  internal_handle->file_descriptor,
-			  0x00,
-			  0x00,
-			  response,
-			  response_size,
-			  error );
-
-	if( response_count == -1 )
+	else if( result != 0 )
 	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
+		response_count = libsmdev_scsi_inquiry(
+				  internal_handle->device_file,
+				  0x00,
+				  0x00,
+				  response,
+				  response_size,
+				  error );
+
+		if( response_count == -1 )
 		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: SCSI Inquiry.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
 #endif
-		libcerror_error_free(
-		 error );
-	}
+			libcerror_error_free(
+			 error );
+		}
 /* TODO handle garbarge return ? */
-
-	if( response_count >= 5 )
-	{
-		internal_handle->removable   = ( response[ 1 ] & 0x80 ) >> 7;
-		internal_handle->device_type = ( response[ 0 ] & 0x1f );
+		if( response_count >= 5 )
+		{
+			internal_handle->removable   = ( response[ 1 ] & 0x80 ) >> 7;
+			internal_handle->device_type = ( response[ 0 ] & 0x1f );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: removable\t\t: %" PRIu8 "\n",
-			 function,
-			 internal_handle->removable );
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: removable\t\t: %" PRIu8 "\n",
+				 function,
+				 internal_handle->removable );
 
-			libcnotify_printf(
-			 "%s: device type\t: 0x%" PRIx8 "\n",
-			 function,
-			 internal_handle->device_type );
+				libcnotify_printf(
+				 "%s: device type\t: 0x%" PRIx8 "\n",
+				 function,
+				 internal_handle->device_type );
 
-			libcnotify_printf(
-			 "\n" );
-		}
+				libcnotify_printf(
+				 "\n" );
+			}
 #endif
-	}
-	if( response_count >= 16 )
-	{
+		}
+		if( response_count >= 16 )
+		{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_print_data(
-			 response,
-			 response_count,
-			 0 );
-		}
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_print_data(
+				 response,
+				 response_count,
+				 0 );
+			}
 #endif
-		result = libsmdev_string_trim_copy_from_byte_stream(
-			  internal_handle->vendor,
-			  64,
-			  &( response[ 8 ] ),
-			  15 - 8,
-			  error );
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->vendor,
+				  64,
+				  &( response[ 8 ] ),
+				  15 - 8,
+				  error );
 
-		if( result == -1 )
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set vendor.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		if( response_count >= 32 )
+		{
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->model,
+				  64,
+				  &( response[ 16 ] ),
+				  31 - 16,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set model.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		response_count = libsmdev_scsi_inquiry(
+				  internal_handle->device_file,
+				  0x01,
+				  0x80,
+				  response,
+				  response_size,
+				  error );
+
+		if( response_count == -1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set vendor.",
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: SCSI Inquiry.",
 			 function );
 
-			goto on_error;
-		}
-	}
-	if( response_count >= 32 )
-	{
-		result = libsmdev_string_trim_copy_from_byte_stream(
-			  internal_handle->model,
-			  64,
-			  &( response[ 16 ] ),
-			  31 - 16,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set model.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	response_count = libsmdev_scsi_inquiry(
-			  internal_handle->file_descriptor,
-			  0x01,
-			  0x80,
-			  response,
-			  response_size,
-			  NULL );
-
-	if( response_count > 4 )
-	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_print_data(
-			 response,
-			 response_count,
-			 0 );
-		}
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
 #endif
-		result = libsmdev_string_trim_copy_from_byte_stream(
-			  internal_handle->serial_number,
-			  64,
-			  &( response[ 4 ] ),
-			  response_count - 4,
-			  error );
-
-		if( result == -1 )
+			libcerror_error_free(
+			 error );
+		}
+		if( response_count > 4 )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set serial number.",
-			 function );
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_print_data(
+				 response,
+				 response_count,
+				 0 );
+			}
+#endif
+			result = libsmdev_string_trim_copy_from_byte_stream(
+				  internal_handle->serial_number,
+				  64,
+				  &( response[ 4 ] ),
+				  response_count - 4,
+				  error );
 
-			goto on_error;
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set serial number.",
+				 function );
+
+				goto on_error;
+			}
 		}
 	}
 #endif
@@ -925,12 +1018,22 @@ int libsmdev_internal_handle_determine_media_information(
 		     &device_configuration,
 		     error ) == -1 )
 		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: ATA device configuration.",
+			 function );
+
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
+			if( libcnotify_verbose != 0 )
 			{
-				libcnotify_print_error_backtrace(
-				 *error );
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
 			}
 #endif
 			libcerror_error_free(
@@ -1001,16 +1104,26 @@ int libsmdev_internal_handle_determine_media_information(
 	if( internal_handle->device_type == 0x05 )
 	{
 		if( libsmdev_optical_disc_get_table_of_contents(
-		     internal_handle->file_descriptor,
+		     internal_handle->device_file,
 		     internal_handle,
 		     error ) != 1 )
 		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: table of contents.",
+			 function );
+
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
+			if( libcnotify_verbose != 0 )
 			{
-				libcnotify_print_error_backtrace(
-				 *error );
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
 			}
 #endif
 			libcerror_error_free(
@@ -1020,7 +1133,7 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 /* Disabled for now
 	if( libsmdev_scsi_get_identier(
-	     internal_handle->file_descriptor,
+	     internal_handle->device_file,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1036,7 +1149,7 @@ int libsmdev_internal_handle_determine_media_information(
 	size_t pci_bus_address_size = 64;
 
 	if( libsmdev_scsi_get_pci_bus_address(
-	     internal_handle->file_descriptor,
+	     internal_handle->device_file,
 	     pci_bus_address,
 	     pci_bus_address_size,
 	     error ) != 1 )
@@ -1054,7 +1167,7 @@ int libsmdev_internal_handle_determine_media_information(
 	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_USB )
 	{
 		if( io_usb_test(
-		     internal_handle->file_descriptor,
+		     internal_handle->device_file,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1112,31 +1225,17 @@ int libsmdev_handle_get_media_type(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-#if defined( WINAPI )
-	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	if( internal_handle->device_file == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file handle.",
+		 "%s: invalid device handle - missing device file.",
 		 function );
 
 		return( -1 );
 	}
-#else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 	if( media_type == NULL )
 	{
 		libcerror_error_set(
@@ -1203,31 +1302,17 @@ int libsmdev_handle_get_bus_type(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-#if defined( WINAPI )
-	if( internal_handle->file_handle == INVALID_HANDLE_VALUE )
+	if( internal_handle->device_file == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file handle.",
+		 "%s: invalid device handle - missing device file.",
 		 function );
 
 		return( -1 );
 	}
-#else
-	if( internal_handle->file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing file descriptor.",
-		 function );
-
-		return( -1 );
-	}
-#endif
 	if( bus_type == NULL )
 	{
 		libcerror_error_set(

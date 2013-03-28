@@ -1,4 +1,4 @@
-.Dd March 27, 2013
+.Dd March 28, 2013
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -59,7 +59,7 @@ File/Handle functions
 .Ft int
 .Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_open "libsmdev_handle_t *handle, char * const filenames[], int number_of_filenames, uint8_t flags, libsmdev_error_t **error"
+.Fn libsmdev_handle_open "libsmdev_handle_t *handle, const char *filename, uint8_t flags, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_close "libsmdev_handle_t *handle, libsmdev_error_t **error"
 .Ft ssize_t
@@ -81,7 +81,7 @@ File/Handle functions
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libsmdev_handle_open_wide "libsmdev_handle_t *handle, wchar_t * const filenames[], int number_of_filenames, uint8_t flags"
+.Fn libsmdev_handle_open_wide "libsmdev_handle_t *handle, const wchar_t *filename, uint8_t flags"
 .Ft int
 .Fn libsmdev_handle_get_filename_size_wide "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
 .Ft int

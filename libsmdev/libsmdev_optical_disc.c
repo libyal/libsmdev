@@ -24,10 +24,6 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_SYS_IOCTL_H )
-#include <sys/ioctl.h>
-#endif
-
 #if defined( HAVE_LINUX_CDROM_H )
 #include <linux/cdrom.h>
 #endif
@@ -36,6 +32,7 @@
 #include "libsmdev_handle.h"
 #include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_optical_disc.h"
@@ -64,7 +61,7 @@
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error )
 {
@@ -72,7 +69,7 @@ int libsmdev_optical_disc_get_table_of_contents(
 	int result            = 0;
 
 	result = libsmdev_optical_disc_get_table_of_contents_scsi(
-	          file_descriptor,
+	          device_file,
 	          internal_handle,
 	          error );
 
@@ -90,7 +87,7 @@ int libsmdev_optical_disc_get_table_of_contents(
 	else if( result == 0 )
 	{
 		if( libsmdev_optical_disc_get_table_of_contents_ioctl(
-		     file_descriptor,
+		     device_file,
 		     internal_handle,
 		     error ) != 1 )
 		{
@@ -111,7 +108,7 @@ int libsmdev_optical_disc_get_table_of_contents(
  * Returns 1 if successful, 0 if no TOC could be found or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents_scsi(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error )
 {
@@ -142,17 +139,6 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint8_t track_type           = 0;
 	int result                   = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	toc_data_size = 1024;
 
 	toc_data = (uint8_t *) memory_allocate(
@@ -184,7 +170,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 		goto on_error;
 	}
 	response_count = libsmdev_scsi_read_toc(
-	                  file_descriptor,
+	                  device_file,
 	                  LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
 	                  toc_data,
 	                  toc_data_size,
@@ -193,11 +179,14 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	if( response_count == -1 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
+		if( libcnotify_verbose != 0 )
 		{
-			libcnotify_print_error_backtrace(
-			 *error );
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
 		}
 #endif
 		libcerror_error_free(
@@ -227,7 +216,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			toc_data = (uint8_t *) reallocation;
 
 			response_count = libsmdev_scsi_read_toc(
-					  file_descriptor,
+					  device_file,
 					  LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
 					  toc_data,
 					  toc_data_size,
@@ -236,11 +225,14 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			if( response_count == -1 )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
+				if( libcnotify_verbose != 0 )
 				{
-					libcnotify_print_error_backtrace(
-					 *error );
+					if( ( error != NULL )
+					 && ( *error != NULL ) )
+					{
+						libcnotify_print_error_backtrace(
+						 *error );
+					}
 				}
 #endif
 				libcerror_error_free(
@@ -445,7 +437,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 						goto on_error;
 					}
 					response_count = libsmdev_scsi_read_track_information(
-							  file_descriptor,
+							  device_file,
 							  last_track_offset,
 							  track_info_data,
 							  64,
@@ -652,7 +644,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				goto on_error;
 			}
 			response_count = libsmdev_scsi_read_track_information(
-					  file_descriptor,
+					  device_file,
 					  last_track_offset,
 					  track_info_data,
 					  64,
@@ -794,7 +786,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error )
 {
@@ -817,17 +809,6 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	uint8_t session_index        = 0;
 	uint8_t track_index          = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libsmdev_handle_get_number_of_sessions(
 	     (libsmdev_handle_t *) internal_handle,
 	     &number_of_sessions,
@@ -856,10 +837,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 
 		goto on_error;
 	}
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     CDROMREADTOCHDR,
-	     &toc_header ) == -1 )
+	     (uint8_t *) &toc_header,
+	     sizeof( struct cdrom_tochdr ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -903,10 +886,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		toc_entry.cdte_track  = (uint8_t) entry_iterator;
 		toc_entry.cdte_format = CDROM_LBA;
 
-		if( ioctl(
-		     file_descriptor,
+		if( libcfile_file_io_control_read(
+		     device_file,
 		     CDROMREADTOCENTRY,
-		     &toc_entry ) == -1 )
+		     (uint8_t *) &toc_entry,
+		     sizeof( struct cdrom_tocentry ),
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1100,10 +1085,12 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	toc_entry.cdte_track  = CDROM_LEADOUT;
 	toc_entry.cdte_format = CDROM_LBA;
 
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     CDROMREADTOCENTRY,
-	     &toc_entry ) == -1 )
+	     (uint8_t *) &toc_entry,
+	     sizeof( struct cdrom_tocentry ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,

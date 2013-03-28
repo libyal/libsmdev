@@ -13,6 +13,8 @@ SUBDIRS = \
 	libcfile \
 	libcpath \
 	libsmdev \
+	libcsystem \
+	smdevtools \
 	po \
 	manuals \
 	msvscpp
@@ -26,6 +28,7 @@ DPKG_FILES = \
        	dpkg/copyright.in \
        	dpkg/rules \
        	dpkg/libsmdev-dev.docs \
+       	dpkg/libsmdev-tools.docs \
        	dpkg/libsmdev.docs
 
 GETTEXT_FILES = \

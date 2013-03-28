@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -34,14 +35,14 @@ extern "C" {
 #if defined( HAVE_LINUX_USB_CH9_H )
 
 int libsmdev_usb_ioctl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      int interface_number,
      int request,
      void *request_data,
      libcerror_error_t **error );
 
 int libsmdev_usb_control_command(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t request_type,
      uint8_t request,
      uint16_t value,
@@ -51,7 +52,7 @@ int libsmdev_usb_control_command(
      libcerror_error_t **error );
 
 int libsmdev_usb_test(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libcerror_error_t **error );
 
 #endif

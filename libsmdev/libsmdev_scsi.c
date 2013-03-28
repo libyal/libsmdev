@@ -24,10 +24,6 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_SYS_IOCTL_H )
-#include <sys/ioctl.h>
-#endif
-
 #if defined( HAVE_SCSI_SCSI_H )
 #include <scsi/scsi.h>
 #endif
@@ -56,7 +52,7 @@
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_scsi_command(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *command,
      size_t command_size,
      uint8_t *response,
@@ -69,17 +65,6 @@ int libsmdev_scsi_command(
 
 	static char *function = "libsmdev_scsi_command";
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( command == NULL )
 	{
 		libcerror_error_set(
@@ -170,10 +155,12 @@ int libsmdev_scsi_command(
 	sg_io_header.dxfer_direction = SG_DXFER_FROM_DEV;
 	sg_io_header.timeout         = LIBSMDEV_SCSI_CONTROL_COMMAND_TIMEOUT;
 
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     SG_IO,
-	     &sg_io_header ) == -1 )
+	     (uint8_t *) &sg_io_header,
+	     sizeof( struct sg_io_hdr ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -207,7 +194,7 @@ int libsmdev_scsi_command(
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_scsi_ioctrl(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      void *request_data,
      size_t request_data_size,
      libcerror_error_t **error )
@@ -216,17 +203,6 @@ int libsmdev_scsi_ioctrl(
 	static char *function      = "libsmdev_scsi_ioctrl";
 	size_t ioctrl_request_size = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	ioctrl_request_size = sizeof( libsmdev_scsi_ioctrl_header_t ) + request_data_size;
 
 	ioctrl_request = (uint8_t *) memory_allocate(
@@ -241,7 +217,7 @@ int libsmdev_scsi_ioctrl(
 		 "%s: unable to create SCSI ioctrl request.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( memory_set(
 	     ioctrl_request,
@@ -255,10 +231,7 @@ int libsmdev_scsi_ioctrl(
 		 "%s: unable to clear SCSI ioctrl request.",
 		 function );
 
-		memory_free(
-		 ioctrl_request );
-
-		return( -1 );
+		goto on_error;
 	}
 	( (libsmdev_scsi_ioctrl_header_t *) ioctrl_request )->request_size = request_data_size;
 
@@ -274,15 +247,14 @@ int libsmdev_scsi_ioctrl(
 		 "%s: unable to set SCSI ioctrl request.",
 		 function );
 
-		memory_free(
-		 ioctrl_request );
-
-		return( -1 );
+		goto on_error;
 	}
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     SCSI_IOCTL_SEND_COMMAND,
-	     ioctrl_request ) == -1 )
+	     ioctrl_request,
+	     ioctrl_request_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -291,14 +263,19 @@ int libsmdev_scsi_ioctrl(
 		 "%s: unable to query device for: SCSI_IOCTL_SEND_COMMAND.",
 		 function );
 
-		memory_free(
-		 ioctrl_request );
-
-		return( -1 );
+		goto on_error;
 	}
 	memory_free(
 	 ioctrl_request );
 
+	return( 1 );
+
+on_error:
+	if( ioctrl_request != NULL )
+	{
+		memory_free(
+		 ioctrl_request );
+	}
 	return( 1 );
 }
 
@@ -306,7 +283,7 @@ int libsmdev_scsi_ioctrl(
  * Returns the number of bytes read if successful or -1 on error
  */
 ssize_t libsmdev_scsi_inquiry(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t inquiry_vital_product_data,
          uint8_t code_page,
          uint8_t *response,
@@ -320,17 +297,6 @@ ssize_t libsmdev_scsi_inquiry(
 	static char *function  = "libsmdev_scsi_inquiry";
 	ssize_t response_count = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -375,7 +341,7 @@ ssize_t libsmdev_scsi_inquiry(
 		command.reserved1 = code_page;
 	}
 	if( libsmdev_scsi_command(
-	     file_descriptor,
+	     device_file,
 	     (uint8_t *) &command,
 	     sizeof( libsmdev_scsi_inquiry_cdb_t ),
 	     response,
@@ -434,7 +400,7 @@ ssize_t libsmdev_scsi_inquiry(
  * Returns the number of bytes read if successful or -1 on error
  */
 ssize_t libsmdev_scsi_read_toc(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t format,
          uint8_t *response,
          size_t response_size,
@@ -447,17 +413,6 @@ ssize_t libsmdev_scsi_read_toc(
 	static char *function  = "libsmdev_scsi_read_toc";
 	ssize_t response_count = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -502,7 +457,7 @@ ssize_t libsmdev_scsi_read_toc(
 	 response_size );
 
 	if( libsmdev_scsi_command(
-	     file_descriptor,
+	     device_file,
 	     (uint8_t *) &command,
 	     sizeof( libsmdev_scsi_read_toc_cdb_t ),
 	     response,
@@ -554,7 +509,7 @@ ssize_t libsmdev_scsi_read_toc(
  * Returns the number of bytes read if successful or -1 on error
  */
 ssize_t libsmdev_scsi_read_disc_information(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint8_t *response,
          size_t response_size,
          libcerror_error_t **error )
@@ -566,17 +521,6 @@ ssize_t libsmdev_scsi_read_disc_information(
 	static char *function  = "libsmdev_scsi_read_disc_information";
 	ssize_t response_count = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -620,7 +564,7 @@ ssize_t libsmdev_scsi_read_disc_information(
 	 response_size );
 
 	if( libsmdev_scsi_command(
-	     file_descriptor,
+	     device_file,
 	     (uint8_t *) &command,
 	     sizeof( libsmdev_scsi_read_disc_information_cdb_t ),
 	     response,
@@ -672,7 +616,7 @@ ssize_t libsmdev_scsi_read_disc_information(
  * Returns the number of bytes read if successful or -1 on error
  */
 ssize_t libsmdev_scsi_read_track_information(
-         int file_descriptor,
+         libcfile_file_t *device_file,
          uint32_t offset,
          uint8_t *response,
          size_t response_size,
@@ -685,17 +629,6 @@ ssize_t libsmdev_scsi_read_track_information(
 	static char *function  = "libsmdev_scsi_read_track_information";
 	ssize_t response_count = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -744,7 +677,7 @@ ssize_t libsmdev_scsi_read_track_information(
 	 response_size );
 
 	if( libsmdev_scsi_command(
-	     file_descriptor,
+	     device_file,
 	     (uint8_t *) &command,
 	     sizeof( libsmdev_scsi_read_track_information_cdb_t ),
 	     response,
@@ -796,11 +729,11 @@ ssize_t libsmdev_scsi_read_track_information(
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_scsi_get_identier(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      libcerror_error_t **error )
 {
 #if defined( SG_GET_SCSI_ID )
-	struct
+	struct libsmdev_scsi_identifier
 	{
 		int four_in_one;
 		int host_unique_id;
@@ -809,22 +742,13 @@ int libsmdev_scsi_get_identier(
 
 	static char *function = "libsmdev_scsi_get_identifier";
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( SG_GET_SCSI_ID )
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     SCSI_IOCTL_GET_IDLUN,
-	     &identifier ) == -1 )
+	     (uint8_t *) &identifier,
+	     sizeof( struct libsmdev_scsi_identifier ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -852,10 +776,10 @@ int libsmdev_scsi_get_identier(
 }
 
 /* Determines and retrieves the bus type
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_scsi_get_bus_type(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *bus_type,
      libcerror_error_t **error )
 {
@@ -870,18 +794,8 @@ int libsmdev_scsi_get_bus_type(
 #endif
 
 	static char *function       = "libsmdev_scsi_get_bus_type";
+	int result                  = 0;
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( bus_type == NULL )
 	{
 		libcerror_error_set(
@@ -898,10 +812,14 @@ int libsmdev_scsi_get_bus_type(
 #if defined( SCSI_IOCTL_PROBE_HOST )
 	sg_probe_host.length = 127;
 
-	if( ioctl(
-	     file_descriptor,
-	     SCSI_IOCTL_PROBE_HOST,
-	     &sg_probe_host ) == -1 )
+	result = libcfile_file_io_control_read(
+	          device_file,
+	          SCSI_IOCTL_PROBE_HOST,
+	          (uint8_t *) &sg_probe_host,
+	          128,
+	          error );
+
+	if( result != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -910,7 +828,21 @@ int libsmdev_scsi_get_bus_type(
 		 "%s: unable to query device for: SCSI_IOCTL_PROBE_HOST.",
 		 function );
 
-		return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
 	}
 	sg_probe_host.buffer[ 127 ] = 0;
 
@@ -930,47 +862,68 @@ int libsmdev_scsi_get_bus_type(
 		 "\n" );
 	}
 #endif
-	if( sg_probe_host_length >= 4 )
+	*bus_type = 0;
+
+	if( *bus_type == 0 )
 	{
-		if( libcstring_narrow_string_compare(
-		     sg_probe_host.buffer,
-		     "ahci",
-		     4 ) == 0 )
+		if( sg_probe_host_length >= 4 )
 		{
-			*bus_type = LIBSMDEV_BUS_TYPE_ATA;
-		}
-		else if( libcstring_narrow_string_compare(
-		          sg_probe_host.buffer,
-		          "pata",
-		          4 ) == 0 )
-		{
-			*bus_type = LIBSMDEV_BUS_TYPE_ATA;
-		}
-		else if( libcstring_narrow_string_compare(
-		          sg_probe_host.buffer,
-		          "sata",
-		          4 ) == 0 )
-		{
-			*bus_type = LIBSMDEV_BUS_TYPE_ATA;
+			if( libcstring_narrow_string_compare(
+			     sg_probe_host.buffer,
+			     "ahci",
+			     4 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_ATA;
+			}
+			else if( libcstring_narrow_string_compare(
+				  sg_probe_host.buffer,
+				  "pata",
+				  4 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_ATA;
+			}
+			else if( libcstring_narrow_string_compare(
+				  sg_probe_host.buffer,
+				  "sata",
+				  4 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_ATA;
+			}
+			/* usb-storage
+			 */
+			else if( libcstring_narrow_string_compare(
+			          sg_probe_host.buffer,
+			          "usb-",
+			          4 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_USB;
+			}
 		}
 	}
-	/* Serial Bus Protocol (SBP-2)
-	 */
-	else if( ( sg_probe_host_length == 15 )
-	      && ( libcstring_narrow_string_compare(
-	            sg_probe_host.buffer,
-	            "SBP-2 IEEE-1394",
-	            15 ) == 0 ) )
+	if( *bus_type == 0 )
 	{
-		*bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
-	}
-	else if( ( sg_probe_host_length == 43 )
-	      && ( libcstring_narrow_string_compare(
-	            sg_probe_host.buffer,
-	            "SCSI emulation for USB Mass Storage devices",
-	            43 ) == 0 ) )
-	{
-		*bus_type = LIBSMDEV_BUS_TYPE_USB;
+		/* Serial Bus Protocol (SBP-2)
+		 */
+		if( sg_probe_host_length == 15 )
+		{
+			if( libcstring_narrow_string_compare(
+			     sg_probe_host.buffer,
+			     "SBP-2 IEEE-1394",
+			     15 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
+			}
+		}
+		else if( sg_probe_host_length == 43 )
+		{
+			if( libcstring_narrow_string_compare(
+			     sg_probe_host.buffer,
+			     "SCSI emulation for USB Mass Storage devices",
+			     43 ) == 0 )
+			{
+				*bus_type = LIBSMDEV_BUS_TYPE_USB;
+			}
+		}
 	}
 #endif
 	return( 1 );
@@ -984,24 +937,13 @@ int libsmdev_scsi_get_bus_type(
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_scsi_get_pci_bus_address(
-     int file_descriptor,
+     libcfile_file_t *device_file,
      uint8_t *pci_bus_address,
      size_t pci_bus_address_size,
      libcerror_error_t **error )
 {
 	static char *function = "libsmdev_scsi_get_bus_type";
 
-	if( file_descriptor == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( pci_bus_address == NULL )
 	{
 		libcerror_error_set(
@@ -1050,10 +992,12 @@ int libsmdev_scsi_get_pci_bus_address(
 		return( -1 );
 	}
 #if defined( SCSI_IOCTL_GET_PCI )
-	if( ioctl(
-	     file_descriptor,
+	if( libcfile_file_io_control_read(
+	     device_file,
 	     SCSI_IOCTL_GET_PCI,
-	     pci_bus_address ) == -1 )
+	     pci_bus_address,
+	     pci_bus_address_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,

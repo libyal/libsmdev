@@ -20,3 +20,10 @@ Depends: libsmdev (= ${Source-Version})
 Description: Header files and libraries for developing applications for libsmdev
  Header files and libraries for developing applications for libsmdev.
 
+Package: libsmdev-tools
+Section: utils
+Architecture: any
+Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}
+Description: Several tools for accessing storage media (SM) devices
+ Several tools for accessing storage media (SM) devices.
+

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20130327],
+ [20130328],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -84,6 +84,12 @@ AX_LIBCPATH_CHECK_ENABLE
 dnl Check for library function support
 AX_LIBSMDEV_CHECK_LOCAL
 
+dnl Check for enabling libcsystem for cross-platform C generic system functions
+AX_LIBCSYSTEM_CHECK_ENABLE
+
+dnl Check if smdevtools should be build as static executables
+AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
+
 dnl Check if libsmdev should be build with verbose output
 AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
 
@@ -116,6 +122,13 @@ AS_IF(
   [BuildRequires:])
  ])
 
+AS_IF(
+ [test "x$ac_cv_libcsystem" = xyes],
+ [AC_SUBST(
+  [libsmdev_spec_tools_build_requires],
+  [BuildRequires:])
+ ])
+
 dnl Set the date for the dpkg files
 AC_SUBST(
  [DPKG_DATE],
@@ -145,6 +158,8 @@ AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libcfile/Makefile])
 AC_CONFIG_FILES([libcpath/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
+AC_CONFIG_FILES([libcsystem/Makefile])
+AC_CONFIG_FILES([smdevtools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -170,18 +185,20 @@ AC_OUTPUT
 dnl Print a summary
 AC_MSG_NOTICE([
 Building:
-   libcstring support:          $ac_cv_libcstring
-   libcerror support:           $ac_cv_libcerror
-   libuna support:              $ac_cv_libuna
-   libcdata support:            $ac_cv_libcdata
-   libclocale support:          $ac_cv_libclocale
-   libcsplit support:           $ac_cv_libcsplit
-   libcfile support:            $ac_cv_libcfile
-   libcpath support:            $ac_cv_libcpath
+   libcstring support:                         $ac_cv_libcstring
+   libcerror support:                          $ac_cv_libcerror
+   libuna support:                             $ac_cv_libuna
+   libcdata support:                           $ac_cv_libcdata
+   libclocale support:                         $ac_cv_libclocale
+   libcsplit support:                          $ac_cv_libcsplit
+   libcfile support:                           $ac_cv_libcfile
+   libcpath support:                           $ac_cv_libcpath
+   libcsystem support:                         $ac_cv_libcsystem
 
 Features:
-   Wide character type support: $ac_cv_enable_wide_character_type
-   Verbose output:              $ac_cv_enable_verbose_output
-   Debug output:                $ac_cv_enable_debug_output
+   Wide character type support:                $ac_cv_enable_wide_character_type
+   smdevtools are build as static executables: $ac_cv_enable_static_executables
+   Verbose output:                             $ac_cv_enable_verbose_output
+   Debug output:                               $ac_cv_enable_debug_output
 ]);
 

@@ -1,10 +1,8 @@
 TODO
 * integrate libcfile
-  - replace DeviceIoControl and ioctl calls
+  - replace DeviceIoControl call
   - replace fadvice
-* Move (libsmdev) error string functions to libcerror ?
-  - expose libcerror_system_copy_string_from_error_number in libcerror
-  - replace libsmdev_error_string_copy_from_error_number by libcerror equiv
+  - move libsmdev_check_device to libcfile
 
 * what if session offset > size
 * optical disc
@@ -43,6 +41,9 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20130328
+* added smdevinfo
 
 20130327
 * 2013 update

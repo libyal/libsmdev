@@ -31,9 +31,16 @@ install_libsmdev_dev:
 	install -p -m755 debian/tmp/usr/lib/pkgconfig/* debian/libsmdev-dev/usr/lib/pkgconfig
 	install -p -m755 debian/tmp/usr/share/man/man3/* debian/libsmdev-dev/usr/share/man/man3
 
+install_libsmdev_tools:
+	# Set up libsmdev-tools package directories and files
+	mkdir -p debian/libsmdev-tools/usr/bin
+	mkdir -p debian/libsmdev-tools/usr/share/man/man1
+	install -p -m755 debian/tmp/usr/bin/* debian/libsmdev-tools/usr/bin
+	install -p -m755 debian/tmp/usr/share/man/man1/* debian/libsmdev-tools/usr/share/man/man1
+
 override_dh_auto_test:
 
-override_dh_installinit: install_libsmdev install_libsmdev_dev
+override_dh_installinit: install_libsmdev install_libsmdev_dev install_libsmdev_tools
 
 override_dh_installmenu:
 

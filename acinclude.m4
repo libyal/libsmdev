@@ -1,6 +1,6 @@
 dnl Functions for libsmdev
 dnl
-dnl Version: 20130327
+dnl Version: 20130328
 
 dnl Function to detect if posix_fadvise is available
 AC_DEFUN([AX_LIBSMDEV_CHECK_FUNC_POSIX_FADVISE],
@@ -99,7 +99,7 @@ AC_DEFUN([AX_LIBSMDEV_CHECK_LOCAL],
  dnl Headers included in libsmdev/libsmdev_usb.c
  AS_IF(
   [test "x$ac_cv_enable_winapi" = xno],
-  [AC_CHECK_HEADERS([linux/usbdevice_fs.h linux/usb/ch9.h])
+  [AC_CHECK_HEADERS([linux/usbdevice_fs.h linux/usb/ch9.h sys/ioctl.h])
  ])
 
  dnl File input/output functions used in libbfio/libbfio_file.h
