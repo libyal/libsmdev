@@ -55,7 +55,6 @@ typedef size_t u64;
 
 #endif
 
-#include "libsmdev_ata.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libcdata.h"
@@ -64,9 +63,6 @@ typedef size_t u64;
 #include "libsmdev_libcnotify.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
-#include "libsmdev_optical_disc.h"
-#include "libsmdev_scsi.h"
-#include "libsmdev_string.h"
 #include "libsmdev_sector_range.h"
 #include "libsmdev_track_value.h"
 #include "libsmdev_types.h"
@@ -274,11 +270,10 @@ int libsmdev_handle_get_bytes_per_sector(
 
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_bytes_per_sector";
-	int result                                  = 0;
+	ssize_t read_count                          = 0;
 
 #if defined( WINAPI )
 	uint32_t error_code                         = 0;
-	DWORD response_count                        = 0;
 #endif
 
 	if( handle == NULL )
@@ -319,15 +314,17 @@ int libsmdev_handle_get_bytes_per_sector(
 	if( internal_handle->bytes_per_sector_set == 0 )
 	{
 #if defined( WINAPI )
-		result = libcfile_file_io_control_read_with_error_code(
-		          internal_handle->device_file,
-		          IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
-		          (uint8_t *) &disk_geometry_extended,
-		          sizeof( DISK_GEOMETRY_EX ),
-		          &error_code,
-		          error );
+		read_count = libcfile_file_io_control_read_with_error_code(
+		              internal_handle->device_file,
+		              IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,
+		              NULL,
+		              0,
+		              (uint8_t *) &disk_geometry_extended,
+		              sizeof( DISK_GEOMETRY_EX ),
+		              &error_code,
+		              error );
 
-		if( result != 1 )
+		if( read_count == -1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -354,14 +351,16 @@ int libsmdev_handle_get_bytes_per_sector(
 			{
 				/* A floppy device does not support IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
 				 */
-				result = libcfile_file_io_control_read(
-				          internal_handle->device_file,
-				          IOCTL_DISK_GET_DRIVE_GEOMETRY,
-				          (uint8_t *) &disk_geometry,
-				          sizeof( DISK_GEOMETRY ),
-				          error );
+				read_count = libcfile_file_io_control_read(
+				              internal_handle->device_file,
+				              IOCTL_DISK_GET_DRIVE_GEOMETRY,
+				              NULL,
+				              0,
+				              (uint8_t *) &disk_geometry,
+				              sizeof( DISK_GEOMETRY ),
+				              error );
 
-				if( result != 1 )
+				if( read_count == -1 )
 				{
 					libcerror_error_set(
 					 error,
@@ -397,14 +396,16 @@ int libsmdev_handle_get_bytes_per_sector(
 			internal_handle->bytes_per_sector_set = 1;
 		}
 #elif defined( BLKSSZGET )
-		result = libcfile_file_io_control_read(
-		          internal_handle->device_file,
-		          BLKSSZGET,
-		          (uint8_t *) &( internal_handle->bytes_per_sector ),
-		          4,
-		          error );
+		read_count = libcfile_file_io_control_read(
+		              internal_handle->device_file,
+		              BLKSSZGET,
+		              NULL,
+		              0,
+		              (uint8_t *) &( internal_handle->bytes_per_sector ),
+		              4,
+		              error );
 
-		if( result != 1 )
+		if( read_count == -1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -432,14 +433,16 @@ int libsmdev_handle_get_bytes_per_sector(
 			internal_handle->bytes_per_sector_set = 1;
 		}
 #elif defined( DKIOCGETBLOCKCOUNT )
-		result = libcfile_file_io_control_read(
-		          internal_handle->device_file,
-		          DKIOCGETBLOCKSIZE,
-		          &( internal_handle->bytes_per_sector ),
-		          4,
-		          error );
+		read_count = libcfile_file_io_control_read(
+		              internal_handle->device_file,
+		              DKIOCGETBLOCKSIZE,
+		              NULL,
+		              0,
+		              (uint8_t *) &( internal_handle->bytes_per_sector ),
+		              4,
+		              error );
 
-		if( result != 1 )
+		if( read_count == -1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -491,714 +494,6 @@ int libsmdev_handle_get_bytes_per_sector(
 	*bytes_per_sector = internal_handle->bytes_per_sector;
 
 	return( 1 );
-}
-
-/* Determines the media information
- * Returns 1 if successful, 0 if no media information available or -1 on error
- */
-int libsmdev_internal_handle_determine_media_information(
-     libsmdev_internal_handle_t *internal_handle,
-     libcerror_error_t **error )
-{
-#if defined( WINAPI )
-	STORAGE_PROPERTY_QUERY query;
-
-	size_t response_size   = 1024;
-	size_t string_length   = 0;
-	DWORD response_count   = 0;
-
-#else
-	size_t response_size   = 255;
-
-#if defined( HAVE_SCSI_SG_H )
-	ssize_t response_count = 0;
-#endif
-#if defined( HDIO_GET_IDENTITY )
-	struct hd_driveid device_configuration;
-#endif
-#endif
-
-	uint8_t *response      = NULL;
-	static char *function  = "libsmdev_internal_handle_determine_media_information";
-
-#if defined( WINAPI ) || defined( HAVE_SCSI_SG_H ) || defined( HDIO_GET_IDENTITY )
-	ssize_t result         = 0;
-#endif
-
-	if( internal_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid device handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_handle->media_information_set != 0 )
-	{
-		return( 1 );
-	}
-	if( internal_handle->device_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid device handle - missing device file.",
-		 function );
-
-		return( -1 );
-	}
-	response = (uint8_t *) memory_allocate(
-	                        sizeof( uint8_t ) * response_size );
-
-	if( response == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to response.",
-		 function );
-
-		goto on_error;
-	}
-	if( memory_set(
-	     response,
-	     0,
-	     sizeof( uint8_t ) * response_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear response.",
-		 function );
-
-		goto on_error;
-	}
-#if defined( WINAPI )
-	if( memset(
-	     &query,
-	     0,
-	     sizeof( STORAGE_PROPERTY_QUERY ) ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear storage property query.",
-		 function );
-
-		goto on_error;
-	}
-	query.PropertyId = StorageDeviceProperty;
-	query.QueryType  = PropertyStandardQuery;
-
-/* TODO libcfile refactor requires yet another type of IO control function */
-	if( DeviceIoControl(
-	     internal_handle->file_handle,
-	     IOCTL_STORAGE_QUERY_PROPERTY,
-	     &query,
-	     sizeof( STORAGE_PROPERTY_QUERY ),
-	     response,
-	     response_size,
-	     &response_count,
-	     NULL ) == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 "%s: unable to query device for: IOCTL_STORAGE_QUERY_PROPERTY.",
-		 function );
-
-		goto on_error;
-	}
-	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > response_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: response buffer too small.\n",
-		 function );
-
-		goto on_error;
-	}
-	if( (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size > sizeof( STORAGE_DEVICE_DESCRIPTOR ) )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_print_data(
-			 response,
-			 (size_t) response_count,
-			 0 );
-		}
-#endif
-		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
-		{
-			string_length = libcstring_narrow_string_length(
-					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ) );
-
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->vendor,
-				  64,
-				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ),
-				  string_length,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set vendor.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
-		{
-			string_length = libcstring_narrow_string_length(
-					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ) );
-
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->model,
-				  64,
-				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ),
-				  string_length,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set model.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
-		{
-			string_length = libcstring_narrow_string_length(
-					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ) );
-
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->serial_number,
-				  64,
-				  &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ),
-				  string_length,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set serial number.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		internal_handle->removable = ( (STORAGE_DEVICE_DESCRIPTOR *) response )->RemovableMedia;
-
-		switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
-		{
-			case BusTypeScsi:
-				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_SCSI;
-				break;
-
-			case BusTypeAtapi:
-			case BusTypeAta:
-				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_ATA;
-				break;
-
-			case BusType1394:
-				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_FIREWIRE;
-				break;
-
-			case BusTypeUsb:
-				internal_handle->bus_type = LIBSMDEV_BUS_TYPE_USB;
-				break;
-
-			default:
-				break;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "Bus type:\t\t" );
-
-			switch( ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType )
-			{
-				case BusTypeScsi:
-					libcnotify_printf(
-					 "SCSI" );
-					break;
-
-				case BusTypeAtapi:
-					libcnotify_printf(
-					 "ATAPI" );
-					break;
-
-				case BusTypeAta:
-					libcnotify_printf(
-					 "ATA" );
-					break;
-
-				case BusType1394:
-					libcnotify_printf(
-					 "FireWire (IEEE1394)" );
-					break;
-
-				case BusTypeSsa:
-					libcnotify_printf(
-					 "Serial Storage Architecture (SSA)" );
-					break;
-
-				case BusTypeFibre:
-					libcnotify_printf(
-					 "Fibre Channel" );
-					break;
-
-				case BusTypeUsb:
-					libcnotify_printf(
-					 "USB" );
-					break;
-
-				case BusTypeRAID:
-					libcnotify_printf(
-					 "RAID" );
-					break;
-
-				case BusTypeiScsi:
-					libcnotify_printf(
-					 "iSCSI" );
-					break;
-
-				case BusTypeSas:
-					libcnotify_printf(
-					 "SAS" );
-					break;
-
-				case BusTypeSata:
-					libcnotify_printf(
-					 "SATA" );
-					break;
-
-				case BusTypeSd:
-					libcnotify_printf(
-					 "Secure Digital (SD)" );
-					break;
-
-				case BusTypeMmc:
-					libcnotify_printf(
-					 "Multi Media Card (MMC)" );
-					break;
-
-				default:
-					libcnotify_printf(
-					 "Unknown: %d",
-					 ( ( STORAGE_DEVICE_DESCRIPTOR *) response )->BusType );
-					break;
-			}
-			libcnotify_printf(
-			 "\n" );
-		}
-#endif
-	}
-#else
-#if defined( HAVE_SCSI_SG_H )
-	/* Use the Linux sg (generic SCSI) driver to determine device information
-	 */
-	result = libsmdev_scsi_get_bus_type(
-	          internal_handle->device_file,
-	          &( internal_handle->bus_type ),
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine bus type.",
-		 function );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		response_count = libsmdev_scsi_inquiry(
-				  internal_handle->device_file,
-				  0x00,
-				  0x00,
-				  response,
-				  response_size,
-				  error );
-
-		if( response_count == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: SCSI Inquiry.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-/* TODO handle garbarge return ? */
-		if( response_count >= 5 )
-		{
-			internal_handle->removable   = ( response[ 1 ] & 0x80 ) >> 7;
-			internal_handle->device_type = ( response[ 0 ] & 0x1f );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: removable\t\t: %" PRIu8 "\n",
-				 function,
-				 internal_handle->removable );
-
-				libcnotify_printf(
-				 "%s: device type\t: 0x%" PRIx8 "\n",
-				 function,
-				 internal_handle->device_type );
-
-				libcnotify_printf(
-				 "\n" );
-			}
-#endif
-		}
-		if( response_count >= 16 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_print_data(
-				 response,
-				 response_count,
-				 0 );
-			}
-#endif
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->vendor,
-				  64,
-				  &( response[ 8 ] ),
-				  15 - 8,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set vendor.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( response_count >= 32 )
-		{
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->model,
-				  64,
-				  &( response[ 16 ] ),
-				  31 - 16,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set model.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		response_count = libsmdev_scsi_inquiry(
-				  internal_handle->device_file,
-				  0x01,
-				  0x80,
-				  response,
-				  response_size,
-				  error );
-
-		if( response_count == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: SCSI Inquiry.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		if( response_count > 4 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_print_data(
-				 response,
-				 response_count,
-				 0 );
-			}
-#endif
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->serial_number,
-				  64,
-				  &( response[ 4 ] ),
-				  response_count - 4,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set serial number.",
-				 function );
-
-				goto on_error;
-			}
-		}
-	}
-#endif
-#if defined( HDIO_GET_IDENTITY )
-	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_ATA )
-	{
-		if( libsmdev_ata_get_device_configuration(
-		     internal_handle->device_file,
-		     &device_configuration,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: ATA device configuration.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		else
-		{
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->serial_number,
-				  64,
-				  device_configuration.serial_no,
-				  20,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set serial number.",
-				 function );
-
-				goto on_error;
-			}
-			result = libsmdev_string_trim_copy_from_byte_stream(
-				  internal_handle->model,
-				  64,
-				  device_configuration.model,
-				  40,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set model.",
-				 function );
-
-				goto on_error;
-			}
-			internal_handle->removable   = ( device_configuration.config & 0x0080 ) >> 7;
-			internal_handle->device_type = ( device_configuration.config & 0x1f00 ) >> 8;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: removable\t\t: %" PRIu8 "\n",
-				 function,
-				 internal_handle->removable );
-
-				libcnotify_printf(
-				 "%s: device type\t: 0x%" PRIx8 "\n",
-				 function,
-				 internal_handle->device_type );
-
-				libcnotify_printf(
-				 "\n" );
-			}
-#endif
-		}
-	}
-#endif
-#if defined( HAVE_LINUX_CDROM_H )
-	if( internal_handle->device_type == 0x05 )
-	{
-		if( libsmdev_optical_disc_get_table_of_contents(
-		     internal_handle->device_file,
-		     internal_handle,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: table of contents.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-	}
-#endif
-/* Disabled for now
-	if( libsmdev_scsi_get_identier(
-	     internal_handle->device_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine SCSI identifier.",
-		 function );
-
-		goto on_error;
-	}
-	uint8_t pci_bus_address[ 64 ];
-	size_t pci_bus_address_size = 64;
-
-	if( libsmdev_scsi_get_pci_bus_address(
-	     internal_handle->device_file,
-	     pci_bus_address,
-	     pci_bus_address_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine PCI bus address.",
-		 function );
-
-		goto on_error;
-	}
-#if defined( HAVE_LINUX_USB_CH9_H )
-	if( internal_handle->bus_type == LIBSMDEV_BUS_TYPE_USB )
-	{
-		if( io_usb_test(
-		     internal_handle->device_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to test USB.",
-			 function );
-
-			goto on_error;
-		}
-	}
-#endif
-*/
-#endif
-	internal_handle->media_information_set = 1;
-
-	memory_free(
-	 response );
-
-	response = NULL;
-
-	return( 1 );
-
-on_error:
-	if( response != NULL )
-	{
-		memory_free(
-		 response );
-	}
-	return( -1 );
 }
 
 /* Retrieves the media type
@@ -1693,164 +988,6 @@ int libsmdev_handle_get_session(
 	return( 1 );
 }
 
-/* Appends a session
- * Returns 1 if successful or -1 on error
- */
-int libsmdev_handle_append_session(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     libcerror_error_t **error )
-{
-	libsmdev_sector_range_t *sector_range = NULL;
-	static char *function                 = "libsmdev_handle_append_session";
-	int entry_index                       = 0;
-
-	if( internal_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( libsmdev_sector_range_initialize(
-	     &sector_range,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create sector range.",
-		 function );
-
-		goto on_error;
-	}
-	if( libsmdev_sector_range_set(
-	     sector_range,
-	     start_sector,
-	     number_of_sectors,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set sector range.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_append_entry(
-	     internal_handle->sessions_array,
-	     &entry_index,
-	     (intptr_t *) sector_range,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append session sector range to array.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( sector_range != NULL )
-	{
-		libsmdev_sector_range_free(
-		 &sector_range,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Appends a lead-out
- * Returns 1 if successful or -1 on error
- */
-int libsmdev_handle_append_lead_out(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     libcerror_error_t **error )
-{
-	libsmdev_sector_range_t *sector_range = NULL;
-	static char *function                 = "libsmdev_handle_append_lead_out";
-	int entry_index                       = 0;
-
-	if( internal_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( libsmdev_sector_range_initialize(
-	     &sector_range,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create sector range.",
-		 function );
-
-		goto on_error;
-	}
-	if( libsmdev_sector_range_set(
-	     sector_range,
-	     start_sector,
-	     number_of_sectors,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set sector range.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_append_entry(
-	     internal_handle->lead_outs_array,
-	     &entry_index,
-	     (intptr_t *) sector_range,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append lead-out sector range to array.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( sector_range != NULL )
-	{
-		libsmdev_sector_range_free(
-		 &sector_range,
-		 NULL );
-	}
-	return( -1 );
-}
-
 /* Retrieves the number of tracks
  * Returns 1 if successful or -1 on error
  */
@@ -1953,87 +1090,6 @@ int libsmdev_handle_get_track(
 		return( -1 );
 	}
 	return( 1 );
-}
-
-/* Appends a track
- * Returns 1 if successful or -1 on error
- */
-int libsmdev_handle_append_track(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     uint8_t type,
-     libcerror_error_t **error )
-{
-	libsmdev_track_value_t *track_value = NULL;
-	static char *function               = "libsmdev_handle_append_track";
-	int entry_index                     = 0;
-
-	if( internal_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( libsmdev_track_value_initialize(
-	     &track_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create track value.",
-		 function );
-
-		goto on_error;
-	}
-	if( libsmdev_track_value_set(
-	     track_value,
-	     start_sector,
-	     number_of_sectors,
-	     type,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set track value.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_append_entry(
-	     internal_handle->tracks_array,
-	     &entry_index,
-	     (intptr_t *) track_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append track to array.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( track_value != NULL )
-	{
-		libsmdev_track_value_free(
-		 &track_value,
-		 NULL );
-	}
-	return( -1 );
 }
 
 /* Retrieves the number of read/write error retries

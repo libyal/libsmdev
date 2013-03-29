@@ -1,13 +1,12 @@
 TODO
-* integrate libcfile
-  - replace DeviceIoControl call
-  - replace fadvice
-  - move libsmdev_check_device to libcfile
-
 * what if session offset > size
 * optical disc
   - add track type support
   - add session support
+  - WINAPI support
+  - MAC OS X support
+* SCSI/ATA devices
+  - Mac OS X support
 * make sure error_ranges is cleared on open
 * configure validate libuna check
 * work on libsmdev_metadata
@@ -33,17 +32,19 @@ Media information:
 * use pre windows XP io control codes as fallback ?
 * add support for reading from floppy \\.\A: for builder5 compilation
 
-Beta release
-* remove deprecated functions in libsmdev_legacy.[ch]
-
 Deployment
 * add macosx files
 
 Test:
 * add autoconf/make test suite
 
+20130329
+* worked on libcfile refactor
+* removed libsmdev_legacy
+
 20130328
 * added smdevinfo
+* worked on libcfile refactor
 
 20130327
 * 2013 update
@@ -52,6 +53,7 @@ Test:
 * changes for libcdata
 * updated msvscpp files
 * fixes in pc and spec files
+* worked on libcfile refactor
 
 20121217
 * updated dependencies

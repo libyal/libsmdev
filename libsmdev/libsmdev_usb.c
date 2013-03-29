@@ -64,17 +64,22 @@ int libsmdev_usb_ioctl(
 	struct usbdevfs_ioctl ioctl_request;
 
 	static char *function = "libsmdev_usb_ioctl";
+	ssize_t read_count    = 0;
 
 	ioctl_request.ifno       = interface_number;
 	ioctl_request.ioctl_code = request;
 	ioctl_request.data       = request_data;
 
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     USBDEVFS_IOCTL,
-	     (uint8_t *) &ioctl_request,
-	     sizeof( struct usbdevfs_ioctl ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              USBDEVFS_IOCTL,
+	              NULL,
+	              0,
+	              (uint8_t *) &ioctl_request,
+	              sizeof( struct usbdevfs_ioctl ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -108,6 +113,7 @@ int libsmdev_usb_control_command(
 	struct usbdevfs_ctrltransfer control_request;
 
 	static char *function = "libsmdev_usb_control_command";
+	ssize_t read_count    = 0;
 
 	if( buffer == NULL )
 	{
@@ -139,12 +145,16 @@ int libsmdev_usb_control_command(
 	control_request.timeout      = LIBSMDEV_USB_CONTROL_COMMAND_TIMEOUT;
 	control_request.data         = buffer;
 
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     USBDEVFS_CONTROL,
-	     (uint8_t *) &control_request,
-	     sizeof( struct usbdevfs_ctrltransfer ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              USBDEVFS_CONTROL,
+	              NULL,
+	              0,
+	              (uint8_t *) &control_request,
+	              sizeof( struct usbdevfs_ctrltransfer ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -181,13 +191,18 @@ int libsmdev_usb_test(
 	struct usbdevfs_connectinfo connection_information;
 
 	static char *function = "libsmdev_usb_test";
+	ssize_t read_count    = 0;
 
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     USBDEVFS_CONNECTINFO,
-	     (uint8_t *) &connection_information,
-	     sizeof( struct usbdevfs_connectinfo ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              USBDEVFS_CONNECTINFO,
+	              NULL,
+	              0,
+	              (uint8_t *) &connection_information,
+	              sizeof( struct usbdevfs_connectinfo ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,

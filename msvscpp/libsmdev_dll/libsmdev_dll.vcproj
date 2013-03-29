@@ -183,10 +183,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsmdev\libsmdev_legacy.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libsmdev\libsmdev_metadata.c"
 				>
 			</File>
@@ -250,10 +246,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libsmdev\libsmdev_handle.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsmdev\libsmdev_legacy.h"
 				>
 			</File>
 			<File

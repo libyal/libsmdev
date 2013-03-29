@@ -35,9 +35,9 @@
 #if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
 
 /* This inclusion is needed otherwise some linkers
- * mess up exporting the legacy functions
+ * mess up exporting the metadata functions
  */
-#include "libsmdev_legacy.h"
+#include "libsmdev_metadata.h"
 #endif
 
 #if defined( __cplusplus )
@@ -243,6 +243,29 @@ int libsmdev_handle_set_filename_wide(
      size_t filename_length,
      libcerror_error_t **error );
 #endif
+
+int libsmdev_internal_handle_determine_media_information(
+     libsmdev_internal_handle_t *internal_handle,
+     libcerror_error_t **error );
+
+int libsmdev_handle_append_session(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     libcerror_error_t **error );
+
+int libsmdev_handle_append_lead_out(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     libcerror_error_t **error );
+
+int libsmdev_handle_append_track(
+     libsmdev_internal_handle_t *internal_handle,
+     uint64_t start_sector,
+     uint64_t number_of_sectors,
+     uint8_t type,
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

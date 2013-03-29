@@ -2,45 +2,6 @@ dnl Functions for libsmdev
 dnl
 dnl Version: 20130328
 
-dnl Function to detect if posix_fadvise is available
-AC_DEFUN([AX_LIBSMDEV_CHECK_FUNC_POSIX_FADVISE],
- [AC_CHECK_FUNCS([posix_fadvise])
-
- AS_IF(
-  [test "x$ac_cv_func_posix_fadvise" = xyes],
-  [AC_MSG_CHECKING(
-    [whether posix_fadvise can be linked])
-
-   SAVE_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -Wall -Werror"
-   AC_LANG_PUSH(C)
-
-   AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM(
-     [[#include <fcntl.h>]],
-     [[#if !defined( POSIX_FADV_SEQUENTIAL )
-#define POSIX_FADV_SEQUENTIAL 2
-#endif
-posix_fadvise( 0, 0, 0, POSIX_FADV_SEQUENTIAL )]] )],
-     [ac_cv_func_posix_fadvise=yes],
-     [ac_cv_func_posix_fadvise=no])
-
-   AC_LANG_POP(C)
-   CFLAGS="$SAVE_CFLAGS"
-
-   AS_IF(
-    [test "x$ac_cv_func_posix_fadvise" = xyes],
-    [AC_MSG_RESULT(
-     [yes])
-    AC_DEFINE(
-     [HAVE_POSIX_FADVISE],
-     [1],
-     [Define to 1 if you have the posix_fadvise function.]) ],
-    [AC_MSG_RESULT(
-     [no]) ])
-  ])
- ])
-
 dnl Check if winioctl.h defines STORAGE_BUS_TYPE
 AC_DEFUN([AX_LIBSMDEV_CHECK_HEADER_WINIOCTL_H_STORAGE_BUS_TYPE],
  [AC_CACHE_CHECK(
@@ -70,7 +31,7 @@ storage_bus_type = BusTypeUnknown;]] )],
 dnl Function to detect if libsmdev dependencies are available
 AC_DEFUN([AX_LIBSMDEV_CHECK_LOCAL],
  [dnl Headers included in libsmdev/libsmdev_handle.c and libsmdev/libsmdev_support.c
- AC_CHECK_HEADERS([errno.h fcntl.h sys/stat.h unistd.h])
+ AC_CHECK_HEADERS([errno.h sys/stat.h unistd.h])
 
  dnl Headers included in libsmdev/libsmdev_metadata.c
  AS_IF(
@@ -160,8 +121,6 @@ AC_DEFUN([AX_LIBSMDEV_CHECK_LOCAL],
    [Missing function: write],
    [1])
   ])
-
- AX_LIBSMDEV_CHECK_FUNC_POSIX_FADVISE
 
  dnl Check for error string functions used in libsmdev/libsmdev_error_string.c
  AC_FUNC_STRERROR_R()

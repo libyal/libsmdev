@@ -64,6 +64,7 @@ int libsmdev_scsi_command(
 	struct sg_io_hdr sg_io_header;
 
 	static char *function = "libsmdev_scsi_command";
+	ssize_t read_count    = 0;
 
 	if( command == NULL )
 	{
@@ -155,12 +156,16 @@ int libsmdev_scsi_command(
 	sg_io_header.dxfer_direction = SG_DXFER_FROM_DEV;
 	sg_io_header.timeout         = LIBSMDEV_SCSI_CONTROL_COMMAND_TIMEOUT;
 
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     SG_IO,
-	     (uint8_t *) &sg_io_header,
-	     sizeof( struct sg_io_hdr ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              SG_IO,
+	              NULL,
+	              0,
+	              (uint8_t *) &sg_io_header,
+	              sizeof( struct sg_io_hdr ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -202,6 +207,7 @@ int libsmdev_scsi_ioctrl(
 	uint8_t *ioctrl_request    = 0;
 	static char *function      = "libsmdev_scsi_ioctrl";
 	size_t ioctrl_request_size = 0;
+	ssize_t read_count         = 0;
 
 	ioctrl_request_size = sizeof( libsmdev_scsi_ioctrl_header_t ) + request_data_size;
 
@@ -249,12 +255,16 @@ int libsmdev_scsi_ioctrl(
 
 		goto on_error;
 	}
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     SCSI_IOCTL_SEND_COMMAND,
-	     ioctrl_request,
-	     ioctrl_request_size,
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              SCSI_IOCTL_SEND_COMMAND,
+	              NULL,
+	              0,
+	              ioctrl_request,
+	              ioctrl_request_size,
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -741,14 +751,19 @@ int libsmdev_scsi_get_identier(
 #endif
 
 	static char *function = "libsmdev_scsi_get_identifier";
+	ssize_t read_count    = 0;
 
 #if defined( SG_GET_SCSI_ID )
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     SCSI_IOCTL_GET_IDLUN,
-	     (uint8_t *) &identifier,
-	     sizeof( struct libsmdev_scsi_identifier ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              SCSI_IOCTL_GET_IDLUN,
+	              NULL,
+	              0,
+	              (uint8_t *) &identifier,
+	              sizeof( struct libsmdev_scsi_identifier ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -794,7 +809,7 @@ int libsmdev_scsi_get_bus_type(
 #endif
 
 	static char *function       = "libsmdev_scsi_get_bus_type";
-	int result                  = 0;
+	ssize_t read_count          = 0;
 
 	if( bus_type == NULL )
 	{
@@ -812,14 +827,16 @@ int libsmdev_scsi_get_bus_type(
 #if defined( SCSI_IOCTL_PROBE_HOST )
 	sg_probe_host.length = 127;
 
-	result = libcfile_file_io_control_read(
-	          device_file,
-	          SCSI_IOCTL_PROBE_HOST,
-	          (uint8_t *) &sg_probe_host,
-	          128,
-	          error );
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              SCSI_IOCTL_PROBE_HOST,
+	              NULL,
+	              0,
+	              (uint8_t *) &sg_probe_host,
+	              128,
+	              error );
 
-	if( result != 1 )
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -943,6 +960,7 @@ int libsmdev_scsi_get_pci_bus_address(
      libcerror_error_t **error )
 {
 	static char *function = "libsmdev_scsi_get_bus_type";
+	ssize_t read_count    = 0;
 
 	if( pci_bus_address == NULL )
 	{
@@ -992,12 +1010,16 @@ int libsmdev_scsi_get_pci_bus_address(
 		return( -1 );
 	}
 #if defined( SCSI_IOCTL_GET_PCI )
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     SCSI_IOCTL_GET_PCI,
-	     pci_bus_address,
-	     pci_bus_address_size,
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              SCSI_IOCTL_GET_PCI,
+	              NULL,
+	              0,
+	              pci_bus_address,
+	              pci_bus_address_size,
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,

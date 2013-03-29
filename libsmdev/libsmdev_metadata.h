@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "libsmdev_extern.h"
-#include "libsmdev_handle.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_types.h"
 
@@ -44,10 +43,6 @@ LIBSMDEV_EXTERN \
 int libsmdev_handle_get_bytes_per_sector(
      libsmdev_handle_t *handle,
      uint32_t *bytes_per_sector,
-     libcerror_error_t **error );
-
-int libsmdev_internal_handle_determine_media_information(
-     libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
@@ -94,18 +89,6 @@ int libsmdev_handle_get_session(
      uint64_t *number_of_sectors,
      libcerror_error_t **error );
 
-int libsmdev_handle_append_session(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     libcerror_error_t **error );
-
-int libsmdev_handle_append_lead_out(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     libcerror_error_t **error );
-
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_number_of_tracks(
      libsmdev_handle_t *handle,
@@ -119,13 +102,6 @@ int libsmdev_handle_get_track(
      uint64_t *start_sector,
      uint64_t *number_of_sectors,
      uint8_t *type,
-     libcerror_error_t **error );
-
-int libsmdev_handle_append_track(
-     libsmdev_internal_handle_t *internal_handle,
-     uint64_t start_sector,
-     uint64_t number_of_sectors,
-     uint8_t type,
      libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \

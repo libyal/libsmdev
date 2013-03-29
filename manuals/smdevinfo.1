@@ -1,0 +1,69 @@
+.Dd March 29, 2013
+.Dt smdevinfo
+.Os libsmdev
+.Sh NAME
+.Nm smdevinfo
+.Nd determines information about a storage media (SM) device
+.Sh SYNOPSIS
+.Nm smdevinfo
+.Op Fl hivV
+.Va Ar source
+.Sh DESCRIPTION
+.Nm smdevinfo
+is a utility to determine information about a storage media (SM) device
+.Pp
+.Nm smdevinfo
+is part of the
+.Nm libsmdev
+package.
+.Nm libsmdev
+is a library to access and read storage media (SM) devices
+.Pp
+.Ar source
+is the source file.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl h
+shows this help
+.It Fl i
+ignore data file(s)
+.It Fl v
+verbose output to stderr
+.It Fl V
+print version
+.El
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh EXAMPLES
+.Bd -literal
+# sudo smdevinfo /dev/sdg
+smdevinfo 20130329
+
+Device information:
+	bus type		: USB
+	vendor			: TestCo
+	model			: TEST-98Z7YX6
+	serial			: 123A45678B9C
+
+Storage media information:
+	media type		: Fixed
+	media size		: 931 GiB (1000204886016 bytes)
+	bytes per sector	: 4096
+
+.Ed
+.Sh DIAGNOSTICS
+Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Verbose and debug output are only printed when enabled at compilation.
+.Sh BUGS
+Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
+http://code.google.com/p/libsmdev/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright 2010-2013, Joachim Metz <joachim.metz@gmail.com>.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+.Xr smdevexport 1

@@ -39,7 +39,7 @@
 #if defined( HDIO_GET_IDENTITY )
 
 /* Sends a ATA DEVICE CONFIGURATION IDENTIFY to the file descriptor
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_ata_get_device_configuration(
      libcfile_file_t *device_file,
@@ -47,6 +47,7 @@ int libsmdev_ata_get_device_configuration(
      libcerror_error_t **error )
 {
 	static char *function = "libsmdev_ata_get_device_configuration";
+	int read_count        = 0;
 
 	if( device_configuration == NULL )
 	{
@@ -60,12 +61,16 @@ int libsmdev_ata_get_device_configuration(
 		return( -1 );
 	}
 #if defined( HDIO_GET_IDENTITY )
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     HDIO_GET_IDENTITY,
-	     (uint8_t *) device_configuration,
-	     sizeof( struct hd_driveid ),
-	     error ) != 1 )
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              HDIO_GET_IDENTITY,
+	              NULL,
+	              0,
+	              (uint8_t *) device_configuration,
+	              sizeof( struct hd_driveid ),
+	              error );
+
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -74,7 +79,21 @@ int libsmdev_ata_get_device_configuration(
 		 "%s: unable to query device file for: HDIO_GET_IDENTITY.",
 		 function );
 
-		return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )

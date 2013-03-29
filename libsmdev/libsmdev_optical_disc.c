@@ -58,7 +58,7 @@
 	lba -= CD_MSF_OFFSET;
 
 /* Retrieves the table of contents (toc) from the optical disk
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents(
      libcfile_file_t *device_file,
@@ -79,33 +79,35 @@ int libsmdev_optical_disc_get_table_of_contents(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve table of contents using SCSI commands.",
+		 "%s: unable to retrieve table of contents using SCSI commands.",
 		 function );
 
 		return( -1 );
 	}
 	else if( result == 0 )
 	{
-		if( libsmdev_optical_disc_get_table_of_contents_ioctl(
-		     device_file,
-		     internal_handle,
-		     error ) != 1 )
+		result = libsmdev_optical_disc_get_table_of_contents_ioctl(
+		          device_file,
+		          internal_handle,
+		          error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable retrieve table of contents using IO control.",
+			 "%s: unable to retrieve table of contents using IO control.",
 			 function );
 
 			return( -1 );
 		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the table of contents from the optical disk using the SCSI READ TOC command
- * Returns 1 if successful, 0 if no TOC could be found or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents_scsi(
      libcfile_file_t *device_file,
@@ -120,7 +122,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	void *reallocation           = NULL;
 	size_t toc_data_offset       = 0;
 	size_t toc_data_size         = 0;
-	ssize_t response_count       = 0;
+	ssize_t read_count           = 0;
 	uint32_t lead_out_size       = 0;
 	uint32_t lead_out_offset     = 0;
 	uint32_t last_track_offset   = 0;
@@ -128,7 +130,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint32_t session_size        = 0;
 	uint32_t session_offset      = 0;
 	uint32_t next_session_offset = 0;
-	uint16_t entry_iterator      = 0;
+	uint16_t entry_index         = 0;
 	uint8_t first_track_number   = 0;
 	uint8_t last_track_number    = 0;
 	uint8_t lead_out_index       = 0;
@@ -169,15 +171,22 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 		goto on_error;
 	}
-	response_count = libsmdev_scsi_read_toc(
-	                  device_file,
-	                  LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
-	                  toc_data,
-	                  toc_data_size,
-	                  error );
+	read_count = libsmdev_scsi_read_toc(
+	              device_file,
+	              LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
+	              toc_data,
+	              toc_data_size,
+	              error );
 
-	if( response_count == -1 )
+	if( read_count == -1 )
 	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve TOC.",
+		 function );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -215,15 +224,22 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			}
 			toc_data = (uint8_t *) reallocation;
 
-			response_count = libsmdev_scsi_read_toc(
-					  device_file,
-					  LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
-					  toc_data,
-					  toc_data_size,
-					  error );
+			read_count = libsmdev_scsi_read_toc(
+			              device_file,
+			              LIBSMDEV_SCSI_TOC_CDB_FORMAT_RAW_TOC,
+			              toc_data,
+			              toc_data_size,
+			              error );
 
-			if( response_count == -1 )
+			if( read_count == -1 )
 			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve TOC.",
+				 function );
+
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
 				{
@@ -240,7 +256,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			}
 		}
 	}
-	toc_data_size = response_count;
+	toc_data_size = (size_t) read_count;
 
 	if( toc_data_size > 4 )
 	{
@@ -281,7 +297,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 				libcnotify_printf(
 				 "%s: entry: %02" PRIu16 ":\n",
 				 function,
-				 entry_iterator );
+				 entry_index );
 				libcnotify_print_data(
 				 toc_entries,
 				 11,
@@ -436,24 +452,38 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 						goto on_error;
 					}
-					response_count = libsmdev_scsi_read_track_information(
-							  device_file,
-							  last_track_offset,
-							  track_info_data,
-							  64,
-							  error );
+					read_count = libsmdev_scsi_read_track_information(
+					              device_file,
+					              last_track_offset,
+					              track_info_data,
+					              64,
+					              error );
 
-					if( response_count == -1 )
+					if( read_count == -1 )
 					{
 						libcerror_error_set(
 						 error,
 						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable retrieve track info data: %d.",
+						 "%s: unable to retrieve track info data: %d.",
 						 function,
 						 track_index );
 
-						goto on_error;
+#if defined( HAVE_DEBUG_OUTPUT )
+						if( libcnotify_verbose != 0 )
+						{
+							if( ( error != NULL )
+							 && ( *error != NULL ) )
+							{
+								libcnotify_print_error_backtrace(
+								 *error );
+							}
+						}
+#endif
+						libcerror_error_free(
+						 error );
+
+						break;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
@@ -464,7 +494,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 						 track_index );
 						libcnotify_print_data(
 						 track_info_data,
-						 response_count,
+						 (size_t) read_count,
 						 0 );
 					}
 #endif
@@ -614,7 +644,7 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			toc_entries     += 11;
 			toc_data_offset += 11;
 
-			entry_iterator++;
+			entry_index++;
 		}
 		if( ( track_index + 1 ) == track_number )
 		{
@@ -643,110 +673,170 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 
 				goto on_error;
 			}
-			response_count = libsmdev_scsi_read_track_information(
-					  device_file,
-					  last_track_offset,
-					  track_info_data,
-					  64,
-					  error );
+			read_count = libsmdev_scsi_read_track_information(
+			              device_file,
+			              last_track_offset,
+			              track_info_data,
+			              64,
+			              error );
 
-			if( response_count == -1 )
+			if( read_count == -1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable retrieve track info data: %d.",
+				 "%s: unable to retrieve track info data: %d.",
 				 function,
 				 track_index );
 
-				goto on_error;
-			}
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: track information data: %d:\n",
-				 function,
-				 track_index );
-				libcnotify_print_data(
-				 track_info_data,
-				 response_count,
-				 0 );
-			}
-#endif
-			if( track_info_data[ 2 ] != toc_entries[ 0 ] )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid track information data - session number value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-			if( track_info_data[ 3 ] != toc_entries[ 3 ] )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid track information data - track number value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-			track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
-
-			if( ( track_info_data[ 5 ] & 0x04 ) != 0 )
-			{
-				if( ( track_info_data[ 5 ] & 0x08 ) == 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					if( ( track_info_data[ 6 ] & 0x0f ) == 1 )
+					if( ( error != NULL )
+					 && ( *error != NULL ) )
 					{
-						track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
-					}
-					else if( ( track_info_data[ 6 ] & 0x0f ) == 2 )
-					{
-						track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
+						libcnotify_print_error_backtrace(
+						 *error );
 					}
 				}
+#endif
+				libcerror_error_free(
+				 error );
 			}
 			else
 			{
-				track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libcnotify_verbose != 0 )
+				{
+					libcnotify_printf(
+					 "%s: track information data: %d:\n",
+					 function,
+					 track_index );
+					libcnotify_print_data(
+					 track_info_data,
+					 (size_t) read_count,
+					 0 );
+				}
+#endif
+				if( track_info_data[ 2 ] != toc_entries[ 0 ] )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid track information data - session number value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				if( track_info_data[ 3 ] != toc_entries[ 3 ] )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid track information data - track number value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				track_type = LIBSMDEV_TRACK_TYPE_UNKNOWN;
+
+				if( ( track_info_data[ 5 ] & 0x04 ) != 0 )
+				{
+					if( ( track_info_data[ 5 ] & 0x08 ) == 0 )
+					{
+						if( ( track_info_data[ 6 ] & 0x0f ) == 1 )
+						{
+							track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
+						}
+						else if( ( track_info_data[ 6 ] & 0x0f ) == 2 )
+						{
+							track_type = LIBSMDEV_TRACK_TYPE_MODE2_2048;
+						}
+					}
+				}
+				else
+				{
+					track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
+				}
+				if( libsmdev_handle_append_track(
+				     internal_handle,
+				     last_track_offset,
+				     track_offset - last_track_offset,
+				     track_type,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append last track: %d.",
+					 function,
+					 track_index );
+
+					goto on_error;
+				}
 			}
-			if( libsmdev_handle_append_track(
-			     internal_handle,
-			     last_track_offset,
-			     track_offset - last_track_offset,
-			     track_type,
-			     error ) != 1 )
+			if( session_index != number_of_sessions )
 			{
 				libcerror_error_set(
 				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append last track: %d.",
-				 function,
-				 track_index );
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid session index value out of bounds.",
+				 function );
 
 				goto on_error;
 			}
+			result = 1;
 		}
-		if( session_index != number_of_sessions )
+	}
+	if( result == 0 )
+	{
+		if( libcdata_array_empty(
+		     internal_handle->tracks_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid session index value out of bounds.",
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty tracks array.",
 			 function );
 
 			goto on_error;
 		}
-		result = 1;
+		if( libcdata_array_empty(
+		     internal_handle->lead_outs_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty lead outs array.",
+			 function );
+
+			goto on_error;
+		}
+		if( libcdata_array_empty(
+		     internal_handle->sessions_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty sessions array.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	memory_free(
 	 toc_data );
@@ -761,21 +851,18 @@ on_error:
 		memory_free(
 		 toc_data );
 	}
-	libcdata_array_resize(
+	libcdata_array_empty(
 	 internal_handle->tracks_array,
-	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
 	 NULL );
 
-	libcdata_array_resize(
+	libcdata_array_empty(
 	 internal_handle->lead_outs_array,
-	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
-	libcdata_array_resize(
+	libcdata_array_empty(
 	 internal_handle->sessions_array,
-	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
@@ -783,7 +870,7 @@ on_error:
 }
 
 /* Retrieves the table of contents from the optical disk using IOCTL
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
      libcfile_file_t *device_file,
@@ -794,55 +881,31 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 	struct cdrom_tocentry toc_entry;
 
 	static char *function        = "libsmdev_optical_disc_get_table_of_contents_ioctl";
+	ssize_t read_count           = 0;
 	uint32_t last_session_size   = 0;
 	uint32_t last_session_offset = 0;
 	uint32_t last_track_size     = 0;
 	uint32_t last_track_offset   = 0;
 	uint32_t offset              = 0;
-	uint16_t entry_iterator      = 0;
+	uint16_t entry_index         = 0;
 	uint8_t first_entry          = 0;
 	uint8_t last_entry           = 0;
 	uint8_t last_track_type      = 0;
-	uint8_t track_type           = 0;
-	int number_of_sessions       = 0;
-	int number_of_tracks         = 0;
 	uint8_t session_index        = 0;
 	uint8_t track_index          = 0;
+	uint8_t track_type           = 0;
+	int result                   = 0;
 
-	if( libsmdev_handle_get_number_of_sessions(
-	     (libsmdev_handle_t *) internal_handle,
-	     &number_of_sessions,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve number of sessions.",
-		 function );
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              CDROMREADTOCHDR,
+	              NULL,
+	              0,
+	              (uint8_t *) &toc_header,
+	              sizeof( struct cdrom_tochdr ),
+	              error );
 
-		goto on_error;
-	}
-	if( libsmdev_handle_get_number_of_tracks(
-	     (libsmdev_handle_t *) internal_handle,
-	     &number_of_tracks,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve number of tracks.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     CDROMREADTOCHDR,
-	     (uint8_t *) &toc_header,
-	     sizeof( struct cdrom_tochdr ),
-	     error ) != 1 )
+	if( read_count == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -851,7 +914,21 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		 "%s: unable to query device for: CDROMREADTOCHDR.",
 		 function );
 
-		goto on_error;
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
 	}
 	first_entry = toc_header.cdth_trk0;
 	last_entry  = toc_header.cdth_trk1;
@@ -865,9 +942,9 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		 last_entry );
 	}
 #endif
-	for( entry_iterator = (uint16_t) first_entry;
-	     entry_iterator <= (uint16_t) last_entry;
-	     entry_iterator++ )
+	for( entry_index = (uint16_t) first_entry;
+	     entry_index <= (uint16_t) last_entry;
+	     entry_index++ )
 	{
 		if( memory_set(
 		     &toc_entry,
@@ -878,20 +955,24 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable clear toc entry.",
+			 "%s: unable to clear TOC entry.",
 			 function );
 
 			goto on_error;
 		}
-		toc_entry.cdte_track  = (uint8_t) entry_iterator;
+		toc_entry.cdte_track  = (uint8_t) entry_index;
 		toc_entry.cdte_format = CDROM_LBA;
 
-		if( libcfile_file_io_control_read(
-		     device_file,
-		     CDROMREADTOCENTRY,
-		     (uint8_t *) &toc_entry,
-		     sizeof( struct cdrom_tocentry ),
-		     error ) != 1 )
+		read_count = libcfile_file_io_control_read(
+		              device_file,
+		              CDROMREADTOCENTRY,
+		              NULL,
+		              0,
+		              (uint8_t *) &toc_entry,
+		              sizeof( struct cdrom_tocentry ),
+		              error );
+
+		if( read_count == -1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -900,7 +981,21 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			 "%s: unable to query device for: CDROMREADTOCENTRY.",
 			 function );
 
-			goto on_error;
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+
+			break;
 		}
 		if( toc_entry.cdte_format == CDROM_LBA )
 		{
@@ -939,7 +1034,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			libcnotify_printf(
 			 "%s: entry: %" PRIu16 "",
 			 function,
-			 entry_iterator );
+			 entry_index );
 
 			if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
 			{
@@ -970,7 +1065,7 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 			 offset );
 		}
 #endif
-		if( entry_iterator > first_entry )
+		if( entry_index > first_entry )
 		{
 			if( ( offset < last_track_offset )
 			 || ( offset < last_session_offset ) )
@@ -1068,153 +1163,211 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 		last_track_offset = offset;
 		last_track_type   = track_type;
 	}
-	if( memory_set(
-	     &toc_entry,
-	     0,
-	     sizeof( struct cdrom_tocentry ) ) == NULL )
+	if( read_count != -1 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable clear toc entry.",
-		 function );
-
-		goto on_error;
-	}
-	toc_entry.cdte_track  = CDROM_LEADOUT;
-	toc_entry.cdte_format = CDROM_LBA;
-
-	if( libcfile_file_io_control_read(
-	     device_file,
-	     CDROMREADTOCENTRY,
-	     (uint8_t *) &toc_entry,
-	     sizeof( struct cdrom_tocentry ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 "%s: unable to query device for: CDROMREADTOCENTRY.",
-		 function );
-
-		goto on_error;
-	}
-	if( toc_entry.cdte_format == CDROM_LBA )
-	{
-		offset = (uint32_t) toc_entry.cdte_addr.lba;
-	}
-	else if( toc_entry.cdte_format == CDROM_MSF )
-	{
-		libsmdev_optical_disc_copy_msf_to_lba(
-		 toc_entry.cdte_addr.msf.minute,
-		 toc_entry.cdte_addr.msf.second,
-		 toc_entry.cdte_addr.msf.frame,
-		 offset );
-	}
-	else
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported CDTE format.",
-		 function );
-
-		goto on_error;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "\tLead out" );
-
-		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
+		if( memory_set(
+		     &toc_entry,
+		     0,
+		     sizeof( struct cdrom_tocentry ) ) == NULL )
 		{
-			libcnotify_printf(
-			 " (audio)" );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear TOC entry.",
+			 function );
+
+			goto on_error;
+		}
+		toc_entry.cdte_track  = CDROM_LEADOUT;
+		toc_entry.cdte_format = CDROM_LBA;
+
+		read_count = libcfile_file_io_control_read(
+			      device_file,
+			      CDROMREADTOCENTRY,
+			      NULL,
+			      0,
+			      (uint8_t *) &toc_entry,
+			      sizeof( struct cdrom_tocentry ),
+			      error );
+
+		if( read_count == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: CDROMREADTOCENTRY.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
 		}
 		else
 		{
-			libcnotify_printf(
-			 " (data)" );
-		}
-		if( toc_entry.cdte_format == CDROM_LBA )
-		{
-			libcnotify_printf(
-			 " start:\t%" PRIu32 "",
-			 toc_entry.cdte_addr.lba );
-		}
-		else if( toc_entry.cdte_format == CDROM_MSF )
-		{
-			libcnotify_printf(
-			 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
-			 toc_entry.cdte_addr.msf.minute,
-			 toc_entry.cdte_addr.msf.second,
-			 toc_entry.cdte_addr.msf.frame );
-		}
-		libcnotify_printf(
-		 " (offset: %" PRIu32 ")\n\n",
-		 offset );
-	}
+			if( toc_entry.cdte_format == CDROM_LBA )
+			{
+				offset = (uint32_t) toc_entry.cdte_addr.lba;
+			}
+			else if( toc_entry.cdte_format == CDROM_MSF )
+			{
+				libsmdev_optical_disc_copy_msf_to_lba(
+				 toc_entry.cdte_addr.msf.minute,
+				 toc_entry.cdte_addr.msf.second,
+				 toc_entry.cdte_addr.msf.frame,
+				 offset );
+			}
+			else
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported CDTE format.",
+				 function );
+
+				goto on_error;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "\tLead out" );
+
+				if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
+				{
+					libcnotify_printf(
+					 " (audio)" );
+				}
+				else
+				{
+					libcnotify_printf(
+					 " (data)" );
+				}
+				if( toc_entry.cdte_format == CDROM_LBA )
+				{
+					libcnotify_printf(
+					 " start:\t%" PRIu32 "",
+					 toc_entry.cdte_addr.lba );
+				}
+				else if( toc_entry.cdte_format == CDROM_MSF )
+				{
+					libcnotify_printf(
+					 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
+					 toc_entry.cdte_addr.msf.minute,
+					 toc_entry.cdte_addr.msf.second,
+					 toc_entry.cdte_addr.msf.frame );
+				}
+				libcnotify_printf(
+				 " (offset: %" PRIu32 ")\n\n",
+				 offset );
+			}
 #endif
-	if( ( offset < last_track_offset )
-	 || ( offset < last_session_offset ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid offset value out of bounds.",
-		 function );
+			if( ( offset < last_track_offset )
+			 || ( offset < last_session_offset ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid offset value out of bounds.",
+				 function );
 
-		goto on_error;
+				goto on_error;
+			}
+			last_track_size = offset - last_track_offset;
+
+			if( libsmdev_handle_append_track(
+			     internal_handle,
+			     last_track_offset,
+			     last_track_size,
+			     last_track_type,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append last track: %" PRIu8 ".",
+				 function,
+				 track_index );
+
+				goto on_error;
+			}
+			last_session_size = offset - last_session_offset;
+
+			if( libsmdev_handle_append_session(
+			     internal_handle,
+			     last_session_offset,
+			     last_session_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append session: %" PRIu8 ".",
+				 function,
+				 session_index );
+
+				goto on_error;
+			}
+			result = 1;
+		}
 	}
-	last_track_size = offset - last_track_offset;
-
-	if( libsmdev_handle_append_track(
-	     internal_handle,
-	     last_track_offset,
-	     last_track_size,
-	     last_track_type,
-	     error ) != 1 )
+	if( result == 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append last track: %" PRIu8 ".",
-		 function,
-		 track_index );
+		if( libcdata_array_empty(
+		     internal_handle->tracks_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty tracks array.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
+		if( libcdata_array_empty(
+		     internal_handle->sessions_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty sessions array.",
+			 function );
+
+			goto on_error;
+		}
 	}
-	last_session_size = offset - last_session_offset;
-
-	if( libsmdev_handle_append_session(
-	     internal_handle,
-	     last_session_offset,
-	     last_session_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append session: %" PRIu8 ".",
-		 function,
-		 session_index );
-
-		goto on_error;
-	}
-	return( 1 );
+	return( result );
 
 on_error:
-	libcdata_array_resize(
+	libcdata_array_empty(
 	 internal_handle->tracks_array,
-	 0,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+	 NULL );
+
+	libcdata_array_empty(
+	 internal_handle->sessions_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
 	 NULL );
 
 	return( -1 );

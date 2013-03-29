@@ -42,6 +42,7 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
 #include "libsmdev_libcerror.h"
+#include "libsmdev_libcfile.h"
 #include "libsmdev_libclocale.h"
 #include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
@@ -142,15 +143,7 @@ int libsmdev_check_device(
      const char *filename,
      libcerror_error_t **error )
 {
-#if defined( WINAPI )
-	HANDLE file_handle    = NULL;
-	DWORD error_code      = 0;
-	DWORD file_type       = 0;
-#else
-	struct stat file_stat;
-
-	int file_descriptor   = 0;
-#endif
+	libcfile_file_t *file = NULL;
 	static char *function = "libsmdev_check_device";
 	int result            = 0;
 
@@ -165,193 +158,85 @@ int libsmdev_check_device(
 
 		return( -1 );
 	}
-#if defined( WINAPI )
-	/* Must use CreateFileA here because filename is a 
-	 * narrow character string and CreateFile is dependent
-	 * on UNICODE directives
-	 */
-	file_handle = CreateFileA(
-	               (LPCSTR) filename,
-	               GENERIC_READ,
-	               FILE_SHARE_READ,
-	               NULL,
-	               OPEN_EXISTING,
-	               FILE_ATTRIBUTE_NORMAL,
-	               NULL );
-
-	if( file_handle == INVALID_HANDLE_VALUE )
-	{
-		error_code = GetLastError();
-
-		switch( error_code )
-		{
-			case ERROR_ACCESS_DENIED:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
-				 "%s: access denied to file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			case ERROR_FILE_NOT_FOUND:
-			case ERROR_PATH_NOT_FOUND:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
-				 "%s: no such file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			default:
-				libcerror_system_set_error(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 error_code,
-				 "%s: unable to open file: %s.",
-				 function,
-				 filename );
-
-				break;
-		}
-		return( -1 );
-	}
-	/* Use the GetFileType function to rule out certain file types
-	 * like pipes, sockets, etc.
-	 */
-	file_type = GetFileType(
-	             file_handle );
-
-	if( file_type != FILE_TYPE_DISK )
+	if( libcfile_file_initialize(
+	     &file,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file.",
 		 function );
 
-		CloseHandle(
-		 file_handle );
+		goto on_error;
+	}
+	if( libcfile_file_open(
+	     file,
+	     filename,
+	     LIBCFILE_OPEN_READ,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open file.",
+		 function );
+
+		goto on_error;
+	}
+	result = libcfile_file_is_device(
+	          file,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if file is a device.",
+		 function );
 
 		return( -1 );
 	}
-	if( ( filename[ 0 ] == '\\' )
-	 && ( filename[ 1 ] == '\\' )
-	 && ( filename[ 2 ] == '.' )
-	 && ( filename[ 3 ] == '\\' ) )
-	{
-		result = 1;
-	}
-	if( CloseHandle(
-	     file_handle ) == 0 )
+	if( libcfile_file_close(
+	     file,
+	     error ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %s.",
-		 function,
-		 filename );
-
-		return( -1 );
-	}
-#else
-#if defined( HAVE_GLIB_H )
-	file_descriptor = g_open(
-	                   filename,
-	                   file_io_flags,
-	                   0644 );
-#else
-	file_descriptor = open(
-	                   filename,
-	                   O_RDONLY,
-	                   0644 );
-
-#endif /* HAVE_GLIB_H */
-
-	if( file_descriptor == -1 )
-	{
-		switch( errno )
-		{
-			case EACCES:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
-				 "%s: access denied to file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			case ENOENT:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
-				 "%s: no such file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			default:
-				libcerror_system_set_error(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 errno,
-				 "%s: unable to open file: %s.",
-				 function,
-				 filename );
-
-				break;
-		}
-		return( -1 );
-	}
-	if( fstat(
-	     file_descriptor,
-	     &file_stat ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine file status information.",
+		 "%s: unable to close file.",
 		 function );
 
-		close(
-		 file_descriptor );
-
-		return( -1 );
+		goto on_error;
 	}
-	if( S_ISBLK( file_stat.st_mode )
-	 || S_ISCHR( file_stat.st_mode ) )
-	{
-		result = 1;
-	}
-	if( close(
-	     file_descriptor ) != 0 )
+	if( libcfile_file_free(
+	     &file,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %s.",
-		 function,
-		 filename );
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file.",
+		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-#endif
 	return( result );
+
+on_error:
+	if( file != NULL )
+	{
+		libcfile_file_free(
+		 &file,
+		 NULL );
+	}
+	return( -1 );
 }
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
@@ -363,21 +248,9 @@ int libsmdev_check_device_wide(
      const wchar_t *filename,
      libcerror_error_t **error )
 {
-#if defined( WINAPI )
-	HANDLE file_handle          = NULL;
-	DWORD error_code            = 0;
-	DWORD file_type             = 0;
-#else
-	struct stat file_stat;
-
-        char *narrow_filename       = NULL;
-        size_t narrow_filename_size = 0;
-        size_t filename_length      = 0;
-
-	int file_descriptor         = 0;
-#endif
-	static char *function       = "libsmdev_check_device_wide";
-	int result                  = 0;
+	libcfile_file_t *file = NULL;
+	static char *function = "libsmdev_check_device_wide";
+	int result            = 0;
 
 	if( filename == NULL )
 	{
@@ -390,322 +263,85 @@ int libsmdev_check_device_wide(
 
 		return( -1 );
 	}
-#if defined( WINAPI )
-	/* Must use CreateFileW here because filename is a 
-	 * wide character string and CreateFile is dependent
-	 * on UNICODE directives
-	 */
-	file_handle = CreateFileW(
-	               (LPCWSTR) filename,
-	               GENERIC_READ,
-	               FILE_SHARE_READ,
-	               NULL,
-	               OPEN_EXISTING,
-	               FILE_ATTRIBUTE_NORMAL,
-	               NULL );
-
-	if( file_handle == INVALID_HANDLE_VALUE )
-	{
-		error_code = GetLastError();
-
-		switch( error_code )
-		{
-			case ERROR_ACCESS_DENIED:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
-				 "%s: access denied to file: %ls.",
-				 function,
-				 filename );
-
-				break;
-
-			case ERROR_FILE_NOT_FOUND:
-			case ERROR_PATH_NOT_FOUND:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
-				 "%s: no such file: %ls.",
-				 function,
-				 filename );
-
-				break;
-
-			default:
-				libcerror_system_set_error(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 error_code,
-				 "%s: unable to open file: %ls.",
-				 function,
-				 filename );
-
-				break;
-		}
-		return( -1 );
-	}
-	/* Use the GetFileType function to rule out certain file types
-	 * like pipes, sockets, etc.
-	 */
-	file_type = GetFileType(
-	             file_handle );
-
-	if( file_type != FILE_TYPE_DISK )
+	if( libcfile_file_initialize(
+	     &file,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file.",
 		 function );
 
-		CloseHandle(
-		 file_handle );
+		goto on_error;
+	}
+	if( libcfile_file_open_wide(
+	     file,
+	     filename,
+	     LIBCFILE_OPEN_READ,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open file.",
+		 function );
+
+		goto on_error;
+	}
+	result = libcfile_file_is_device(
+	          file,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if file is a device.",
+		 function );
 
 		return( -1 );
 	}
-	if( ( filename[ 0 ] == '\\' )
-	 && ( filename[ 1 ] == '\\' )
-	 && ( filename[ 2 ] == '.' )
-	 && ( filename[ 3 ] == '\\' ) )
-	{
-		result = 1;
-	}
-	if( CloseHandle(
-	     file_handle ) == 0 )
+	if( libcfile_file_close(
+	     file,
+	     error ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %ls.",
-		 function,
-		 filename );
-
-		return( -1 );
-	}
-#else
-	/* Convert the filename to a narrow string
-	 * if the platform has no wide character open function
-	 */
-	filename_length = libcstring_wide_string_length(
-	                   filename );
-
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf8_string_size_from_utf32(
-		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
-		          &narrow_filename_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf8_string_size_from_utf16(
-		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
-		          &narrow_filename_size,
-		          error );
-#else
-#error Unsupported size of wchar_t
-#endif /* SIZEOF_WCHAR_T */
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_byte_stream_size_from_utf32(
-		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
-		          libclocale_codepage,
-		          &narrow_filename_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_byte_stream_size_from_utf16(
-		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
-		          libclocale_codepage,
-		          &narrow_filename_size,
-		          error );
-#else
-#error Unsupported size of wchar_t
-#endif /* SIZEOF_WCHAR_T */
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to determine narrow character filename size.",
+		 "%s: unable to close file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	narrow_filename = (char *) memory_allocate(
-				    sizeof( char ) * narrow_filename_size );
-
-	if( narrow_filename == NULL )
+	if( libcfile_file_free(
+	     &file,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create narrow character filename.",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf8_string_copy_from_utf32(
-		          (libuna_utf8_character_t *) narrow_filename,
-		          narrow_filename_size,
-		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf8_string_copy_from_utf16(
-		          (libuna_utf8_character_t *) narrow_filename,
-		          narrow_filename_size,
-		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
-		          error );
-#else
-#error Unsupported size of wchar_t
-#endif /* SIZEOF_WCHAR_T */
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_byte_stream_copy_from_utf32(
-		          (uint8_t *) narrow_filename,
-		          narrow_filename_size,
-		          libclocale_codepage,
-		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_byte_stream_copy_from_utf16(
-		          (uint8_t *) narrow_filename,
-		          narrow_filename_size,
-		          libclocale_codepage,
-		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
-		          error );
-#else
-#error Unsupported size of wchar_t
-#endif /* SIZEOF_WCHAR_T */
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set narrow character filename.",
-		 function );
-
-		memory_free(
-		 narrow_filename );
-
-		return( -1 );
-	}
-#if defined( HAVE_GLIB_H )
-	file_descriptor = g_open(
-	                   narrow_filename,
-	                   file_io_flags,
-	                   0644 );
-#else
-	file_descriptor = open(
-	                   narrow_filename,
-	                   O_RDONLY,
-	                   0644 );
-
-#endif /* HAVE_GLIB_H */
-
-	memory_free(
-	 narrow_filename );
-
-	if( file_descriptor == -1 )
-	{
-		switch( errno )
-		{
-			case EACCES:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
-				 "%s: access denied to file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			case ENOENT:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
-				 "%s: no such file: %s.",
-				 function,
-				 filename );
-
-				break;
-
-			default:
-				libcerror_system_set_error(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_OPEN_FAILED,
-				 errno,
-				 "%s: unable to open file: %s.",
-				 function,
-				 filename );
-
-				break;
-		}
-		return( -1 );
-	}
-	if( fstat(
-	     file_descriptor,
-	     &file_stat ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine file status information.",
-		 function );
-
-		close(
-		 file_descriptor );
-
-		return( -1 );
-	}
-	if( S_ISBLK( file_stat.st_mode )
-	 || S_ISCHR( file_stat.st_mode ) )
-	{
-		result = 1;
-	}
-	if( close(
-	     file_descriptor ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close file: %s.",
-		 function,
-		 filename );
-
-		return( -1 );
-	}
-
-#endif
 	return( result );
+
+on_error:
+	if( file != NULL )
+	{
+		libcfile_file_free(
+		 &file,
+		 NULL );
+	}
+	return( -1 );
 }
 
 #endif
