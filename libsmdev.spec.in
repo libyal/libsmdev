@@ -1,0 +1,75 @@
+Name: libsmdev
+Version: @VERSION@
+Release: 1
+Summary: Library to access and read storage media (SM) devices
+Group: System Environment/Libraries
+License: LGPL
+Source: %{name}-%{version}.tar.gz
+URL: http://code.google.com/p/libsmdev/
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+@libsmdev_spec_requires@ @ax_libcdata_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcstring_spec_requires@ @ax_libuna_spec_requires@
+@libsmdev_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcstring_spec_build_requires@ @ax_libuna_spec_build_requires@
+
+%description
+libsmdev is library to access and read storage media (SM) devices
+
+%package devel
+Summary: Header files and libraries for developing applications for libsmdev
+Group: Development/Libraries
+Requires: libsmdev = %{version}-%{release}
+
+%description devel
+Header files and libraries for developing applications for libsmdev.
+
+%package tools
+Summary: Several tools for accessing optical disc table of contents (TOC) files
+Group: Applications/System
+Requires: libsmdev = %{version}-%{release} @ax_libcsystem_spec_requires@
+@libsmdev_spec_tools_build_requires@ @ax_libcsystem_spec_build_requires@
+
+%description tools
+Several tools for accessing storage media (SM) devices
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir}
+make %{?_smp_mflags}
+
+%install
+rm -rf ${RPM_BUILD_ROOT}
+make DESTDIR=${RPM_BUILD_ROOT} install
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_libdir}/*.so.*
+
+%files devel
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README README.dll README.macosx README.mingw README.static ChangeLog
+%{_libdir}/*.a
+%{_libdir}/*.la
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/libsmdev.pc
+%{_includedir}/*
+%{_mandir}/man3/*
+
+%files tools
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_bindir}/smdevinfo
+%{_mandir}/man1/*
+
+%changelog
+* @SPEC_DATE@ Joachim Metz <joachim.metz@gmail.com> @VERSION@-1
+- Auto-generated
+

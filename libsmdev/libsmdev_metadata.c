@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -116,10 +116,10 @@ STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
 
 typedef enum _STORAGE_QUERY_TYPE
 {
-	PropertyStandardQuery = 0, 
-	PropertyExistsQuery, 
-	PropertyMaskQuery, 
-	PropertyQueryMaxDefined 
+	PropertyStandardQuery = 0,
+	PropertyExistsQuery,
+	PropertyMaskQuery,
+	PropertyQueryMaxDefined
 }
 STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
 
@@ -143,7 +143,7 @@ typedef enum _STORAGE_BUS_TYPE
 	BusTypeiSCSI		= 0x09,
 	BusTypeSas		= 0x0a,
 	BusTypeSata		= 0x0b,
-	BusTypeMaxReserved	= 0x7f 
+	BusTypeMaxReserved	= 0x7f
 }
 STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
 
@@ -392,7 +392,7 @@ int libsmdev_handle_get_bytes_per_sector(
 		}
 		else
 		{
-			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry_extended.Geometry.BytesPerSector; 
+			internal_handle->bytes_per_sector     = (uint32_t) disk_geometry_extended.Geometry.BytesPerSector;
 			internal_handle->bytes_per_sector_set = 1;
 		}
 #elif defined( BLKSSZGET )

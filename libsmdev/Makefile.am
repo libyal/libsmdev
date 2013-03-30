@@ -6,10 +6,8 @@ AM_CPPFLAGS = \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
-	@LIBCSPLIT_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
-	@LIBCFILE_CPPFLAGS@ \
-	@LIBCPATH_CPPFLAGS@
+	@LIBCFILE_CPPFLAGS@
 
 lib_LTLIBRARIES = libsmdev.la
 
@@ -46,10 +44,8 @@ libsmdev_la_LIBADD = \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
-	@LIBCSPLIT_LIBADD@ \
 	@LIBUNA_LIBADD@ \
-	@LIBCFILE_LIBADD@ \
-	@LIBCPATH_LIBADD@
+	@LIBCFILE_LIBADD@
 
 libsmdev_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
@@ -67,6 +63,6 @@ distclean: clean
 	/bin/rm -f Makefile
 
 splint:
-	@echo "Running splint on libsmdev ..." 
-	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libsmdev_la_SOURCES) 
+	@echo "Running splint on libsmdev ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libsmdev_la_SOURCES)
 

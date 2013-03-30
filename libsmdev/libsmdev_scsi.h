@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -125,14 +125,14 @@ struct libsmdev_scsi_read_toc_cdb
 	 * Bits:
 	 * 0     reserved
 	 * 1     MSF
-	 * 2 - 7 reserved 
+	 * 2 - 7 reserved
 	 */
 	uint8_t msf;
 
 	/* The format and reserved bits
 	 * Bits:
 	 * 0 - 3 format
-	 * 4 - 7 reserved 
+	 * 4 - 7 reserved
 	 */
 	uint8_t format;
 
@@ -167,7 +167,7 @@ struct libsmdev_scsi_read_disc_information_cdb
 	/* The data type and reserved bits
 	 * Bits:
 	 * 0 - 3 data type
-	 * 4 - 7 reserved 
+	 * 4 - 7 reserved
 	 */
 	uint8_t data_type;
 
@@ -208,8 +208,8 @@ struct libsmdev_scsi_read_track_information_cdb
 	/* The address type, flag and reserved bits
 	 * Bits:
 	 * 0 - 1 address type
-	 * 2     open flag 
-	 * 3 - 7 reserved 
+	 * 2     open flag
+	 * 3 - 7 reserved
 	 */
 	uint8_t address_type;
 

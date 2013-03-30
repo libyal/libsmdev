@@ -8,15 +8,14 @@ SUBDIRS = \
 	libcdata \
 	libclocale \
 	libcnotify \
-	libcsplit \
 	libuna \
 	libcfile \
-	libcpath \
 	libsmdev \
 	libcsystem \
 	smdevtools \
 	po \
 	manuals \
+	tests \
 	msvscpp
 
 DPKG_FILES = \
@@ -72,10 +71,8 @@ library:
 	(cd $(srcdir)/libcdata && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libclocale && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcnotify && $(MAKE) $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsplit && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libuna && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcfile && $(MAKE) $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcpath && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsmdev && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 
@@ -97,10 +94,8 @@ splint:
 	(cd $(srcdir)/libclocale && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcdata && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcnotify && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsplit && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcfile && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcpath && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsmdev && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))
 

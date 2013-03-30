@@ -4,9 +4,7 @@ MSVSCPP_FILES = \
 	libcfile/libcfile.vcproj \
 	libclocale/libclocale.vcproj \
 	libcnotify/libcnotify.vcproj \
-	libcpath/libcpath.vcproj \
 	libcstring/libcstring.vcproj \
-	libcsplit/libcsplit.vcproj \
 	libcsystem/libcsystem.vcproj \
 	libsmdev_dll/libsmdev_dll.vcproj \
 	libuna/libuna.vcproj \

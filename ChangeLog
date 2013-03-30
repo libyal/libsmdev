@@ -7,7 +7,6 @@ TODO
   - MAC OS X support
 * SCSI/ATA devices
   - Mac OS X support
-* make sure error_ranges is cleared on open
 * configure validate libuna check
 * work on libsmdev_metadata
   - add information values functions (libsmio)
@@ -37,6 +36,10 @@ Deployment
 
 Test:
 * add autoconf/make test suite
+
+20130330
+* code clean up
+* removed libcsplit and libcpath
 
 20130329
 * worked on libcfile refactor
