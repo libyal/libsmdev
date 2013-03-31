@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20130331
+* added debug code files
+
 20130330
 * code clean up
 * removed libcsplit and libcpath

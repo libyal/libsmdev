@@ -19,22 +19,18 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBSMDEV_DEBUG_H )
-#define _LIBSMDEV_DEBUG_H
-
 #include <common.h>
 #include <types.h>
 
-#include <libcnotify.h>
-
 #include "libsmdev_debug.h"
+#include "libsmdev_libcnotify.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
 /* Prints a description of the device type
  */
-char *libsmdev_debug_print_device_type(
-       uint8_t device_type )
+const char *libsmdev_debug_print_device_type(
+             uint8_t device_type )
 {
 	switch( device_type )
 	{

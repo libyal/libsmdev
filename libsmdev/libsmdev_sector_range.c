@@ -129,6 +129,85 @@ int libsmdev_sector_range_free(
 	return( 1 );
 }
 
+/* Clones the sector range
+ * Returns 1 if successful or -1 on error
+ */
+int libsmdev_sector_range_clone(
+     libsmdev_sector_range_t **destination_sector_range,
+     libsmdev_sector_range_t *source_sector_range,
+     libcerror_error_t **error )
+{
+	static char *function = "libsmdev_sector_range_clone";
+
+	if( destination_sector_range == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid destination sector range.",
+		 function );
+
+		return( -1 );
+	}
+	if( *destination_sector_range != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid destination sector range already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( source_sector_range == NULL )
+	{
+		*destination_sector_range = NULL;
+
+		return( 1 );
+	}
+	*destination_sector_range = memory_allocate_structure(
+		                     libsmdev_sector_range_t );
+
+	if( *destination_sector_range == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create destination sector range.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_copy(
+	     *destination_sector_range,
+	     source_sector_range,
+	     sizeof( libsmdev_sector_range_t ) ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy source to destination sector range.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( *destination_sector_range != NULL )
+	{
+		memory_free(
+		 *destination_sector_range );
+
+		*destination_sector_range = NULL;
+	}
+	return( -1 );
+}
+
 /* Retrieves a session value
  * Returns 1 if successful or -1 on error
  */

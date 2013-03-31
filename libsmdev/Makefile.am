@@ -15,6 +15,7 @@ libsmdev_la_SOURCES = \
 	libsmdev.c \
 	libsmdev_ata.c libsmdev_ata.h \
 	libsmdev_codepage.h \
+	libsmdev_debug.c libsmdev_debug.h \
 	libsmdev_definitions.h \
 	libsmdev_error.c libsmdev_error.h \
 	libsmdev_extern.h \

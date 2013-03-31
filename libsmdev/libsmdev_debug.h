@@ -31,8 +31,8 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-void libsmdev_debug_print_device_type(
-      uint8_t device_type );
+const char *libsmdev_debug_print_device_type(
+             uint8_t device_type );
 
 #endif
 

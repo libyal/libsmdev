@@ -175,6 +175,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsmdev\libsmdev_debug.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsmdev\libsmdev_error.c"
 				>
 			</File>
@@ -230,6 +234,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libsmdev\libsmdev_codepage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsmdev\libsmdev_debug.h"
 				>
 			</File>
 			<File

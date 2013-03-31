@@ -56,6 +56,11 @@ int libsmdev_sector_range_free(
      libsmdev_sector_range_t **sector_range,
      libcerror_error_t **error );
 
+int libsmdev_sector_range_clone(
+     libsmdev_sector_range_t **destination_sector_range,
+     libsmdev_sector_range_t *source_sector_range,
+     libcerror_error_t **error );
+
 int libsmdev_sector_range_get(
      libsmdev_sector_range_t *sector_range,
      uint64_t *start_sector,
