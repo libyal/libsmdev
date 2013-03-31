@@ -23,7 +23,6 @@
 #include <types.h>
 
 #include "libsmdev_debug.h"
-#include "libsmdev_libcnotify.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
