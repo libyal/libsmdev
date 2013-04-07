@@ -1376,6 +1376,7 @@ int libsmdev_handle_get_error(
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_error";
+	intptr_t *value                             = NULL;
 
 	if( handle == NULL )
 	{
@@ -1390,11 +1391,12 @@ int libsmdev_handle_get_error(
 	}
 	internal_handle = (libsmdev_internal_handle_t *) handle;
 
-	if( libcdata_range_list_get_range(
+	if( libcdata_range_list_get_range_by_index(
 	     internal_handle->errors_range_list,
 	     index,
 	     (uint64_t *) offset,
 	     (uint64_t *) size,
+	     &value,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

@@ -27,8 +27,8 @@
 #include "libsmdev_libcerror.h"
 #include "libsmdev_track_value.h"
 
-/* Initialize a track value
- * Make sure the value is pointing to is set to NULL
+/* Creates a track value
+ * Make sure the value track_value is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_track_value_initialize(

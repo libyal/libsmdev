@@ -53,7 +53,8 @@
 #include "libsmdev_track_value.h"
 #include "libsmdev_types.h"
 
-/* Initializes the handle
+/* Creates a handle
+ * Make sure the value handle is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libsmdev_handle_initialize(
@@ -207,7 +208,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the handle
+/* Frees a handle
  * Returns 1 if succesful or -1 on error
  */
 int libsmdev_handle_free(
@@ -300,6 +301,7 @@ int libsmdev_handle_free(
 		}
 		if( libcdata_range_list_free(
 		     &( internal_handle->errors_range_list ),
+		     NULL,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -435,6 +437,7 @@ int libsmdev_handle_open(
 	}
 	if( libcdata_range_list_empty(
 	     internal_handle->errors_range_list,
+	     NULL,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -638,6 +641,7 @@ int libsmdev_handle_open_wide(
 	}
 	if( libcdata_range_list_empty(
 	     internal_handle->errors_range_list,
+	     NULL,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -844,6 +848,7 @@ int libsmdev_handle_close(
 		}
 		if( libcdata_range_list_empty(
 		     internal_handle->errors_range_list,
+		     NULL,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1208,17 +1213,20 @@ ssize_t libsmdev_handle_read_buffer(
 				 read_error_size );
 			}
 #endif
-			if( libcdata_range_list_append_range(
+			if( libcdata_range_list_insert_range(
 			     internal_handle->errors_range_list,
 			     (uint64_t) current_offset,
 			     (uint64_t) read_error_size,
+			     NULL,
+			     NULL,
+			     NULL,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append read error to range list.",
+				 "%s: unable to insert read error to range list.",
 				 function );
 
 				return( -1 );

@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20130407
+* updated dependencies
+* textual changes
+
 20130331
 * added debug code files
 

@@ -137,7 +137,7 @@ int libsmdev_notify_stream_close(
  * Error functions
  * ------------------------------------------------------------------------- */
 
-/* Frees the error including elements
+/* Frees an error
  */
 LIBSMDEV_EXTERN \
 void libsmdev_error_free(
@@ -183,8 +183,8 @@ int libsmdev_error_backtrace_sprint(
  * Handle functions
  * ------------------------------------------------------------------------- */
 
-/* Initializes the handle
- * Make sure the value handle is pointing to is set to NULL
+/* Creates a handle
+ * Make sure the value handle is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 LIBSMDEV_EXTERN \
@@ -192,7 +192,7 @@ int libsmdev_handle_initialize(
      libsmdev_handle_t **handle,
      libsmdev_error_t **error );
 
-/* Frees the handle
+/* Frees a handle
  * Returns 1 if successful or -1 on error
  */
 LIBSMDEV_EXTERN \

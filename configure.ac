@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20130331],
+ [20130407],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -180,9 +180,9 @@ AC_MSG_NOTICE([
 Building:
    libcstring support:                         $ac_cv_libcstring
    libcerror support:                          $ac_cv_libcerror
-   libuna support:                             $ac_cv_libuna
    libcdata support:                           $ac_cv_libcdata
    libclocale support:                         $ac_cv_libclocale
+   libuna support:                             $ac_cv_libuna
    libcfile support:                           $ac_cv_libcfile
    libcsystem support:                         $ac_cv_libcsystem
 
