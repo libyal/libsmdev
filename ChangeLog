@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20130416
+* updated dependencies
+* fixes for build by some versions of mingw
+
 20130407
 * updated dependencies
 * textual changes

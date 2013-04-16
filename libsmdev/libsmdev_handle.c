@@ -35,6 +35,10 @@
 #include <errno.h>
 #endif
 
+#if defined( WINAPI )
+#include <winioctl.h>
+#endif
+
 #include "libsmdev_ata.h"
 #include "libsmdev_definitions.h"
 #include "libsmdev_handle.h"
@@ -52,6 +56,99 @@
 #include "libsmdev_string.h"
 #include "libsmdev_track_value.h"
 #include "libsmdev_types.h"
+
+#if defined( WINAPI )
+
+#if !defined( IOCTL_STORAGE_QUERY_PROPERTY )
+#define IOCTL_STORAGE_QUERY_PROPERTY \
+	CTL_CODE( IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS )
+
+typedef enum _STORAGE_PROPERTY_ID
+{
+	StorageDeviceProperty = 0,
+	StorageAdapterProperty,
+	StorageDeviceIdProperty,
+	StorageDeviceUniqueIdProperty,
+	StorageDeviceWriteCacheProperty,
+	StorageMiniportProperty,
+	StorageAccessAlignmentProperty,
+	StorageDeviceSeekPenaltyProperty,
+	StorageDeviceTrimProperty,
+	StorageDeviceWriteAggregationProperty
+}
+STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
+
+typedef enum _STORAGE_QUERY_TYPE
+{
+	PropertyStandardQuery = 0,
+	PropertyExistsQuery,
+	PropertyMaskQuery,
+	PropertyQueryMaxDefined
+}
+STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
+
+#if defined( _MSC_VER ) || defined( __BORLANDC__ )
+#define HAVE_WINIOCTL_H_STORAGE_BUS_TYPE
+#endif
+
+#if !defined( HAVE_WINIOCTL_H_STORAGE_BUS_TYPE )
+
+typedef enum _STORAGE_BUS_TYPE
+{
+	BusTypeUnknown		= 0x00,
+	BusTypeScsi		= 0x01,
+	BusTypeAtapi		= 0x02,
+	BusTypeAta		= 0x03,
+	BusType1394		= 0x04,
+	BusTypeSsa		= 0x05,
+	BusTypeFibre		= 0x06,
+	BusTypeUsb		= 0x07,
+	BusTypeRAID		= 0x08,
+	BusTypeiSCSI		= 0x09,
+	BusTypeSas		= 0x0a,
+	BusTypeSata		= 0x0b,
+	BusTypeMaxReserved	= 0x7f
+}
+STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
+
+#endif /* !defined( HAVE_WINIOCTL_H_STORAGE_BUS_TYPE ) */
+
+typedef struct _STORAGE_PROPERTY_QUERY
+{
+	STORAGE_PROPERTY_ID PropertyId;
+	STORAGE_QUERY_TYPE QueryType;
+	UCHAR AdditionalParameters[ 1 ];
+}
+STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
+
+typedef struct _STORAGE_DEVICE_DESCRIPTOR
+{
+	ULONG Version;
+	ULONG Size;
+	UCHAR DeviceType;
+	UCHAR DeviceTypeModifier;
+	BOOLEAN RemovableMedia;
+	BOOLEAN CommandQueueing;
+	ULONG VendorIdOffset;
+	ULONG ProductIdOffset;
+	ULONG ProductRevisionOffset;
+	ULONG SerialNumberOffset;
+	STORAGE_BUS_TYPE BusType;
+	ULONG RawPropertiesLength;
+	UCHAR RawDeviceProperties[ 1 ];
+}
+STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
+
+typedef struct _STORAGE_DESCRIPTOR_HEADER
+{
+	ULONG Version;
+	ULONG Size;
+}
+STORAGE_DESCRIPTOR_HEADER, *PSTORAGE_DESCRIPTOR_HEADER;
+
+#endif /* !defined( IOCTL_STORAGE_QUERY_PROPERTY ) */
+
+#endif /* defined( WINAPI ) */
 
 /* Creates a handle
  * Make sure the value handle is referencing, is set to NULL
