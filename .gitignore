@@ -17,6 +17,7 @@
 *.Tpo
 .deps
 .libs
+INSTALL
 Makefile
 Makefile.in
 stamp-h1
@@ -89,6 +90,7 @@ stamp-h1
 /libsmdev.pc
 /libsmdev.spec
 /common/config.h
+/common/config.h.in
 /common/types.h
 /dpkg/changelog
 /dpkg/copyright
