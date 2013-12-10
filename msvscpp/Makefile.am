@@ -6,6 +6,7 @@ MSVSCPP_FILES = \
 	libcnotify/libcnotify.vcproj \
 	libcstring/libcstring.vcproj \
 	libcsystem/libcsystem.vcproj \
+	libcthreads/libcthreads.vcproj \
 	libsmdev_dll/libsmdev_dll.vcproj \
 	libuna/libuna.vcproj \
 	smdevinfo/smdevinfo.vcproj \

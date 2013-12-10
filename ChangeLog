@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20131210
+* updated dependencies
+* added libcthreads
+
 20130901
 * code clean up
 

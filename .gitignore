@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20130503
+# Version: 20130922
 
 # Generic auto-generated build files
 *~
@@ -37,6 +37,7 @@ stamp-h1
 /libtool
 /ltmain.sh
 /missing
+/ylwrap
 /m4/codeset.m4
 /m4/fcntl-o.m4
 /m4/gettext.m4
@@ -101,6 +102,8 @@ stamp-h1
 /libsmdev/libsmdev.rc
 /libsmdev/libsmdev_definitions.h
 /smdevtools/smdevinfo
+/tests/input
+/tests/tmp
 
 # Local library dependencies specific files
 /libcdata
@@ -110,4 +113,5 @@ stamp-h1
 /libcnotify
 /libcstring
 /libcsystem
+/libcthreads
 /libuna
