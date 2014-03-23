@@ -39,11 +39,8 @@ DIRECTORY_NAMES = [
 	"libcerror",
 	"libcdata",
 	"libclocale",
-	"libcsplit",
 	"libuna",
 	"libcfile",
-	"libcpath",
-	"libbfio",
 ]
 
 INCLUDE_DIRS = []
@@ -56,11 +53,8 @@ LIBRARY_NAMES = [
 	"libcerror",
 	"libcdata",
 	"libclocale",
-	"libcsplit",
 	"libuna",
 	"libcfile",
-	"libcpath",
-	"libbfio",
 	"%s" % (LIBRARY_NAME),
 ]
 
@@ -80,11 +74,8 @@ if platform.system() == "Windows":
 		("HAVE_LOCAL_LIBCERROR", ""),
 		("HAVE_LOCAL_LIBCDATA", ""),
 		("HAVE_LOCAL_LIBCLOCALE", ""),
-		("HAVE_LOCAL_LIBCSPLIT", ""),
 		("HAVE_LOCAL_LIBUNA", ""),
 		("HAVE_LOCAL_LIBCFILE", ""),
-		("HAVE_LOCAL_LIBCPATH", ""),
-		("HAVE_LOCAL_LIBBFIO", ""),
 		("%s_DLL_IMPORT" % (LIBRARY_NAME.upper()), ""),
 	]
 	for library_name in LIBRARY_NAMES:
