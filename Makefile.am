@@ -14,6 +14,7 @@ SUBDIRS = \
 	libsmdev \
 	libcsystem \
 	smdevtools \
+	pysmdev \
 	po \
 	manuals \
 	tests \
@@ -97,5 +98,7 @@ splint:
 	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcfile && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsmdev && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/smdevtools && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/pysmdev && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))
 

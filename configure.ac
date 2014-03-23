@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20140119],
+ [20140323],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -93,6 +93,9 @@ AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
 dnl Check if libsmdev should be build with debug output
 AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
+dnl Check if libsmdev python bindings (pysmdev) should be build
+AX_PYTHON_CHECK_ENABLE
+
 dnl Check if DLL support is needed in smdevtools
 AS_IF(
  [test x"$enable_shared" = xyes],
@@ -156,6 +159,7 @@ AC_CONFIG_FILES([libcfile/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([smdevtools/Makefile])
+AC_CONFIG_FILES([pysmdev/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -172,6 +176,7 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libsmdev/libsmdev.rc])
+AC_CONFIG_FILES([pysmdev/setup.py])
 AC_CONFIG_FILES([libsmdev.pc])
 AC_CONFIG_FILES([libsmdev.spec])
 dnl Have configure write its configuration
@@ -195,6 +200,7 @@ Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading
    Wide character type support:                $ac_cv_enable_wide_character_type
    smdevtools are build as static executables: $ac_cv_enable_static_executables
+   Python (pysmdev) support:                   $ac_cv_enable_python
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);

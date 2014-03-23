@@ -2,7 +2,7 @@ Source: libsmdev
 Section: unknown
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev
+Build-Depends: debhelper (>= 7), autotools-dev, python-dev
 Standards-Version: 3.8.3
 Homepage: http://code.google.com/p/libsmdev/
 
@@ -26,4 +26,11 @@ Architecture: any
 Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}
 Description: Several tools for accessing storage media (SM) devices
  Several tools for accessing storage media (SM) devices.
+
+Package: libsmdev-python
+Section: python
+Architecture: any
+Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Description: Python bindings for libsmdev
+ Python bindings for libsmdev.
 

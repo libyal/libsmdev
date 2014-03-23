@@ -42,7 +42,7 @@ extern "C" {
 /* Returns the library version
  */
 LIBSMDEV_EXTERN \
-const char *libsmdev_handle_get_version(
+const char *libsmdev_get_version(
              void );
 
 /* Returns the access flags for reading
@@ -238,7 +238,7 @@ int libsmdev_handle_close(
      libsmdev_handle_t *handle,
      libsmdev_error_t **error );
 
-/* Reads a buffer from the handle
+/* Reads a buffer
  * Returns the number of bytes read or -1 on error
  */
 LIBSMDEV_EXTERN \
@@ -248,7 +248,18 @@ ssize_t libsmdev_handle_read_buffer(
          size_t buffer_size,
          libsmdev_error_t **error );
 
-/* Writes a buffer to the handle
+/* Reads a buffer at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_read_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libsmdev_error_t **error );
+
+/* Writes a buffer
  * Returns the number of bytes written or -1 on error
  */
 LIBSMDEV_EXTERN \
@@ -258,7 +269,18 @@ ssize_t libsmdev_handle_write_buffer(
          size_t buffer_size,
          libsmdev_error_t **error );
 
-/* Seeks an offset in the handle
+/* Writes a buffer at a specific offset
+ * Returns the number of bytes written or -1 on error
+ */
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_write_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         const uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libsmdev_error_t **error );
+
+/* Seeks an offset
  * Returns the offset if seek is successful or -1 on error
  */
 LIBSMDEV_EXTERN \

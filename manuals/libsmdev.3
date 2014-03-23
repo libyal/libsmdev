@@ -1,4 +1,4 @@
-.Dd January 19, 2014
+.Dd March 23, 2014
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -65,11 +65,11 @@ File/Handle functions
 .Ft ssize_t
 .Fn libsmdev_handle_read_buffer "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_read_random "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Fn libsmdev_handle_read_buffer_at_offset "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
 .Ft ssize_t
 .Fn libsmdev_handle_write_buffer "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_write_random "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Fn libsmdev_handle_write_buffer_at_offset "libsmdev_handle_t *handle, void *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
 .Ft off64_t
 .Fn libsmdev_handle_seek_offset "libsmdev_handle_t *handle, off64_t offset, int whence, libsmdev_error_t **error"
 .Ft off64_t

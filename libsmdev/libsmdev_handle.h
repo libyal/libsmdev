@@ -185,10 +185,26 @@ ssize_t libsmdev_handle_read_buffer(
          libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_read_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libcerror_error_t **error );
+
+LIBSMDEV_EXTERN \
 ssize_t libsmdev_handle_write_buffer(
          libsmdev_handle_t *handle,
          const uint8_t *buffer,
          size_t buffer_size,
+         libcerror_error_t **error );
+
+LIBSMDEV_EXTERN \
+ssize_t libsmdev_handle_write_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         const uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
          libcerror_error_t **error );
 
 LIBSMDEV_EXTERN \

@@ -102,6 +102,7 @@ stamp-h1
 /libsmdev/libsmdev.rc
 /libsmdev/libsmdev_definitions.h
 /smdevtools/smdevinfo
+/pyewf/setup.py
 /tests/input
 /tests/tmp
 

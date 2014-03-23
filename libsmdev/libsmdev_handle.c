@@ -1364,6 +1364,54 @@ ssize_t libsmdev_handle_read_buffer(
 	return( (ssize_t) buffer_offset );
 }
 
+/* Reads a buffer at a specific offset
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libsmdev_handle_read_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libcerror_error_t **error )
+{
+	static char *function = "libsmdev_handle_read_buffer_at_offset";
+	ssize_t read_count    = 0;
+
+	if( libsmdev_handle_seek_offset(
+	     handle,
+	     offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset.",
+		 function );
+
+		return( -1 );
+	}
+	read_count = libsmdev_handle_read_buffer(
+	              handle,
+	              buffer,
+	              buffer_size,
+	              error );
+
+	if( read_count < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read buffer.",
+		 function );
+
+		return( -1 );
+	}
+	return( read_count );
+}
+
 /* Writes a buffer
  * Returns the number of bytes written or -1 on error
  */
@@ -1421,6 +1469,54 @@ ssize_t libsmdev_handle_write_buffer(
 	}
 	internal_handle->offset += write_count;
 
+	return( write_count );
+}
+
+/* Writes a buffer at a specific offset
+ * Returns the number of bytes written or -1 on error
+ */
+ssize_t libsmdev_handle_write_buffer_at_offset(
+         libsmdev_handle_t *handle,
+         const uint8_t *buffer,
+         size_t buffer_size,
+         off64_t offset,
+         libcerror_error_t **error )
+{
+	static char *function = "libsmdev_handle_write_buffer_at_offset";
+	ssize_t write_count   = 0;
+
+	if( libsmdev_handle_seek_offset(
+	     handle,
+	     offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek offset.",
+		 function );
+
+		return( -1 );
+	}
+	write_count = libsmdev_handle_write_buffer(
+	               handle,
+	               buffer,
+	               buffer_size,
+	               error );
+
+	if( write_count < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write buffer.",
+		 function );
+
+		return( -1 );
+	}
 	return( write_count );
 }
 
