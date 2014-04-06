@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140406
+* updated to include header
+
 20140323
 * added read/write at offset functions
 * worked on Python bindings

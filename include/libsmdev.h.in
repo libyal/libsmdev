@@ -506,6 +506,26 @@ int libsmdev_handle_set_error_flags(
      uint8_t error_flags,
      libsmdev_error_t **error );
 
+/* Retrieves the number of read/write errors
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_number_of_errors(
+     libsmdev_handle_t *handle,
+     int *number_of_errors,
+     libsmdev_error_t **error );
+
+/* Retrieves a read/write error
+ * Returns 1 if successful or -1 on error
+ */
+LIBSMDEV_EXTERN \
+int libsmdev_handle_get_error(
+     libsmdev_handle_t *handle,
+     int index,
+     off64_t *offset,
+     size64_t *size,
+     libsmdev_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

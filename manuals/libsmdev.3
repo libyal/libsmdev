@@ -1,4 +1,4 @@
-.Dd March 23, 2014
+.Dd April 6, 2014
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -126,6 +126,10 @@ Meta data functions
 .Fn libsmdev_get_error_flags "libsmdev_handle_t *handle, uint8_t *error_flags, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_set_error_flags "libsmdev_handle_t *handle, uint8_t error_flags, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_number_of_errors "libsmdev_handle_t *handle, int *number_of_errors, libsmdev_error_t **error"
+.Ft int
+.Fn libsmdev_handle_get_error "libsmdev_handle_t *handle, int index, off64_t *offset, size64_t *size, libsmdev_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libsmdev_get_version
