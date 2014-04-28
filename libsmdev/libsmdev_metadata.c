@@ -185,6 +185,9 @@ int libsmdev_handle_get_bytes_per_sector(
 
 #if defined( WINAPI )
 	uint32_t error_code                         = 0;
+
+#elif !defined( BLKSSZGET ) && defined( DIOCGSECTORSIZE )
+	u_int safe_bytes_per_sector                 = 0;
 #endif
 
 	if( handle == NULL )
@@ -343,7 +346,69 @@ int libsmdev_handle_get_bytes_per_sector(
 		{
 			internal_handle->bytes_per_sector_set = 1;
 		}
-#elif defined( DKIOCGETBLOCKCOUNT )
+#elif defined( DIOCGSECTORSIZE )
+		read_count = libcfile_file_io_control_read(
+		              internal_handle->device_file,
+		              DIOCGSECTORSIZE,
+		              NULL,
+		              0,
+		              (uint8_t *) &safe_bytes_per_sector,
+		              sizeof( u_int ),
+		              error );
+
+		if( read_count == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: DIOCGSECTORSIZE.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+		}
+		else if( safe_bytes_per_sector > (u_int) UINT32_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid bytes per sector value out of bounds.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+
+		}
+		else
+		{
+			internal_handle->bytes_per_sector     = (uint32_t) safe_bytes_per_sector;
+			internal_handle->bytes_per_sector_set = 1;
+		}
+#elif defined( DKIOCGETBLOCKSIZE )
 		read_count = libcfile_file_io_control_read(
 		              internal_handle->device_file,
 		              DKIOCGETBLOCKSIZE,

@@ -45,6 +45,13 @@ PyMethodDef pysmdev_module_methods[] = {
 	  "\n"
 	  "Retrieves the version." },
 
+	{ "check_device",
+	  (PyCFunction) pysmdev_check_device,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "check_device(filename) -> Boolean\n"
+	  "\n"
+	  "Checks if the filename refers to a device." },
+
 	{ "open",
 	  (PyCFunction) pysmdev_handle_new_open,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -90,6 +97,59 @@ PyObject *pysmdev_get_version(
 	         version_string,
 	         (Py_ssize_t) version_string_length,
 	         errors ) );
+}
+
+/* Checks if the filename refers to a device
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pysmdev_check_device(
+           PyObject *self PYSMDEV_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pysmdev_check_device";
+	static char *keyword_list[] = { "filename", NULL };
+	const char *filename        = NULL;
+	int result                  = 0;
+
+	PYSMDEV_UNREFERENCED_PARAMETER( self )
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "|s",
+	     keyword_list,
+	     &filename ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libsmdev_check_device(
+	          filename,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pysmdev_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to check device.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( result != 0 )
+	{
+		return( Py_True );
+	}
+	return( Py_False );
 }
 
 /* Declarations for DLL import/export

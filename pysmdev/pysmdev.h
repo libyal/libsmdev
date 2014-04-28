@@ -35,6 +35,11 @@ PyObject *pysmdev_get_version(
            PyObject *self,
            PyObject *arguments );
 
+PyObject *pysmdev_check_device(
+           PyObject *self,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyMODINIT_FUNC initpysmdev(
                 void );
 
