@@ -455,6 +455,10 @@ int libsmdev_handle_open(
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 
+#if defined( HAVE_WINAPI )
+	uint32_t bytes_per_sector                   = 0;
+#endif
+
 	if( handle == NULL )
 	{
 		libcerror_error_set(
@@ -592,6 +596,52 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
+	if( libsmdev_handle_get_media_size(
+	     handle,
+	     &media_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve media size.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_WINAPI )
+	/* Some Windows device require sector aligned read and seek operations
+	 */
+	if( libsmdev_handle_get_bytes_per_sector(
+	     handle,
+	     &bytes_per_sector,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve bytes per sector.",
+		 function );
+
+		goto on_error;
+	}
+	if( libcfile_file_set_block_size(
+	     internal_handle->device_file,
+	     (size_t) bytes_per_sector,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to set block size in device file.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */
@@ -605,20 +655,6 @@ int libsmdev_handle_open(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set access behavior.",
-		 function );
-
-		goto on_error;
-	}
-	if( libsmdev_handle_get_media_size(
-	     handle,
-	     &media_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve media size.",
 		 function );
 
 		goto on_error;
@@ -796,6 +832,52 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
+	if( libsmdev_handle_get_media_size(
+	     handle,
+	     &media_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve media size.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_WINAPI )
+	/* Some Windows device require sector aligned read and seek operations
+	 */
+	if( libsmdev_handle_get_bytes_per_sector(
+	     handle,
+	     &bytes_per_sector,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve bytes per sector.",
+		 function );
+
+		goto on_error;
+	}
+	if( libcfile_file_set_block_size(
+	     internal_handle->device_file,
+	     (size_t) bytes_per_sector,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to set block size in device file.",
+		 function );
+
+		goto on_error;
+	}
+#endif
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */
@@ -809,20 +891,6 @@ int libsmdev_handle_open_wide(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set access behavior.",
-		 function );
-
-		goto on_error;
-	}
-	if( libsmdev_handle_get_media_size(
-	     handle,
-	     &media_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve media size.",
 		 function );
 
 		goto on_error;

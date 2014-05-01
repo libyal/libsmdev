@@ -36,6 +36,10 @@ PyObject *pysmdev_handle_get_media_size(
            pysmdev_handle_t *pysmdev_handle,
            PyObject *arguments );
 
+PyObject *pysmdev_handle_get_bytes_per_sector(
+           pysmdev_handle_t *pysmdev_handle,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif

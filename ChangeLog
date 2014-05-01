@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140501
+* worked on Python bindings
+* updated libcfile
+
 20140428
 * worked on Python bindings
 * added DIOCGSECTORSIZE support for FreeBSD

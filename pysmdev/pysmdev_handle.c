@@ -144,6 +144,13 @@ PyMethodDef pysmdev_handle_object_methods[] = {
 	  "\n"
 	  "Retrieves the size of the media data." },
 
+	{ "get_bytes_per_sector",
+	  (PyCFunction) pysmdev_handle_get_bytes_per_sector,
+	  METH_NOARGS,
+	  "get_bytes_per_sector() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of bytes per sector." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -154,6 +161,12 @@ PyGetSetDef pysmdev_handle_object_get_set_definitions[] = {
 	  (getter) pysmdev_handle_get_media_size,
 	  (setter) 0,
 	  "The media size.",
+	  NULL },
+
+	{ "bytes_per_sector",
+	  (getter) pysmdev_handle_get_bytes_per_sector,
+	  (setter) 0,
+	  "The bytes per sector.",
 	  NULL },
 
 	/* Sentinel */

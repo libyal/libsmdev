@@ -84,3 +84,55 @@ PyObject *pysmdev_handle_get_media_size(
 	return( integer_object );
 }
 
+/* Retrieves the number of bytes per sector
+ * Returns a Python object holding the offset if successful or NULL on error
+ */
+PyObject *pysmdev_handle_get_bytes_per_sector(
+           pysmdev_handle_t *pysmdev_handle,
+           PyObject *arguments PYSMDEV_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	PyObject *integer_object  = NULL;
+	static char *function     = "pysmdev_handle_get_bytes_per_sector";
+	uint32_t bytes_per_sector = 0;
+	int result                = 0;
+
+	PYSMDEV_UNREFERENCED_PARAMETER( arguments )
+
+	if( pysmdev_handle == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid handle.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libsmdev_handle_get_bytes_per_sector(
+	          pysmdev_handle->handle,
+	          &bytes_per_sector,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pysmdev_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve bytes per sector.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pysmdev_integer_unsigned_new_from_64bit(
+	                  (uint64_t) bytes_per_sector );
+
+	return( integer_object );
+}
+
