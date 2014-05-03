@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140503
+* updated libcfile
+
 20140502
 * worked on block-based read to support Windows device files
 
