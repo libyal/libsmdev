@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140525
+* worked on non-blocking Windows device file support
+
 20140503
 * updated libcfile
 

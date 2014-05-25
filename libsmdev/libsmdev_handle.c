@@ -1163,7 +1163,7 @@ ssize_t libsmdev_handle_read_buffer(
 		{
 			switch( error_code )
 			{
-#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+#if defined( WINAPI )
 				default:
 #else
 				/* Reading should not be retried for some POSIX error conditions
@@ -1182,7 +1182,7 @@ ssize_t libsmdev_handle_read_buffer(
 
 					return( -1 );
 
-#if defined( WINAPI ) && !defined( USE_CRT_FUNCTIONS )
+#if defined( WINAPI )
 				/* A WINAPI read error generates the error code ERROR_UNRECOGNIZED_MEDIA
 				 */
 				case ERROR_UNRECOGNIZED_MEDIA:
