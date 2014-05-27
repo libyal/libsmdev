@@ -37,6 +37,14 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140527
+* fixes for dealing with Unicode paths in pysmdev
+* fixes for OSX python build
+* updated dependencies
+
+20140526
+* fadvise bug fix
+
 20140525
 * worked on non-blocking Windows device file support
 

@@ -1,6 +1,6 @@
 dnl Functions for Python bindings
 dnl
-dnl Version: 20130303
+dnl Version: 20140525
 
 dnl Function to check if the python binary is available
 dnl "python python# python#.#"
@@ -63,12 +63,12 @@ AC_DEFUN([AX_PYTHON_CHECK],
    [$PYTHON_INCLUDES])
 
   dnl Check for Python libraries
-  PYTHON_LIBS=`$PYTHON_CONFIG --libs 2>/dev/null`;
+  PYTHON_LDFLAGS=`$PYTHON_CONFIG --ldflags 2>/dev/null`;
 
   AC_MSG_CHECKING(
    [for Python libraries])
   AC_MSG_RESULT(
-   [$PYTHON_LIBS])
+   [$PYTHON_LDFLAGS])
 
   dnl Check for the existence of Python.h
   BACKUP_CPPFLAGS="$CPPFLAGS"
@@ -92,7 +92,7 @@ AC_DEFUN([AX_PYTHON_CHECK],
 
   AC_SUBST(
    [PYTHON_LDFLAGS],
-   [$PYTHON_LIBS])
+   [$PYTHON_LDFLAGS])
 
   dnl Check for Python prefix
   AS_IF(

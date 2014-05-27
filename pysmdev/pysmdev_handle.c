@@ -501,11 +501,18 @@ PyObject *pysmdev_handle_open(
            PyObject *keywords )
 {
 	libcerror_error_t *error    = NULL;
-	char *filename              = NULL;
 	char *mode                  = NULL;
 	static char *keyword_list[] = { "filename", "mode", NULL };
 	static char *function       = "pysmdev_handle_open";
 	int result                  = 0;
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	const wchar_t *filename     = NULL;
+	static char *format_string  = "u|s";
+#else
+	const char *filename        = NULL;
+	static char *format_string  = "s|s";
+#endif
 
 	if( pysmdev_handle == NULL )
 	{
@@ -519,7 +526,7 @@ PyObject *pysmdev_handle_open(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "s|s",
+	     format_string,
 	     keyword_list,
 	     &filename,
 	     &mode ) == 0 )
@@ -539,12 +546,19 @@ PyObject *pysmdev_handle_open(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libsmdev_handle_open_wide(
+	          pysmdev_handle->handle,
+                  filename,
+                  LIBSMDEV_OPEN_READ,
+	          &error );
+#else
 	result = libsmdev_handle_open(
 	          pysmdev_handle->handle,
                   filename,
                   LIBSMDEV_OPEN_READ,
 	          &error );
-
+#endif
 	Py_END_ALLOW_THREADS
 
 	if( result != 1 )

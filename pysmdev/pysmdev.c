@@ -110,15 +110,21 @@ PyObject *pysmdev_check_device(
 	libcerror_error_t *error    = NULL;
 	static char *function       = "pysmdev_check_device";
 	static char *keyword_list[] = { "filename", NULL };
-	const char *filename        = NULL;
 	int result                  = 0;
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	const wchar_t *filename     = NULL;
+	static char *format_string  = "|u";
+#else
+	const char *filename        = NULL;
+	static char *format_string  = "|s";
+#endif
 	PYSMDEV_UNREFERENCED_PARAMETER( self )
 
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|s",
+	     format_string,
 	     keyword_list,
 	     &filename ) == 0 )
 	{
@@ -126,10 +132,15 @@ PyObject *pysmdev_check_device(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libsmdev_check_device_wide(
+	          filename,
+	          &error );
+#else
 	result = libsmdev_check_device(
 	          filename,
 	          &error );
-
+#endif
 	Py_END_ALLOW_THREADS
 
 	if( result == -1 )
