@@ -492,6 +492,223 @@ PyObject *pysmdev_handle_signal_abort(
 	return( Py_None );
 }
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+
+/* Opens a handle
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pysmdev_handle_open(
+           pysmdev_handle_t *pysmdev_handle,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *exception_string    = NULL;
+	PyObject *exception_traceback = NULL;
+	PyObject *exception_type      = NULL;
+	PyObject *exception_value     = NULL;
+	PyObject *string_object       = NULL;
+	libcerror_error_t *error      = NULL;
+	static char *keyword_list[]   = { "filename", "mode", NULL };
+	static char *function         = "pysmdev_handle_open";
+	const wchar_t *filename_wide  = NULL;
+	const char *filename_narrow   = NULL;
+	char *error_string            = NULL;
+	char *mode                    = NULL;
+	int result                    = 0;
+
+	if( pysmdev_handle == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid handle.",
+		 function );
+
+		return( NULL );
+	}
+	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
+	 * On Windows the narrow character strings contains an extended ASCII string with a codepage. Hence we get a conversion
+	 * exception. We cannot use "u" here either since that does not allow us to pass non Unicode string objects and
+	 * Python (at least 2.7) does not seems to automatically upcast them.
+	 */
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "O|s",
+	     keyword_list,
+	     &filename,
+	     &mode ) == 0 )
+        {
+                return( NULL );
+        }
+        if( ( mode != NULL )
+	 && ( mode[ 0 ] != 'r' ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: unsupported mode: %s.",
+		 function,
+		 mode );
+
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_IsInstance(
+	          string_object,
+	          (PyObject *) &PyUnicode_Type );
+
+	if( result == -1 )
+	{
+		PyErr_Fetch(
+		 &exception_type,
+		 &exception_value,
+		 &exception_traceback );
+
+		exception_string = PyObject_Repr(
+		                    exception_value );
+
+		error_string = PyString_AsString(
+		                exception_string );
+
+		if( error_string != NULL )
+		{
+        		PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type unicode with error: %s.",
+			 function,
+			 error_string );
+		}
+		else
+		{
+        		PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type unicode.",
+			 function );
+		}
+		Py_DecRef(
+		 exception_string );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		PyErr_Clear();
+
+		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
+		                             string_object );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libsmdev_handle_open_wide(
+			  pysmdev_handle->handle,
+			  filename_wide,
+			  LIBSMDEV_OPEN_READ,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pysmdev_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to open handle.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	PyErr_Clear();
+
+	result = PyObject_IsInstance(
+		  string_object,
+		  (PyObject *) &PyString_Type );
+
+	if( result == -1 )
+	{
+		PyErr_Fetch(
+		 &exception_type,
+		 &exception_value,
+		 &exception_traceback );
+
+		exception_string = PyObject_Repr(
+				    exception_value );
+
+		error_string = PyString_AsString(
+				exception_string );
+
+		if( error_string != NULL )
+		{
+        		PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type string with error: %s.",
+			 function,
+			 error_string );
+		}
+		else
+		{
+        		PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type string.",
+			 function );
+		}
+		Py_DecRef(
+		 exception_string );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		PyErr_Clear();
+
+		filename_narrow = PyString_AsString(
+				   string_object );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libsmdev_handle_open(
+			  pysmdev_handle->handle,
+			  filename_narrow,
+			  LIBSMDEV_OPEN_READ,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pysmdev_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to open handle.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+        PyErr_Format(
+         PyExc_TypeError,
+         "%s: unsupported string object type",
+         function );
+
+	return( NULL );
+}
+
+#else
+
 /* Opens a handle
  * Returns a Python object if successful or NULL on error
  */
@@ -504,15 +721,8 @@ PyObject *pysmdev_handle_open(
 	char *mode                  = NULL;
 	static char *keyword_list[] = { "filename", "mode", NULL };
 	static char *function       = "pysmdev_handle_open";
-	int result                  = 0;
-
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	const wchar_t *filename     = NULL;
-	static char *format_string  = "u|s";
-#else
 	const char *filename        = NULL;
-	static char *format_string  = "s|s";
-#endif
+	int result                  = 0;
 
 	if( pysmdev_handle == NULL )
 	{
@@ -523,10 +733,13 @@ PyObject *pysmdev_handle_open(
 
 		return( NULL );
 	}
+	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
+	 * For systems that support UTF-8 this works for Unicode string objects as well.
+	 */
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     format_string,
+	     "s|s",
 	     keyword_list,
 	     &filename,
 	     &mode ) == 0 )
@@ -546,19 +759,12 @@ PyObject *pysmdev_handle_open(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libsmdev_handle_open_wide(
-	          pysmdev_handle->handle,
-                  filename,
-                  LIBSMDEV_OPEN_READ,
-	          &error );
-#else
 	result = libsmdev_handle_open(
 	          pysmdev_handle->handle,
                   filename,
                   LIBSMDEV_OPEN_READ,
 	          &error );
-#endif
+
 	Py_END_ALLOW_THREADS
 
 	if( result != 1 )
@@ -579,6 +785,8 @@ PyObject *pysmdev_handle_open(
 
 	return( Py_None );
 }
+
+#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 /* Closes a handle
  * Returns a Python object if successful or NULL on error
