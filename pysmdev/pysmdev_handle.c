@@ -535,7 +535,7 @@ PyObject *pysmdev_handle_open(
 	     keywords,
 	     "O|s",
 	     keyword_list,
-	     &filename,
+	     &string_object,
 	     &mode ) == 0 )
         {
                 return( NULL );

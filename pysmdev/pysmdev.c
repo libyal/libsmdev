@@ -159,7 +159,7 @@ PyObject *pysmdev_check_device(
 
 		if( error_string != NULL )
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type unicode with error: %s.",
 			 function,
@@ -167,7 +167,7 @@ PyObject *pysmdev_check_device(
 		}
 		else
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type unicode.",
 			 function );
@@ -231,7 +231,7 @@ PyObject *pysmdev_check_device(
 
 		if( error_string != NULL )
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type string with error: %s.",
 			 function,
@@ -239,7 +239,7 @@ PyObject *pysmdev_check_device(
 		}
 		else
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type string.",
 			 function );
@@ -283,10 +283,10 @@ PyObject *pysmdev_check_device(
 		}
 		return( Py_False );
 	}
-        PyErr_Format(
-         PyExc_TypeError,
-         "%s: unsupported string object type",
-         function );
+	PyErr_Format(
+	 PyExc_TypeError,
+	 "%s: unsupported string object type",
+	 function );
 
 	return( NULL );
 }
