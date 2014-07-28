@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140728
+* updated python.m4
+* updated dpkg files
+
 20140529
 * improved dealing with paths in pysmdev on Windows
 

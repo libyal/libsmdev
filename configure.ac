@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20140529],
+ [20140728],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -95,6 +95,16 @@ AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
 dnl Check if libsmdev python bindings (pysmdev) should be build
 AX_PYTHON_CHECK_ENABLE
+
+dnl Headers included in various places
+AC_CHECK_HEADERS([stdarg.h varargs.h])
+
+AS_IF(
+ [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+ [AC_MSG_FAILURE(
+  [Missing headers: stdarg.h and varargs.h],
+  [1])
+ ])
 
 dnl Check if DLL support is needed
 AS_IF(

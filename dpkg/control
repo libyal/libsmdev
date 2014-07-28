@@ -10,8 +10,16 @@ Package: libsmdev
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: libsmdev-dbg
 Description: Library to access and read storage media (SM) devices
  libsmdev is a library to access and read storage media (SM) devices.
+
+Package: libsmdev-dbg
+Architecture: any
+Section: debug
+Depends: libsmdev (= ${Source-Version}), ${misc:Depends}
+Description: Debugging symbols for libsmdev
+ Debugging symbols for libsmdev.
 
 Package: libsmdev-dev
 Section: libdevel
@@ -31,6 +39,14 @@ Package: libsmdev-python
 Section: python
 Architecture: any
 Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Suggests: libsmdev-python-dbg
 Description: Python bindings for libsmdev
  Python bindings for libsmdev.
+
+Package: libsmdev-python-dbg
+Section: debug
+Architecture: any
+Depends: libsmdev-python (= ${Source-Version})
+Description: Debugging symbols for libsmdev-python
+ Debugging symbols for libsmdev-python.
 
