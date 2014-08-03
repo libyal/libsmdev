@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20140803
+* bug fix in Python-bindings
+
 20140728
 * updated python.m4
 * updated dpkg files

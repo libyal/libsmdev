@@ -214,7 +214,7 @@ PyTypeObject pysmdev_handle_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pysmdev handle object (wraps libsmdev_handle_t)",
@@ -537,10 +537,10 @@ PyObject *pysmdev_handle_open(
 	     keyword_list,
 	     &string_object,
 	     &mode ) == 0 )
-        {
-                return( NULL );
-        }
-        if( ( mode != NULL )
+	{
+		return( NULL );
+	}
+	if( ( mode != NULL )
 	 && ( mode[ 0 ] != 'r' ) )
 	{
 		PyErr_Format(
@@ -572,7 +572,7 @@ PyObject *pysmdev_handle_open(
 
 		if( error_string != NULL )
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type unicode with error: %s.",
 			 function,
@@ -580,7 +580,7 @@ PyObject *pysmdev_handle_open(
 		}
 		else
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type unicode.",
 			 function );
@@ -646,7 +646,7 @@ PyObject *pysmdev_handle_open(
 
 		if( error_string != NULL )
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type string with error: %s.",
 			 function,
@@ -654,7 +654,7 @@ PyObject *pysmdev_handle_open(
 		}
 		else
 		{
-        		PyErr_Format(
+			PyErr_Format(
 		         PyExc_RuntimeError,
 			 "%s: unable to determine if string object is of type string.",
 			 function );
@@ -699,10 +699,10 @@ PyObject *pysmdev_handle_open(
 
 		return( Py_None );
 	}
-        PyErr_Format(
-         PyExc_TypeError,
-         "%s: unsupported string object type",
-         function );
+	PyErr_Format(
+	 PyExc_TypeError,
+	 "%s: unsupported string object type",
+	 function );
 
 	return( NULL );
 }
@@ -743,10 +743,10 @@ PyObject *pysmdev_handle_open(
 	     keyword_list,
 	     &filename,
 	     &mode ) == 0 )
-        {
-                return( NULL );
-        }
-        if( ( mode != NULL )
+	{
+		return( NULL );
+	}
+	if( ( mode != NULL )
 	 && ( mode[ 0 ] != 'r' ) )
 	{
 		PyErr_Format(
@@ -761,8 +761,8 @@ PyObject *pysmdev_handle_open(
 
 	result = libsmdev_handle_open(
 	          pysmdev_handle->handle,
-                  filename,
-                  LIBSMDEV_OPEN_READ,
+	          filename,
+	          LIBSMDEV_OPEN_READ,
 	          &error );
 
 	Py_END_ALLOW_THREADS

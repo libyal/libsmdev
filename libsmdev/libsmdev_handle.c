@@ -349,11 +349,6 @@ int libsmdev_handle_free(
 		}
 		*handle = NULL;
 
-		if( internal_handle->filename != NULL )
-		{
-			memory_free(
-			 internal_handle->filename );
-		}
 		if( libcdata_array_free(
 		     &( internal_handle->tracks_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
@@ -973,62 +968,121 @@ int libsmdev_handle_close(
 
 			result = -1;
 		}
-		if( libcdata_array_empty(
-		     internal_handle->tracks_array,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty tracks array.",
-			 function );
+	}
+	internal_handle->offset                = 0;
+	internal_handle->bytes_per_sector      = 0;
+	internal_handle->bytes_per_sector_set  = 0;
+	internal_handle->media_size            = 0;
+	internal_handle->media_size_set        = 0;
+	internal_handle->bus_type              = 0;
+	internal_handle->device_type           = 0;
+	internal_handle->removable             = 0;
+	internal_handle->media_information_set = 0;
 
-			result = -1;
-		}
-		if( libcdata_array_empty(
-		     internal_handle->sessions_array,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty sessions array.",
-			 function );
+	if( memory_set(
+	     internal_handle->vendor,
+	     0,
+	     64 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear vendor string.",
+		 function );
 
-			result = -1;
-		}
-		if( libcdata_array_empty(
-		     internal_handle->lead_outs_array,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty lead-outs array.",
-			 function );
+		result = -1;
+	}
+	if( memory_set(
+	     internal_handle->model,
+	     0,
+	     64 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear model string.",
+		 function );
 
-			result = -1;
-		}
-		if( libcdata_range_list_empty(
-		     internal_handle->errors_range_list,
-		     NULL,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty errors range list.",
-			 function );
+		result = -1;
+	}
+	if( memory_set(
+	     internal_handle->serial_number,
+	     0,
+	     64 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear serial number string.",
+		 function );
 
-			result = -1;
-		}
+		result = -1;
+	}
+	if( internal_handle->filename != NULL )
+	{
+		memory_free(
+		 internal_handle->filename );
+
+		internal_handle->filename = NULL;
+	}
+	if( libcdata_array_empty(
+	     internal_handle->tracks_array,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty tracks array.",
+		 function );
+
+		result = -1;
+	}
+	if( libcdata_array_empty(
+	     internal_handle->sessions_array,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty sessions array.",
+		 function );
+
+		result = -1;
+	}
+	if( libcdata_array_empty(
+	     internal_handle->lead_outs_array,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty lead-outs array.",
+		 function );
+
+		result = -1;
+	}
+	if( libcdata_range_list_empty(
+	     internal_handle->errors_range_list,
+	     NULL,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to empty errors range list.",
+		 function );
+
+		result = -1;
 	}
 	return( result );
 }
@@ -3481,7 +3535,7 @@ int libsmdev_handle_append_session(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
@@ -3560,7 +3614,7 @@ int libsmdev_handle_append_lead_out(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );
@@ -3640,7 +3694,7 @@ int libsmdev_handle_append_track(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal handle.",
+		 "%s: invalid handle.",
 		 function );
 
 		return( -1 );

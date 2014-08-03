@@ -7,7 +7,7 @@ MSVSCPP_FILES = \
 	libcstring/libcstring.vcproj \
 	libcsystem/libcsystem.vcproj \
 	libcthreads/libcthreads.vcproj \
-	libsmdev_dll/libsmdev_dll.vcproj \
+	libsmdev/libsmdev.vcproj \
 	libuna/libuna.vcproj \
 	pysmdev/pysmdev.vcproj \
 	smdevinfo/smdevinfo.vcproj \

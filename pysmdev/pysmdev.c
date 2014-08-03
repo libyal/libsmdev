@@ -206,8 +206,14 @@ PyObject *pysmdev_check_device(
 		}
 		if( result != 0 )
 		{
+			Py_IncRef(
+			 (PyObject *) Py_True );
+
 			return( Py_True );
 		}
+		Py_IncRef(
+		 (PyObject *) Py_False );
+
 		return( Py_False );
 	}
 	PyErr_Clear();
@@ -279,8 +285,14 @@ PyObject *pysmdev_check_device(
 		}
 		if( result != 0 )
 		{
+			Py_IncRef(
+			 (PyObject *) Py_True );
+
 			return( Py_True );
 		}
+		Py_IncRef(
+		 (PyObject *) Py_False );
+
 		return( Py_False );
 	}
 	PyErr_Format(
@@ -344,8 +356,14 @@ PyObject *pysmdev_check_device(
 	}
 	if( result != 0 )
 	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
 		return( Py_True );
 	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
 	return( Py_False );
 }
 
