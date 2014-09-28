@@ -1,4 +1,6 @@
-See:
-* http://code.google.com/p/libsmdev/wiki/Building
-* README.macosx
+libsmdev is a library to access to storage media devices.
+
+For more information see:
+* Project documentation: https://github.com/libyal/libsmdev/wiki/Home
+* How to build from source: https://github.com/libyal/libsmdev/wiki/Building
 
