@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20141004
+* bug fix in Python-bindings
+
 20140928
 * removed README.macosx
 * changes for project site move

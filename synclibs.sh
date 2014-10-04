@@ -1,10 +1,10 @@
 #!/bin/sh
 # Script that synchronizes the local library dependencies
 #
-# Version: 20140915
+# Version: 20141004
 
 GIT_URL_PREFIX="https://github.com/libyal";
-LOCAL_LIBS="libcdata libcerror libcfile libclocale libcnotify libcthreads libuna";
+LOCAL_LIBS="libcdata libcerror libcfile libclocale libcnotify libcstring libcsystem libcthreads libuna";
 
 OLDIFS=$IFS;
 IFS=" ";
@@ -26,8 +26,8 @@ do
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/*.[ch] ${LOCAL_LIB};
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/Makefile.am ${LOCAL_LIB}/Makefile.am;
 
-SED_SCRIPT="
-1i if HAVE_LOCAL_${LOCAL_LIB_UPPER}
+SED_SCRIPT="1i\\
+if HAVE_LOCAL_${LOCAL_LIB_UPPER}
 
 /lib_LTLIBRARIES/ {
 	s/lib_LTLIBRARIES/noinst_LTLIBRARIES/
@@ -39,15 +39,23 @@ SED_SCRIPT="
 
 /${LOCAL_LIB}_la_LIBADD/ {
 :loop1
-        /${LOCAL_LIB}_la_LDFLAGS/ {
-                N
-		i endif
-                d
-        }
-        /${LOCAL_LIB}_la_LDFLAGS/ !{
-                N
-                b loop1
-        }
+	/${LOCAL_LIB}_la_LDFLAGS/ {
+		N
+		i\\
+endif
+		d
+	}
+	/${LOCAL_LIB}_la_LDFLAGS/ !{
+		N
+		b loop1
+	}
+}
+
+/${LOCAL_LIB}_la_LDFLAGS/ {
+	N
+	i\\
+endif
+	d
 }
 
 /EXTRA_DIST = / {
@@ -63,24 +71,27 @@ SED_SCRIPT="
 	N
 	d
 }";
-			sed "${SED_SCRIPT}" -i ${LOCAL_LIB}/Makefile.am;
+			echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
+			sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
+			rm -f ${LOCAL_LIB}-$$.sed;
 
-SED_SCRIPT="
-/^$/ {
-        x
-        N
-        /endif$/ {
-                a \
+SED_SCRIPT="/^$/ {
+	x
+	N
+	/endif$/ {
+		a\\
 
-                D
-        }
+		D
+	}
 }";
-			sed "${SED_SCRIPT}" -i ${LOCAL_LIB}/Makefile.am;
+			echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
+			sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
+			rm -f ${LOCAL_LIB}-$$.sed;
 
 			rm -f ${LOCAL_LIB}/${LOCAL_LIB}.c;
 
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/${LOCAL_LIB}_definitions.h.in ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
-			sed 's/@VERSION@/${LOCAL_LIB_VERSION}/' -i ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
+			sed -i'~' 's/@VERSION@/${LOCAL_LIB_VERSION}/' ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
 		fi
 		rm -rf ${LOCAL_LIB}-$$;
 	fi
