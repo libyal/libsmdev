@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20141021
+* changes for deployment
+
 20141004
 * bug fix in Python-bindings
 
