@@ -37,6 +37,9 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20141225
+* worked on Python 3 support
+
 20141129
 * code clean up
 
