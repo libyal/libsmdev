@@ -37,6 +37,11 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20141229
+* updated dpkg files
+* updated dependencies
+* updated .gitignore
+
 20141225
 * worked on Python 3 support
 

@@ -1,13 +1,12 @@
 Source: libsmdev
-Section: unknown
+Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, python-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libsmdev/
 
 Package: libsmdev
-Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: libsmdev-dbg
@@ -17,28 +16,28 @@ Description: Library to access and read storage media (SM) devices
 Package: libsmdev-dbg
 Architecture: any
 Section: debug
-Depends: libsmdev (= ${Source-Version}), ${misc:Depends}
+Depends: libsmdev (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libsmdev
  Debugging symbols for libsmdev.
 
 Package: libsmdev-dev
 Section: libdevel
 Architecture: any
-Depends: libsmdev (= ${Source-Version})
+Depends: libsmdev (= ${binary:Version}), ${misc:Depends}
 Description: Header files and libraries for developing applications for libsmdev
  Header files and libraries for developing applications for libsmdev.
 
 Package: libsmdev-tools
 Section: utils
 Architecture: any
-Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}
+Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for accessing storage media (SM) devices
  Several tools for accessing storage media (SM) devices.
 
 Package: libsmdev-python
 Section: python
 Architecture: any
-Depends: libsmdev (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libsmdev-python-dbg
 Description: Python bindings for libsmdev
  Python bindings for libsmdev.
@@ -46,7 +45,7 @@ Description: Python bindings for libsmdev
 Package: libsmdev-python-dbg
 Section: debug
 Architecture: any
-Depends: libsmdev-python (= ${Source-Version})
+Depends: libsmdev-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libsmdev-python
  Debugging symbols for libsmdev-python.
 

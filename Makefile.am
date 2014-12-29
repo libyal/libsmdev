@@ -23,14 +23,15 @@ SUBDIRS = \
 DPKG_FILES = \
 	dpkg/changelog \
 	dpkg/changelog.in \
-       	dpkg/compat \
-       	dpkg/control \
-       	dpkg/copyright \
-       	dpkg/copyright.in \
-       	dpkg/rules \
-       	dpkg/libsmdev-dev.docs \
-       	dpkg/libsmdev-tools.docs \
-       	dpkg/libsmdev.docs
+	dpkg/compat \
+	dpkg/control \
+	dpkg/copyright \
+	dpkg/copyright.in \
+	dpkg/rules \
+	dpkg/libsmdev-dev.docs \
+	dpkg/libsmdev-tools.docs \
+	dpkg/libsmdev.docs \
+	dpkg/source/format
 
 GETTEXT_FILES = \
 	config.rpath \
@@ -47,7 +48,7 @@ EXTRA_DIST = \
 	$(DPKG_FILES) \
 	$(GETTEXT_FILES) \
 	$(PKGCONFIG_FILES) \
-        $(SPEC_FILES)
+	$(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
