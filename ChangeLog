@@ -37,6 +37,10 @@ Deployment
 Test:
 * add autoconf/make test suite
 
+20150105
+* 2015 update
+* fixed copyright in pysmdev/pysmdev_handle.c
+
 20141229
 * updated dpkg files
 * updated dependencies
