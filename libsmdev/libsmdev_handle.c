@@ -449,10 +449,7 @@ int libsmdev_handle_open(
 	static char *function                       = "libsmdev_handle_open";
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
-
-#if defined( WINAPI )
 	uint32_t bytes_per_sector                   = 0;
-#endif
 
 	if( handle == NULL )
 	{
@@ -605,8 +602,8 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-#if defined( WINAPI )
-	/* Some Windows device require sector aligned read and seek operations
+	/* /dev/rdisk# on Mac OS X and some Windows devices require
+	 * sector aligned read and seek operations
 	 */
 	if( libsmdev_handle_get_bytes_per_sector(
 	     handle,
@@ -636,7 +633,6 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-#endif
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */
@@ -689,10 +685,7 @@ int libsmdev_handle_open_wide(
 	static char *function                       = "libsmdev_handle_open_wide";
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
-
-#if defined( WINAPI )
 	uint32_t bytes_per_sector                   = 0;
-#endif
 
 	if( handle == NULL )
 	{
@@ -845,8 +838,8 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-#if defined( WINAPI )
-	/* Some Windows device require sector aligned read and seek operations
+	/* /dev/rdisk# on Mac OS X and some Windows devices require
+	 * sector aligned read and seek operations
 	 */
 	if( libsmdev_handle_get_bytes_per_sector(
 	     handle,
@@ -876,7 +869,6 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-#endif
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20150905],
+ [20151216],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -197,7 +197,6 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libsmdev/libsmdev.rc])
-AC_CONFIG_FILES([pysmdev/setup.py])
 AC_CONFIG_FILES([libsmdev.pc])
 AC_CONFIG_FILES([libsmdev.spec])
 dnl Have configure write its configuration

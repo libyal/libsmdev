@@ -31,11 +31,11 @@ Media information:
 * use pre windows XP io control codes as fallback ?
 * add support for reading from floppy \\.\A: for builder5 compilation
 
-Deployment
-* add macosx files
-
 Test:
 * add autoconf/make test suite
+
+20151216
+* block aligned read now enabled by default
 
 20150905
 * updated dependencies
