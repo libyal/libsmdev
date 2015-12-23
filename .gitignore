@@ -113,7 +113,6 @@ stamp-h[1-9]
 /libsmdev/libsmdev.rc
 /libsmdev/libsmdev_definitions.h
 /smdevtools/smdevinfo
-/pysmdev/setup.py
 /tests/input
 /tests/tmp*
 
