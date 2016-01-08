@@ -94,7 +94,10 @@ dnl Check if libsmdev should be build with debug output
 AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
 
 dnl Check if libsmdev python bindings (pysmdev) should be build
+AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
+AX_PYTHON2_CHECK_ENABLE
+AX_PYTHON3_CHECK_ENABLE
 
 dnl Headers included in various places
 AC_CHECK_HEADERS([stdarg.h varargs.h])
@@ -181,6 +184,8 @@ AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([smdevtools/Makefile])
 AC_CONFIG_FILES([pysmdev/Makefile])
+AC_CONFIG_FILES([pysmdev2/Makefile])
+AC_CONFIG_FILES([pysmdev3/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -221,6 +226,8 @@ Features:
    Wide character type support:                $ac_cv_enable_wide_character_type
    smdevtools are build as static executables: $ac_cv_enable_static_executables
    Python (pysmdev) support:                   $ac_cv_enable_python
+   Python version 2 (pysmdev) support:         $ac_cv_enable_python2
+   Python version 3 (pysmdev) support:         $ac_cv_enable_python3
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);

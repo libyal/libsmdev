@@ -2,7 +2,7 @@ Source: libsmdev
 Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, python-dev
+Build-Depends: debhelper (>= 7), autotools-dev, python-dev, python3-dev
 Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libsmdev/
 
@@ -39,8 +39,8 @@ Section: python
 Architecture: any
 Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libsmdev-python-dbg
-Description: Python bindings for libsmdev
- Python bindings for libsmdev.
+Description: Python 2 bindings for libsmdev
+ Python 2 bindings for libsmdev.
 
 Package: libsmdev-python-dbg
 Section: debug
@@ -48,4 +48,19 @@ Architecture: any
 Depends: libsmdev-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libsmdev-python
  Debugging symbols for libsmdev-python.
+
+Package: libsmdev-python3
+Section: python
+Architecture: any
+Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Suggests: libsmdev-python3-dbg
+Description: Python 3 bindings for libsmdev
+ Python 3 bindings for libsmdev.
+
+Package: libsmdev-python3-dbg
+Section: debug
+Architecture: any
+Depends: libsmdev-python3 (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libsmdev-python3
+ Debugging symbols for libsmdev-python3.
 

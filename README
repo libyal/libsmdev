@@ -1,16 +1,16 @@
 libsmdev is a library to access to storage media devices.
 
 Project information:
+
 * Status: alpha
 * Licence: LGPLv3+
 
-Work in progress:
-* Python 3 support
-
 Planned:
+
 * Multi-threading support
 
 For more information see:
+
 * Project documentation: https://github.com/libyal/libsmdev/wiki/Home
 * How to build from source: https://github.com/libyal/libsmdev/wiki/Building
 

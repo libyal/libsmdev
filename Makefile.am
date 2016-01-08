@@ -15,6 +15,8 @@ SUBDIRS = \
 	libcsystem \
 	smdevtools \
 	pysmdev \
+	pysmdev2 \
+	pysmdev3 \
 	po \
 	manuals \
 	tests \
@@ -28,9 +30,11 @@ DPKG_FILES = \
 	dpkg/copyright \
 	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libsmdev-dev.docs \
-	dpkg/libsmdev-tools.docs \
 	dpkg/libsmdev.docs \
+	dpkg/libsmdev-dev.docs \
+	dpkg/libsmdev-python.docs \
+	dpkg/libsmdev-python3.docs \
+	dpkg/libsmdev-tools.docs \
 	dpkg/source/format
 
 GETTEXT_FILES = \
