@@ -1,7 +1,7 @@
 /*
  * Error functions
  *
- * Copyright (C) 2010-2015, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,7 +28,7 @@
 #include "pysmdev_libcerror.h"
 #include "pysmdev_python.h"
 
-#define PYSMDEV_ERROR_STRING_SIZE		768
+#define PYSMDEV_ERROR_STRING_SIZE		2048
 
 #if defined( __cplusplus )
 extern "C" {

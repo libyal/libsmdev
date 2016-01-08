@@ -1,7 +1,7 @@
 /*
  * Python bindings for libsmdev (pysmdev)
  *
- * Copyright (C) 2010-2015, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -40,8 +40,13 @@ PyObject *pysmdev_check_device(
            PyObject *arguments,
            PyObject *keywords );
 
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC PyInit_pysmdev(
+                void );
+#else
 PyMODINIT_FUNC initpysmdev(
                 void );
+#endif
 
 #if defined( __cplusplus )
 }
