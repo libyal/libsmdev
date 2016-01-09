@@ -846,7 +846,7 @@ PyObject *pysmdev_handle_read_buffer(
 	/* Need to resize the string here in case read_size was not fully read.
 	 */
 #if PY_MAJOR_VERSION >= 3
-	if( _PyBytesResize(
+	if( _PyBytes_Resize(
 	     &string_object,
 	     (Py_ssize_t) read_count ) != 0 )
 #else
