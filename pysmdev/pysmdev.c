@@ -179,7 +179,7 @@ PyObject *pysmdev_check_device(
 			return( NULL );
 		}
 #if PY_MAJOR_VERSION >= 3
-		filename_narrow = Pybytes_AsString(
+		filename_narrow = PyBytes_AsString(
 				   utf8_string_object );
 #else
 		filename_narrow = PyString_AsString(

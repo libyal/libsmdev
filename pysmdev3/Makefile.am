@@ -50,13 +50,13 @@ pysmdev_la_LDFLAGS  = -module -avoid-version $(PYTHON3_LDFLAGS)
 $(BUILT_SOURCES):
 	/bin/cp -f $(top_srcdir)/pysmdev/pysmdev*.[ch] .
 
-clean-local:
-	/bin/rm -f pysmdev*.[ch]
-
 endif
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+clean-local:
+	/bin/rm -f pysmdev*.[ch]
 
 distclean: clean
 	/bin/rm -f Makefile
