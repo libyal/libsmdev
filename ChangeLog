@@ -34,6 +34,9 @@ Media information:
 Test:
 * add autoconf/make test suite
 
+20160111
+* Changes to Python bindings
+
 20160109
 * worked on Python 3 support
 * fixes for rpmbuild

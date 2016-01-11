@@ -15,8 +15,8 @@ SUBDIRS = \
 	libcsystem \
 	smdevtools \
 	pysmdev \
-	pysmdev2 \
-	pysmdev3 \
+	pysmdev-python2 \
+	pysmdev-python3 \
 	po \
 	manuals \
 	tests \

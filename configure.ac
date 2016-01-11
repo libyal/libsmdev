@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20160109],
+ [20160111],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -184,8 +184,8 @@ AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([smdevtools/Makefile])
 AC_CONFIG_FILES([pysmdev/Makefile])
-AC_CONFIG_FILES([pysmdev2/Makefile])
-AC_CONFIG_FILES([pysmdev3/Makefile])
+AC_CONFIG_FILES([pysmdev-python2/Makefile])
+AC_CONFIG_FILES([pysmdev-python3/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
