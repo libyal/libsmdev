@@ -33,9 +33,15 @@
 
 /* The following type definitions hide internal data structures
  */
+#if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
+typedef struct libsmdev_handle {}	libsmdev_handle_t;
+
+#else
 typedef intptr_t libsmdev_handle_t;
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBSMDEV ) */
+
+#endif /* !defined( _LIBSMDEV_INTERNAL_TYPES_H ) */
 

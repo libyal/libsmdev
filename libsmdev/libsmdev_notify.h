@@ -59,5 +59,5 @@ int libsmdev_notify_stream_close(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_NOTIFY_H ) */
 

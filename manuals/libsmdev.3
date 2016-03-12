@@ -1,9 +1,9 @@
-.Dd January  5, 2015
+.Dd January  8, 2016
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
 .Nm libsmdev.h
-.Nd Library to access and read the storage media (SM) devices
+.Nd Library to access and read storage media (SM) devices
 .Sh LIBRARY
 .Lb libsmdev
 .Sh SYNOPSIS
@@ -24,8 +24,6 @@ Support functions
 .Fn libsmdev_set_codepage "int codepage, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_check_device "const char *filename, libsmdev_error_t **error"
-.Ft #endif
-.Fn 
 .Pp
 Available when compiled with wide character string support:
 .Ft int
@@ -62,7 +60,7 @@ Handle functions
 .Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_open "libsmdev_handle_t *handle, const char *filename, int access_flags, libsmdev_error_t **error"
-.Ft #endif int
+.Ft int
 .Fn libsmdev_handle_close "libsmdev_handle_t *handle, libsmdev_error_t **error"
 .Ft ssize_t
 .Fn libsmdev_handle_read_buffer "libsmdev_handle_t *handle, uint8_t *buffer, size_t buffer_size, libsmdev_error_t **error"
@@ -80,8 +78,6 @@ Handle functions
 .Fn libsmdev_handle_get_filename_size "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_get_filename "libsmdev_handle_t *handle, char *filename, size_t filename_size, libsmdev_error_t **error"
-.Ft #endif
-.Fn 
 .Pp
 Available when compiled with wide character string support:
 .Ft int
@@ -139,6 +135,7 @@ For the actual return values see "libsmdev.h".
 None
 .Sh FILES
 None
+.Sh NOTES
 libsmdev allows to be compiled with wide character support (wchar_t).
 
 To compile libsmdev with wide character support use:

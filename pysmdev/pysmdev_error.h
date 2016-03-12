@@ -28,7 +28,7 @@
 #include "pysmdev_libcerror.h"
 #include "pysmdev_python.h"
 
-#define PYSMDEV_ERROR_STRING_SIZE		2048
+#define PYSMDEV_ERROR_STRING_SIZE	2048
 
 #if defined( __cplusplus )
 extern "C" {
@@ -56,5 +56,5 @@ void pysmdev_error_raise(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYSMDEV_ERROR_H ) */
 
