@@ -56,11 +56,11 @@ libsmdev_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
 EXTRA_DIST = \
 	libsmdev_definitions.h.in \
-        libsmdev.rc \
-        libsmdev.rc.in
+	libsmdev.rc \
+	libsmdev.rc.in
 
 MAINTAINERCLEANFILES = \
-        Makefile.in
+	Makefile.in
 
 distclean: clean
 	/bin/rm -f libsmdev_definitions.h
