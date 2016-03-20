@@ -117,7 +117,7 @@ PyObject *pysmdev_handle_get_bytes_per_sector(
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pysmdev_error_raise(
 		 error,
@@ -129,6 +129,13 @@ PyObject *pysmdev_handle_get_bytes_per_sector(
 		 &error );
 
 		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
 	}
 	integer_object = pysmdev_integer_unsigned_new_from_64bit(
 	                  (uint64_t) bytes_per_sector );

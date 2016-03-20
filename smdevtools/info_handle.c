@@ -879,10 +879,12 @@ int info_handle_handle_fprint(
 		 "\tmedia size\t\t: %" PRIu64 " bytes\n",
 		 media_size );
 	}
-	if( libsmdev_handle_get_bytes_per_sector(
-	     info_handle->input_handle,
-	     &bytes_per_sector,
-	     error ) != 1 )
+	result = libsmdev_handle_get_bytes_per_sector(
+	          info_handle->input_handle,
+	          &bytes_per_sector,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -893,11 +895,13 @@ int info_handle_handle_fprint(
 
 		return( -1 );
 	}
-	fprintf(
-	 info_handle->notify_stream,
-	 "\tbytes per sector\t: %" PRIu32 "\n",
-	 bytes_per_sector );
-
+	else if( result != 0 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tbytes per sector\t: %" PRIu32 "\n",
+		 bytes_per_sector );
+	}
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );

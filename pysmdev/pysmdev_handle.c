@@ -146,7 +146,7 @@ PyMethodDef pysmdev_handle_object_methods[] = {
 	{ "get_bytes_per_sector",
 	  (PyCFunction) pysmdev_handle_get_bytes_per_sector,
 	  METH_NOARGS,
-	  "get_bytes_per_sector() -> Integer\n"
+	  "get_bytes_per_sector() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the number of bytes per sector." },
 

@@ -357,7 +357,7 @@ int libsmdev_handle_get_media_size(
      libsmdev_error_t **error );
 
 /* Retrieves the number of bytes per sector
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if succesful, 0 if not or -1 on error
  */
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_bytes_per_sector(

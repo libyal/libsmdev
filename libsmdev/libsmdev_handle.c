@@ -450,6 +450,7 @@ int libsmdev_handle_open(
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 	uint32_t bytes_per_sector                   = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -605,10 +606,12 @@ int libsmdev_handle_open(
 	/* /dev/rdisk# on Mac OS X and some Windows devices require
 	 * sector aligned read and seek operations
 	 */
-	if( libsmdev_handle_get_bytes_per_sector(
-	     handle,
-	     &bytes_per_sector,
-	     error ) != 1 )
+	result = libsmdev_handle_get_bytes_per_sector(
+	          handle,
+	          &bytes_per_sector,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -619,19 +622,22 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-	if( libcfile_file_set_block_size(
-	     internal_handle->device_file,
-	     (size_t) bytes_per_sector,
-	     error ) != 1 )
+	else if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to set block size in device file.",
-		 function );
+		if( libcfile_file_set_block_size(
+		     internal_handle->device_file,
+		     (size_t) bytes_per_sector,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to set block size in device file.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
@@ -686,6 +692,7 @@ int libsmdev_handle_open_wide(
 	size64_t media_size                         = 0;
 	size_t filename_length                      = 0;
 	uint32_t bytes_per_sector                   = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -841,10 +848,12 @@ int libsmdev_handle_open_wide(
 	/* /dev/rdisk# on Mac OS X and some Windows devices require
 	 * sector aligned read and seek operations
 	 */
-	if( libsmdev_handle_get_bytes_per_sector(
-	     handle,
-	     &bytes_per_sector,
-	     error ) != 1 )
+	result = libsmdev_handle_get_bytes_per_sector(
+	          handle,
+	          &bytes_per_sector,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -855,19 +864,22 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-	if( libcfile_file_set_block_size(
-	     internal_handle->device_file,
-	     (size_t) bytes_per_sector,
-	     error ) != 1 )
+	else if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to set block size in device file.",
-		 function );
+		if( libcfile_file_set_block_size(
+		     internal_handle->device_file,
+		     (size_t) bytes_per_sector,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to set block size in device file.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance

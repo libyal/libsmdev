@@ -167,7 +167,7 @@ int libsmdev_handle_get_media_size(
 }
 
 /* Retrieves the number of bytes per sector
- * Returns the 1 if succesful or -1 on error
+ * Returns the 1 if succesful, 0 if not or -1 on error
  */
 int libsmdev_handle_get_bytes_per_sector(
      libsmdev_handle_t *handle,
@@ -449,6 +449,9 @@ int libsmdev_handle_get_bytes_per_sector(
 	}
 	if( internal_handle->bytes_per_sector_set == 0 )
 	{
+#if defined( BLKSSZGET ) || defined( DKIOCGETBLOCKSIZE ) || defined( DIOCGSECTORSIZE ) || defined( WINAPI )
+		return( 0 );
+#else
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
@@ -457,6 +460,7 @@ int libsmdev_handle_get_bytes_per_sector(
 		 function );
 
 		return( -1 );
+#endif
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
