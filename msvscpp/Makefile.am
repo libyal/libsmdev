@@ -10,6 +10,7 @@ MSVSCPP_FILES = \
 	libsmdev/libsmdev.vcproj \
 	libuna/libuna.vcproj \
 	pysmdev/pysmdev.vcproj \
+	smdev_test_get_version/smdev_test_get_version.vcproj \
 	smdevinfo/smdevinfo.vcproj \
 	libsmdev.sln
 

@@ -1,5 +1,5 @@
 /*
- * The internal libcerror header
+ * The internal libsmdev header
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,32 +19,19 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _SMDEVTOOLS_LIBCERROR_H )
-#define _SMDEVTOOLS_LIBCERROR_H
+#if !defined( _SMDEV_TEST_LIBSMDEV_H )
+#define _SMDEV_TEST_LIBSMDEV_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBCERROR for local use of libcerror
+/* If Cygwin libtool DLL support is enabled and do not want to create static
+ * executables set LIBSMDEV_DLL_IMPORT before including libsmdev.h
  */
-#if defined( HAVE_LOCAL_LIBCERROR )
-
-#include <libcerror_definitions.h>
-#include <libcerror_error.h>
-#include <libcerror_system.h>
-#include <libcerror_types.h>
-
-#else
-
-/* If libtool DLL support is enabled set LIBCERROR_DLL_IMPORT
- * before including libcerror.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBCERROR_DLL_IMPORT
+#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
+#define LIBSMDEV_DLL_IMPORT
 #endif
 
-#include <libcerror.h>
+#include <libsmdev.h>
 
-#endif /* defined( HAVE_LOCAL_LIBCERROR ) */
-
-#endif /* !defined( _SMDEVTOOLS_LIBCERROR_H ) */
+#endif /* !defined( _SMDEV_TEST_LIBSMDEV_H ) */
 

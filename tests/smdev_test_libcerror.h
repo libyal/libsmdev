@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _SMDEVTOOLS_LIBCERROR_H )
-#define _SMDEVTOOLS_LIBCERROR_H
+#if !defined( _SMDEV_TEST_LIBCERROR_H )
+#define _SMDEV_TEST_LIBCERROR_H
 
 #include <common.h>
 
@@ -38,7 +38,7 @@
 /* If libtool DLL support is enabled set LIBCERROR_DLL_IMPORT
  * before including libcerror.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
 #define LIBCERROR_DLL_IMPORT
 #endif
 
@@ -46,5 +46,5 @@
 
 #endif /* defined( HAVE_LOCAL_LIBCERROR ) */
 
-#endif /* !defined( _SMDEVTOOLS_LIBCERROR_H ) */
+#endif /* !defined( _SMDEV_TEST_LIBCERROR_H ) */
 
