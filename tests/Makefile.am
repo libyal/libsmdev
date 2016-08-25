@@ -16,12 +16,25 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	smdev_test_error \
 	smdev_test_get_version
 
-smdev_test_get_version_SOURCES = \
+smdev_test_error_SOURCES = \
+	smdev_test_error.c \
 	smdev_test_libsmdev.h \
 	smdev_test_libcstring.h \
+	smdev_test_macros.h \
+	smdev_test_unused.h
+
+smdev_test_error_LDADD = \
+	../libsmdev/libsmdev.la \
+	@LIBCSTRING_LIBADD@
+
+smdev_test_get_version_SOURCES = \
 	smdev_test_get_version.c \
+	smdev_test_libsmdev.h \
+	smdev_test_libcstring.h \
+	smdev_test_macros.h \
 	smdev_test_unused.h
 
 smdev_test_get_version_LDADD = \

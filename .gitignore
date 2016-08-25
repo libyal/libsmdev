@@ -122,6 +122,7 @@ stamp-h[1-9]
 /pysmdev-python[23]/*.[ch]
 /smdevtools/smdevinfo
 /tests/input
+/tests/smdev_test_error
 /tests/smdev_test_get_version
 /tests/tmp*
 

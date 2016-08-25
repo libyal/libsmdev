@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="smdev_test_get_version"
-	ProjectGUID="{B9FFFA82-EEAB-4D56-B274-64CBFB6A37B2}"
-	RootNamespace="smdev_test_get_version"
+	Name="smdev_test_error"
+	ProjectGUID="{F30F7B3A-B334-4C4C-BA5A-E8FE0D7EDACA}"
+	RootNamespace="smdev_test_error"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\smdev_test_get_version.c"
+				RelativePath="..\..\tests\smdev_test_error.c"
 				>
 			</File>
 		</Filter>

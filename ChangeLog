@@ -34,6 +34,11 @@ Media information:
 Test:
 * add autoconf/make test suite
 
+20160825
+* applied updates
+* worked on tests
+* bug fix in debug output
+
 20160320
 * worked on support for devices without bytes per sector support e.g. /dev/zero
 

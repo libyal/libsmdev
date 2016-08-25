@@ -2974,7 +2974,7 @@ int libsmdev_internal_handle_determine_media_information(
 		{
 			libcnotify_print_data(
 			 response,
-			 (size_t) response_count,
+			 (size_t) ( (STORAGE_DESCRIPTOR_HEADER *) response )->Size,
 			 0 );
 		}
 #endif
