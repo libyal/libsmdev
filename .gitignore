@@ -124,6 +124,7 @@ stamp-h[1-9]
 /tests/input
 /tests/smdev_test_error
 /tests/smdev_test_get_version
+/tests/smdev_test_notify
 /tests/tmp*
 
 # Local library dependencies specific files

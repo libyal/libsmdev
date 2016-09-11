@@ -1,5 +1,5 @@
 /*
- * Library error functions test program
+ * Library notification functions test program
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -30,78 +30,60 @@
 #include "smdev_test_macros.h"
 #include "smdev_test_unused.h"
 
-/* Tests the libsmdev_error_free function
+/* Tests the libsmdev_notify_set_verbose function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_error_free(
+int smdev_test_notify_set_verbose(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libsmdev_error_free(
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libsmdev_error_fprint function
- * Returns 1 if successful or 0 if not
- */
-int smdev_test_error_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libsmdev_error_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libsmdev_error_sprint function
- * Returns 1 if successful or 0 if not
- */
-int smdev_test_error_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libsmdev_error_sprint(
-	 NULL,
-	 NULL,
+	libsmdev_notify_set_verbose(
 	 0 );
 
 	return( 1 );
 }
 
-/* Tests the libsmdev_error_backtrace_fprint function
+/* Tests the libsmdev_notify_set_stream function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_error_backtrace_fprint(
+int smdev_test_notify_set_stream(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libsmdev_error_backtrace_fprint(
+	libsmdev_notify_set_stream(
 	 NULL,
 	 NULL );
 
 	return( 1 );
 }
 
-/* Tests the libsmdev_error_backtrace_sprint function
+/* Tests the libsmdev_notify_stream_open function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_error_backtrace_sprint(
+int smdev_test_notify_stream_open(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libsmdev_error_backtrace_sprint(
+	libsmdev_notify_stream_open(
 	 NULL,
-	 NULL,
-	 0 );
+	 NULL );
+
+	return( 1 );
+}
+
+/* Tests the libsmdev_notify_stream_close function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_notify_stream_close(
+     void )
+{
+	/* Test invocation of function only
+	 */
+	libsmdev_notify_stream_close(
+	 NULL );
 
 	return( 1 );
 }
@@ -122,24 +104,20 @@ int main(
 	SMDEV_TEST_UNREFERENCED_PARAMETER( argv )
 
 	SMDEV_TEST_RUN(
-	 "libsmdev_error_free",
-	 smdev_test_error_free() )
+	 "libsmdev_notify_set_verbose",
+	 smdev_test_notify_set_verbose() )
 
 	SMDEV_TEST_RUN(
-	 "libsmdev_error_fprint",
-	 smdev_test_error_fprint() )
+	 "libsmdev_notify_set_stream",
+	 smdev_test_notify_set_stream() )
 
 	SMDEV_TEST_RUN(
-	 "libsmdev_error_sprint",
-	 smdev_test_error_sprint() )
+	 "libsmdev_notify_stream_open",
+	 smdev_test_notify_stream_open() )
 
 	SMDEV_TEST_RUN(
-	 "libsmdev_error_backtrace_fprint",
-	 smdev_test_error_backtrace_fprint() )
-
-	SMDEV_TEST_RUN(
-	 "libsmdev_error_backtrace_sprint",
-	 smdev_test_error_backtrace_sprint() )
+	 "libsmdev_notify_stream_close",
+	 smdev_test_notify_stream_close() )
 
 	return( EXIT_SUCCESS );
 
