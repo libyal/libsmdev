@@ -29,7 +29,6 @@
 #include "libsmdev_libcdata.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcfile.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_types.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
@@ -50,7 +49,7 @@ struct libsmdev_internal_handle
 {
 	/* The device filename
 	 */
-	libcstring_system_character_t *filename;
+	system_character_t *filename;
 
 	/* The device filename size
 	 */

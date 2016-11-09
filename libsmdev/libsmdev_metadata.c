@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( WINAPI )
@@ -61,7 +62,6 @@ typedef size_t u64;
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_sector_range.h"
 #include "libsmdev_track_value.h"
@@ -680,7 +680,7 @@ int libsmdev_handle_get_utf8_information_value(
 	}
 	if( identifier_length == 5 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "model",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -690,7 +690,7 @@ int libsmdev_handle_get_utf8_information_value(
 	}
 	else if( identifier_length == 6 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "vendor",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -700,7 +700,7 @@ int libsmdev_handle_get_utf8_information_value(
 	}
 	else if( identifier_length == 13 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "serial_number",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -718,7 +718,7 @@ int libsmdev_handle_get_utf8_information_value(
 	}
 	/* Determine the header value size
 	 */
-	information_value_size = 1 + libcstring_narrow_string_length(
+	information_value_size = 1 + narrow_string_length(
 	                              (char *) information_value );
 
 	if( utf8_string_size < information_value_size )
@@ -803,7 +803,7 @@ int libsmdev_handle_get_utf16_information_value(
 	}
 	if( identifier_length == 5 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "model",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -813,7 +813,7 @@ int libsmdev_handle_get_utf16_information_value(
 	}
 	else if( identifier_length == 6 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "vendor",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -823,7 +823,7 @@ int libsmdev_handle_get_utf16_information_value(
 	}
 	else if( identifier_length == 13 )
 	{
-		if( libcstring_narrow_string_compare(
+		if( narrow_string_compare(
 		     "serial_number",
 		     (char *) identifier,
 		     identifier_length ) == 0 )
@@ -841,7 +841,7 @@ int libsmdev_handle_get_utf16_information_value(
 	}
 	/* Determine the header value size
 	 */
-	information_value_size = 1 + libcstring_narrow_string_length(
+	information_value_size = 1 + narrow_string_length(
 	                              (char *) information_value );
 
 	if( utf16_string_size < information_value_size )

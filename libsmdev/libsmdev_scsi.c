@@ -22,6 +22,7 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( HAVE_SCSI_SCSI_H )
@@ -39,7 +40,6 @@
 #include "libsmdev_definitions.h"
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcnotify.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_scsi.h"
 
 /* Timeout in milli seconds: 1 second
@@ -863,7 +863,7 @@ int libsmdev_scsi_get_bus_type(
 	}
 	sg_probe_host.buffer[ 127 ] = 0;
 
-	sg_probe_host_length = libcstring_narrow_string_length(
+	sg_probe_host_length = narrow_string_length(
 	                        sg_probe_host.buffer );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -885,21 +885,21 @@ int libsmdev_scsi_get_bus_type(
 	{
 		if( sg_probe_host_length >= 4 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     sg_probe_host.buffer,
 			     "ahci",
 			     4 ) == 0 )
 			{
 				*bus_type = LIBSMDEV_BUS_TYPE_ATA;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 				  sg_probe_host.buffer,
 				  "pata",
 				  4 ) == 0 )
 			{
 				*bus_type = LIBSMDEV_BUS_TYPE_ATA;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 				  sg_probe_host.buffer,
 				  "sata",
 				  4 ) == 0 )
@@ -908,7 +908,7 @@ int libsmdev_scsi_get_bus_type(
 			}
 			/* usb-storage
 			 */
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 			          sg_probe_host.buffer,
 			          "usb-",
 			          4 ) == 0 )
@@ -923,7 +923,7 @@ int libsmdev_scsi_get_bus_type(
 		 */
 		if( sg_probe_host_length == 15 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     sg_probe_host.buffer,
 			     "SBP-2 IEEE-1394",
 			     15 ) == 0 )
@@ -933,7 +933,7 @@ int libsmdev_scsi_get_bus_type(
 		}
 		else if( sg_probe_host_length == 43 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     sg_probe_host.buffer,
 			     "SCSI emulation for USB Mass Storage devices",
 			     43 ) == 0 )

@@ -22,8 +22,14 @@
 #if !defined( _LIBSMDEV_FEATURES_H )
 #define _LIBSMDEV_FEATURES_H
 
+/* The libsmdev type support features
+ */
 #if defined( WINAPI ) || @HAVE_WIDE_CHARACTER_TYPE@
 #define LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE	1
+#endif
+
+#if defined( WINAPI ) || @HAVE_MULTI_THREAD_SUPPORT@
+#define LIBSMDEV_HAVE_MULTI_THREAD_SUPPORT	1
 #endif
 
 #if !defined( LIBSMDEV_DEPRECATED )
@@ -36,5 +42,5 @@
 #endif
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_FEATURES_H ) */
 

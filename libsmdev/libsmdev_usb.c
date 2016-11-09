@@ -39,7 +39,6 @@
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_scsi.h"
 #include "libsmdev_usb.h"
 

@@ -26,7 +26,6 @@
 #include "pysmdev_handle.h"
 #include "pysmdev_integer.h"
 #include "pysmdev_libcerror.h"
-#include "pysmdev_libcstring.h"
 #include "pysmdev_libsmdev.h"
 #include "pysmdev_metadata.h"
 #include "pysmdev_python.h"

@@ -23,7 +23,6 @@
 #include <types.h>
 
 #include "libsmdev_libcerror.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_string.h"
 
 #if defined( _cplusplus )

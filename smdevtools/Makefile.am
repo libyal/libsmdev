@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -25,7 +24,6 @@ smdevinfo_SOURCES = \
 	smdevtools_libcerror.h \
 	smdevtools_libclocale.h \
 	smdevtools_libcnotify.h \
-	smdevtools_libcstring.h \
 	smdevtools_libcsystem.h \
 	smdevtools_libsmdev.h \
 	smdevtools_libuna.h
@@ -36,7 +34,6 @@ smdevinfo_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 MAINTAINERCLEANFILES = \

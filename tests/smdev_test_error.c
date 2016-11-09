@@ -20,6 +20,8 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -108,7 +110,7 @@ int smdev_test_error_backtrace_sprint(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc SMDEV_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] SMDEV_TEST_ATTRIBUTE_UNUSED )
@@ -123,23 +125,23 @@ int main(
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_error_free",
-	 smdev_test_error_free() )
+	 smdev_test_error_free );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_error_fprint",
-	 smdev_test_error_fprint() )
+	 smdev_test_error_fprint );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_error_sprint",
-	 smdev_test_error_sprint() )
+	 smdev_test_error_sprint );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_error_backtrace_fprint",
-	 smdev_test_error_backtrace_fprint() )
+	 smdev_test_error_backtrace_fprint );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_error_backtrace_sprint",
-	 smdev_test_error_backtrace_sprint() )
+	 smdev_test_error_backtrace_sprint );
 
 	return( EXIT_SUCCESS );
 

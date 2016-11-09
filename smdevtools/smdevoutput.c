@@ -28,7 +28,6 @@
 #include "smdevtools_libcerror.h"
 #include "smdevtools_libclocale.h"
 #include "smdevtools_libcnotify.h"
-#include "smdevtools_libcstring.h"
 #include "smdevtools_libcsystem.h"
 #include "smdevtools_libsmdev.h"
 #include "smdevtools_libuna.h"

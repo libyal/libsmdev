@@ -20,12 +20,13 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
-#include "smdev_test_libcerror.h"
 #include "smdev_test_libsmdev.h"
 #include "smdev_test_macros.h"
 #include "smdev_test_unused.h"
@@ -90,7 +91,7 @@ int smdev_test_notify_stream_close(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc SMDEV_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] SMDEV_TEST_ATTRIBUTE_UNUSED )
@@ -105,19 +106,19 @@ int main(
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_notify_set_verbose",
-	 smdev_test_notify_set_verbose() )
+	 smdev_test_notify_set_verbose )
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_notify_set_stream",
-	 smdev_test_notify_set_stream() )
+	 smdev_test_notify_set_stream )
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_notify_stream_open",
-	 smdev_test_notify_stream_open() )
+	 smdev_test_notify_stream_open )
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_notify_stream_close",
-	 smdev_test_notify_stream_close() )
+	 smdev_test_notify_stream_close )
 
 	return( EXIT_SUCCESS );
 

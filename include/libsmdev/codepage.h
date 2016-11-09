@@ -118,5 +118,5 @@ enum LIBSMDEV_CODEPAGES
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_CODEPAGE_H ) */
 

@@ -96,5 +96,5 @@ enum LIBSMDEV_TRACK_TYPES
 	LIBSMDEV_TRACK_TYPE_CDI_2352,
 };
 
-#endif
+#endif /* !defined( _LIBSMDEV_DEFINITIONS_H ) */
 

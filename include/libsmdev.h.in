@@ -90,6 +90,7 @@ int libsmdev_check_device(
      libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
+
 /* Determines if a file is a device
  * Returns 1 if true, 0 if not or -1 on error
  */
@@ -97,7 +98,8 @@ LIBSMDEV_EXTERN \
 int libsmdev_check_device_wide(
      const wchar_t *filename,
      libsmdev_error_t **error );
-#endif
+
+#endif /* defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* -------------------------------------------------------------------------
  * Notify functions

@@ -8,7 +8,6 @@ if HAVE_PYTHON3
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -25,7 +24,6 @@ BUILT_SOURCES = \
 	pysmdev_integer.c pysmdev_integer.h \
 	pysmdev_libcerror.h \
 	pysmdev_libclocale.h \
-	pysmdev_libcstring.h \
 	pysmdev_libsmdev.h \
 	pysmdev_metadata.c pysmdev_metadata.h \
 	pysmdev_python.h \
@@ -36,7 +34,6 @@ pyexec_LTLIBRARIES = pysmdev.la
 nodist_pysmdev_la_SOURCES = $(BUILT_SOURCES)
 
 pysmdev_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libsmdev/libsmdev.la \
 	@LIBCDATA_LIBADD@ \

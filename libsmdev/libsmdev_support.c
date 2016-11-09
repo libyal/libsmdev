@@ -44,7 +44,6 @@
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcfile.h"
 #include "libsmdev_libclocale.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_support.h"
 

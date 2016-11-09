@@ -2,7 +2,6 @@ if HAVE_PYTHON
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -18,14 +17,12 @@ pysmdev_la_SOURCES = \
 	pysmdev_integer.c pysmdev_integer.h \
 	pysmdev_libcerror.h \
 	pysmdev_libclocale.h \
-	pysmdev_libcstring.h \
 	pysmdev_libsmdev.h \
 	pysmdev_metadata.c pysmdev_metadata.h \
 	pysmdev_python.h \
 	pysmdev_unused.h
 
 pysmdev_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libsmdev/libsmdev.la \
 	@LIBCDATA_LIBADD@ \

@@ -21,7 +21,10 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
@@ -47,7 +50,6 @@
 #include "libsmdev_libcfile.h"
 #include "libsmdev_libclocale.h"
 #include "libsmdev_libcnotify.h"
-#include "libsmdev_libcstring.h"
 #include "libsmdev_libuna.h"
 #include "libsmdev_metadata.h"
 #include "libsmdev_optical_disc.h"
@@ -543,7 +545,7 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
-	filename_length = libcstring_narrow_string_length(
+	filename_length = narrow_string_length(
 	                   filename );
 
 	if( libsmdev_handle_set_filename(
@@ -785,7 +787,7 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
-	filename_length = libcstring_wide_string_length(
+	filename_length = wide_string_length(
 	                   filename );
 
 	if( libsmdev_handle_set_filename_wide(
@@ -1761,7 +1763,7 @@ int libsmdev_handle_get_filename_size(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size";
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -1800,7 +1802,7 @@ int libsmdev_handle_get_filename_size(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -1870,7 +1872,7 @@ int libsmdev_handle_get_filename(
 	static char *function                       = "libsmdev_handle_get_filename";
 	size_t narrow_filename_size                 = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -1909,7 +1911,7 @@ int libsmdev_handle_get_filename(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -1973,7 +1975,7 @@ int libsmdev_handle_get_filename(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -2028,7 +2030,7 @@ int libsmdev_handle_get_filename(
 		return( -1 );
 	}
 #else
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     filename,
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
@@ -2059,7 +2061,7 @@ int libsmdev_handle_set_filename(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_filename";
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2128,7 +2130,7 @@ int libsmdev_handle_set_filename(
 		internal_handle->filename      = NULL;
 		internal_handle->filename_size = 0;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -2181,7 +2183,7 @@ int libsmdev_handle_set_filename(
 #else
 	internal_handle->filename_size = filename_length + 1;
 #endif
-	internal_handle->filename = libcstring_system_string_allocate(
+	internal_handle->filename = system_string_allocate(
 	                             internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
@@ -2195,7 +2197,7 @@ int libsmdev_handle_set_filename(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -2256,7 +2258,7 @@ int libsmdev_handle_set_filename(
 		return( -1 );
 	}
 #else
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     internal_handle->filename,
 	     filename,
 	     filename_length + 1 ) == NULL )
@@ -2295,7 +2297,7 @@ int libsmdev_handle_get_filename_size_wide(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_get_filename_size_wide";
 
-#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2334,7 +2336,7 @@ int libsmdev_handle_get_filename_size_wide(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	*filename_size = internal_handle->filename_size;
 #else
 	if( libclocale_codepage == 0 )
@@ -2404,7 +2406,7 @@ int libsmdev_handle_get_filename_wide(
 	static char *function                       = "libsmdev_handle_get_filename_wide";
 	size_t wide_filename_size                   = 0;
 
-#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2443,7 +2445,7 @@ int libsmdev_handle_get_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	wide_filename_size = internal_handle->filename_size;
 #else
 	if( libclocale_codepage == 0 )
@@ -2507,8 +2509,8 @@ int libsmdev_handle_get_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_system_string_copy(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	if( system_string_copy(
 	     filename,
 	     internal_handle->filename,
 	     internal_handle->filename_size ) == NULL )
@@ -2593,7 +2595,7 @@ int libsmdev_handle_set_filename_wide(
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_set_filename_wide";
 
-#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                                  = 0;
 #endif
 
@@ -2662,7 +2664,7 @@ int libsmdev_handle_set_filename_wide(
 		 internal_handle->filename      = NULL;
 		 internal_handle->filename_size = 0;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	internal_handle->filename_size = filename_length + 1;
 #else
 	if( libclocale_codepage == 0 )
@@ -2714,9 +2716,9 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
-	internal_handle->filename = libcstring_system_string_allocate(
+	internal_handle->filename = system_string_allocate(
 	                             internal_handle->filename_size );
 
 	if( internal_handle->filename == NULL )
@@ -2730,8 +2732,8 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_system_string_copy(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	if( system_string_copy(
 	     internal_handle->filename,
 	     filename,
 	     filename_length + 1 ) == NULL )
@@ -2812,7 +2814,7 @@ int libsmdev_handle_set_filename_wide(
 
 		return( -1 );
 	}
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	return( 1 );
 }
@@ -2980,7 +2982,7 @@ int libsmdev_internal_handle_determine_media_information(
 #endif
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset > 0 )
 		{
-			string_length = libcstring_narrow_string_length(
+			string_length = narrow_string_length(
 					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->VendorIdOffset ] ) );
 
 			result = libsmdev_string_trim_copy_from_byte_stream(
@@ -3004,7 +3006,7 @@ int libsmdev_internal_handle_determine_media_information(
 		}
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset > 0 )
 		{
-			string_length = libcstring_narrow_string_length(
+			string_length = narrow_string_length(
 					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->ProductIdOffset ] ) );
 
 			result = libsmdev_string_trim_copy_from_byte_stream(
@@ -3028,7 +3030,7 @@ int libsmdev_internal_handle_determine_media_information(
 		}
 		if( ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset > 0 )
 		{
-			string_length = libcstring_narrow_string_length(
+			string_length = narrow_string_length(
 					 (char *) &( response[ ( (STORAGE_DEVICE_DESCRIPTOR *) response )->SerialNumberOffset ] ) );
 
 			result = libsmdev_string_trim_copy_from_byte_stream(

@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -27,7 +26,6 @@ libsmdev_la_SOURCES = \
 	libsmdev_libcfile.h \
 	libsmdev_libclocale.h \
 	libsmdev_libcnotify.h \
-	libsmdev_libcstring.h \
 	libsmdev_libuna.h \
 	libsmdev_metadata.c libsmdev_metadata.h \
 	libsmdev_notify.c libsmdev_notify.h \
@@ -42,7 +40,6 @@ libsmdev_la_SOURCES = \
 	libsmdev_usb.c libsmdev_usb.h
 
 libsmdev_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCDATA_LIBADD@ \

@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "libsmdev_libcerror.h"
-#include "libsmdev_libcstring.h"
 
 #if defined( _cplusplus )
 extern "C" {

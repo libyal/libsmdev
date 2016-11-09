@@ -22,6 +22,7 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
 #if defined( HAVE_SYS_UTSNAME_H )
@@ -31,7 +32,6 @@
 #include "byte_size_string.h"
 #include "info_handle.h"
 #include "smdevtools_libcerror.h"
-#include "smdevtools_libcstring.h"
 #include "smdevtools_libsmdev.h"
 
 #define INFO_HANDLE_VALUE_SIZE			512
@@ -261,7 +261,7 @@ int info_handle_signal_abort(
  */
 int info_handle_open_input(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
 	static char *function = "info_handle_open_input";
@@ -288,7 +288,7 @@ int info_handle_open_input(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libsmdev_handle_open_wide(
 	     info_handle->input_handle,
 	     filename,
@@ -602,7 +602,7 @@ int info_handle_handle_fprint(
      libcerror_error_t **error )
 {
 	uint8_t media_information_value[ 64 ];
-        libcstring_system_character_t byte_size_string[ 16 ];
+        system_character_t byte_size_string[ 16 ];
 
 	static char *function     = "info_handle_handle_fprint";
 	size64_t media_size       = 0;
@@ -868,7 +868,7 @@ int info_handle_handle_fprint(
 	{
 		fprintf(
 		 info_handle->notify_stream,
-		 "\tmedia size\t\t: %" PRIs_LIBCSTRING_SYSTEM " (%" PRIu64 " bytes)\n",
+		 "\tmedia size\t\t: %" PRIs_SYSTEM " (%" PRIu64 " bytes)\n",
 		 byte_size_string,
 		 media_size );
 	}
