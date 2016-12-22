@@ -27,11 +27,11 @@
 /* If Cygwin libtool DLL support is enabled set LIBSMDEV_DLL_IMPORT
  * before including libsmdev.h
  */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBSMDEV_DLL_IMPORT
 #endif
 
 #include <libsmdev.h>
 
-#endif
+#endif /* !defined( _SMDEVTOOLS_LIBSMDEV_H ) */
 

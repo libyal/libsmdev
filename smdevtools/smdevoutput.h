@@ -45,5 +45,5 @@ void smdevoutput_version_detailed_fprint(
 }
 #endif
 
-#endif
+#endif /* !defined( _SMDEVOUTPUT_H ) */
 

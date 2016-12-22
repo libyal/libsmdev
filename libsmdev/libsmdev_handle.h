@@ -239,6 +239,7 @@ int libsmdev_handle_set_filename(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBSMDEV_EXTERN \
 int libsmdev_handle_get_filename_size_wide(
      libsmdev_handle_t *handle,
@@ -257,7 +258,8 @@ int libsmdev_handle_set_filename_wide(
      const wchar_t *filename,
      size_t filename_length,
      libcerror_error_t **error );
-#endif
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 int libsmdev_internal_handle_determine_media_information(
      libsmdev_internal_handle_t *internal_handle,
@@ -286,5 +288,5 @@ int libsmdev_handle_append_track(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_INTERNAL_HANDLE_H ) */
 

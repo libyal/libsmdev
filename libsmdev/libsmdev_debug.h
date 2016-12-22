@@ -40,5 +40,5 @@ const char *libsmdev_debug_print_device_type(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_DEBUG_H ) */
 

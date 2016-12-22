@@ -221,6 +221,7 @@ int libsmdev_handle_open(
      libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
+
 /* Opens a storage media device
  * Returns 1 if successful or -1 on error
  */
@@ -230,7 +231,8 @@ int libsmdev_handle_open_wide(
      const wchar_t *filename,
      int access_flags,
      libsmdev_error_t **error );
-#endif
+
+#endif /* defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* Closes the handle
  * Returns the 0 if succesful or -1 on error
@@ -323,6 +325,7 @@ int libsmdev_handle_get_filename(
      libsmdev_error_t **error );
 
 #if defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE )
+
 /* Retrieves the filename size of the device
  * The filename size includes the end of string character
  * Returns 1 if successful or -1 on error
@@ -343,7 +346,8 @@ int libsmdev_handle_get_filename_wide(
      wchar_t *filename,
      size_t filename_size,
      libsmdev_error_t **error );
-#endif
+
+#endif /* defined( LIBSMDEV_HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* -------------------------------------------------------------------------
  * Meta data functions
@@ -532,5 +536,5 @@ int libsmdev_handle_get_error(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_H ) */
 

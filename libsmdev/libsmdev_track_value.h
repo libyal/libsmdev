@@ -87,5 +87,5 @@ int libsmdev_track_value_get_bytes_per_sector(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_TRACK_VALUE_H ) */
 

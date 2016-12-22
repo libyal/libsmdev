@@ -78,5 +78,5 @@ int libsmdev_check_device_wide(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_SUPPORT_H ) */
 

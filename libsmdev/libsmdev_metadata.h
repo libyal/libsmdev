@@ -158,5 +158,5 @@ int libsmdev_handle_get_error(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_METADATA_H ) */
 

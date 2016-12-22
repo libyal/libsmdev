@@ -61,5 +61,5 @@ int libsmdev_usb_test(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_USB_H ) */
 

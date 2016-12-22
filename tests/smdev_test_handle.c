@@ -1,5 +1,5 @@
 /*
- * Library handle type testing program
+ * Library handle type test program
  *
  * Copyright (C) 2010-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -30,15 +30,15 @@
 #include <stdlib.h>
 #endif
 
+#include "smdev_test_getopt.h"
 #include "smdev_test_libcerror.h"
 #include "smdev_test_libclocale.h"
-#include "smdev_test_libcsystem.h"
 #include "smdev_test_libsmdev.h"
 #include "smdev_test_libuna.h"
 #include "smdev_test_macros.h"
 #include "smdev_test_memory.h"
 
-#if SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER ) && SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
 #error Unsupported size of wchar_t
 #endif
 
@@ -256,8 +256,8 @@ int smdev_test_handle_get_wide_source(
      libcerror_error_t **error )
 {
 	static char *function   = "smdev_test_handle_get_wide_source";
-	size_t wide_source_size = 0;
 	size_t source_length    = 0;
+	size_t wide_source_size = 0;
 
 #if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result              = 0;
@@ -584,11 +584,17 @@ int smdev_test_handle_close_source(
 int smdev_test_handle_initialize(
      void )
 {
-	libcerror_error_t *error = NULL;
-	libsmdev_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libsmdev_handle_t *handle       = NULL;
+	int result                      = 0;
 
-	/* Test libsmdev_handle_initialize
+#if defined( HAVE_SMDEV_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
 	 */
 	result = libsmdev_handle_initialize(
 	          &handle,
@@ -664,79 +670,89 @@ int smdev_test_handle_initialize(
 
 #if defined( HAVE_SMDEV_TEST_MEMORY )
 
-	/* Test libsmdev_handle_initialize with malloc failing
-	 */
-	smdev_test_malloc_attempts_before_fail = 0;
-
-	result = libsmdev_handle_initialize(
-	          &handle,
-	          &error );
-
-	if( smdev_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		smdev_test_malloc_attempts_before_fail = -1;
+		/* Test libsmdev_handle_initialize with malloc failing
+		 */
+		smdev_test_malloc_attempts_before_fail = test_number;
 
-		if( handle != NULL )
+		result = libsmdev_handle_initialize(
+		          &handle,
+		          &error );
+
+		if( smdev_test_malloc_attempts_before_fail != -1 )
 		{
-			libsmdev_handle_free(
-			 &handle,
-			 NULL );
+			smdev_test_malloc_attempts_before_fail = -1;
+
+			if( handle != NULL )
+			{
+				libsmdev_handle_free(
+				 &handle,
+				 NULL );
+			}
+		}
+		else
+		{
+			SMDEV_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			SMDEV_TEST_ASSERT_IS_NULL(
+			 "handle",
+			 handle );
+
+			SMDEV_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		SMDEV_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libsmdev_handle_initialize with memset failing
+		 */
+		smdev_test_memset_attempts_before_fail = test_number;
 
-		SMDEV_TEST_ASSERT_IS_NULL(
-		 "handle",
-		 handle );
+		result = libsmdev_handle_initialize(
+		          &handle,
+		          &error );
 
-		SMDEV_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Test libsmdev_handle_initialize with memset failing
-	 */
-	smdev_test_memset_attempts_before_fail = 0;
-
-	result = libsmdev_handle_initialize(
-	          &handle,
-	          &error );
-
-	if( smdev_test_memset_attempts_before_fail != -1 )
-	{
-		smdev_test_memset_attempts_before_fail = -1;
-
-		if( handle != NULL )
+		if( smdev_test_memset_attempts_before_fail != -1 )
 		{
-			libsmdev_handle_free(
-			 &handle,
-			 NULL );
+			smdev_test_memset_attempts_before_fail = -1;
+
+			if( handle != NULL )
+			{
+				libsmdev_handle_free(
+				 &handle,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		SMDEV_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			SMDEV_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		SMDEV_TEST_ASSERT_IS_NULL(
-		 "handle",
-		 handle );
+			SMDEV_TEST_ASSERT_IS_NULL(
+			 "handle",
+			 handle );
 
-		SMDEV_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			SMDEV_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_SMDEV_TEST_MEMORY ) */
 
@@ -795,7 +811,7 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libsmdev_handle_open functions
+/* Tests the libsmdev_handle_open function
  * Returns 1 if successful or 0 if not
  */
 int smdev_test_handle_open(
@@ -803,9 +819,9 @@ int smdev_test_handle_open(
 {
 	char narrow_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libsmdev_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libsmdev_handle_t *handle = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -858,21 +874,28 @@ int smdev_test_handle_open(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libsmdev_handle_close(
+	result = libsmdev_handle_open(
 	          handle,
+	          narrow_source,
+	          LIBSMDEV_OPEN_READ,
 	          &error );
 
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
+        SMDEV_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libsmdev_handle_free(
 	          &handle,
 	          &error );
@@ -909,7 +932,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Tests the libsmdev_handle_open_wide functions
+/* Tests the libsmdev_handle_open_wide function
  * Returns 1 if successful or 0 if not
  */
 int smdev_test_handle_open_wide(
@@ -917,9 +940,9 @@ int smdev_test_handle_open_wide(
 {
 	wchar_t wide_source[ 256 ];
 
-	libcerror_error_t *error = NULL;
-	libsmdev_handle_t *handle      = NULL;
-	int result               = 0;
+	libcerror_error_t *error  = NULL;
+	libsmdev_handle_t *handle = NULL;
+	int result                = 0;
 
 	/* Initialize test
 	 */
@@ -972,21 +995,28 @@ int smdev_test_handle_open_wide(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libsmdev_handle_close(
+	result = libsmdev_handle_open_wide(
 	          handle,
+	          wide_source,
+	          LIBSMDEV_OPEN_READ,
 	          &error );
 
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
+        SMDEV_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libsmdev_handle_free(
 	          &handle,
 	          &error );
@@ -1023,51 +1053,18 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Tests the libsmdev_handle_get_number_of_sessions functions
+/* Tests the libsmdev_handle_close function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_handle_get_number_of_sessions(
-     libsmdev_handle_t *handle )
+int smdev_test_handle_close(
+     void )
 {
 	libcerror_error_t *error = NULL;
-	int number_of_sessions    = 0;
 	int result               = 0;
-
-	result = libsmdev_handle_get_number_of_sessions(
-	          handle,
-	          &number_of_sessions,
-	          &error );
-
-	SMDEV_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
 
 	/* Test error cases
 	 */
-	result = libsmdev_handle_get_number_of_sessions(
-	          NULL,
-	          &number_of_sessions,
-	          &error );
-
-	SMDEV_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libsmdev_handle_get_number_of_sessions(
-	          handle,
+	result = libsmdev_handle_close(
 	          NULL,
 	          &error );
 
@@ -1094,19 +1091,160 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libsmdev_handle_get_number_of_tracks functions
+/* Tests the libsmdev_handle_open and libsmdev_handle_close functions
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_handle_get_number_of_tracks(
+int smdev_test_handle_open_close(
+     const system_character_t *source )
+{
+	libcerror_error_t *error  = NULL;
+	libsmdev_handle_t *handle = NULL;
+	int result                = 0;
+
+	/* Initialize test
+	 */
+	result = libsmdev_handle_initialize(
+	          &handle,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        SMDEV_TEST_ASSERT_IS_NOT_NULL(
+         "handle",
+         handle );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libsmdev_handle_open_wide(
+	          handle,
+	          source,
+	          LIBSMDEV_OPEN_READ,
+	          &error );
+#else
+	result = libsmdev_handle_open(
+	          handle,
+	          source,
+	          LIBSMDEV_OPEN_READ,
+	          &error );
+#endif
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libsmdev_handle_close(
+	          handle,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close a second time to validate clean up on close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libsmdev_handle_open_wide(
+	          handle,
+	          source,
+	          LIBSMDEV_OPEN_READ,
+	          &error );
+#else
+	result = libsmdev_handle_open(
+	          handle,
+	          source,
+	          LIBSMDEV_OPEN_READ,
+	          &error );
+#endif
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libsmdev_handle_close(
+	          handle,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Clean up
+	 */
+	result = libsmdev_handle_free(
+	          &handle,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "handle",
+         handle );
+
+        SMDEV_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( handle != NULL )
+	{
+		libsmdev_handle_free(
+		 &handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libsmdev_handle_signal_abort function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_handle_signal_abort(
      libsmdev_handle_t *handle )
 {
 	libcerror_error_t *error = NULL;
-	int number_of_tracks    = 0;
 	int result               = 0;
 
-	result = libsmdev_handle_get_number_of_tracks(
+	/* Test regular cases
+	 */
+	result = libsmdev_handle_signal_abort(
 	          handle,
-	          &number_of_tracks,
 	          &error );
 
 	SMDEV_TEST_ASSERT_EQUAL_INT(
@@ -1120,25 +1258,7 @@ int smdev_test_handle_get_number_of_tracks(
 
 	/* Test error cases
 	 */
-	result = libsmdev_handle_get_number_of_tracks(
-	          NULL,
-	          &number_of_tracks,
-	          &error );
-
-	SMDEV_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libsmdev_handle_get_number_of_tracks(
-	          handle,
+	result = libsmdev_handle_signal_abort(
 	          NULL,
 	          &error );
 
@@ -1165,35 +1285,40 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libsmdev_handle_get_number_of_error_retries functions
+/* Tests the libsmdev_handle_get_offset function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_handle_get_number_of_error_retries(
+int smdev_test_handle_get_offset(
      libsmdev_handle_t *handle )
 {
 	libcerror_error_t *error = NULL;
-	int number_of_error_retries    = 0;
+	off64_t offset           = 0;
+	int offset_is_set        = 0;
 	int result               = 0;
 
-	result = libsmdev_handle_get_number_of_error_retries(
+	/* Test regular cases
+	 */
+	result = libsmdev_handle_get_offset(
 	          handle,
-	          &number_of_error_retries,
+	          &offset,
 	          &error );
 
-	SMDEV_TEST_ASSERT_EQUAL_INT(
+	SMDEV_TEST_ASSERT_NOT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	offset_is_set = result;
 
 	/* Test error cases
 	 */
-	result = libsmdev_handle_get_number_of_error_retries(
+	result = libsmdev_handle_get_offset(
 	          NULL,
-	          &number_of_error_retries,
+	          &offset,
 	          &error );
 
 	SMDEV_TEST_ASSERT_EQUAL_INT(
@@ -1201,30 +1326,32 @@ int smdev_test_handle_get_number_of_error_retries(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
 
-	result = libsmdev_handle_get_number_of_error_retries(
-	          handle,
-	          NULL,
-	          &error );
+	if( offset_is_set != 0 )
+	{
+		result = libsmdev_handle_get_offset(
+		          handle,
+		          NULL,
+		          &error );
 
-	SMDEV_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+		SMDEV_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
 
-	libcerror_error_free(
-	 &error );
-
+		libcerror_error_free(
+		 &error );
+	}
 	return( 1 );
 
 on_error:
@@ -1236,35 +1363,40 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libsmdev_handle_get_number_of_errors functions
+/* Tests the libsmdev_handle_get_filename_size function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_handle_get_number_of_errors(
+int smdev_test_handle_get_filename_size(
      libsmdev_handle_t *handle )
 {
 	libcerror_error_t *error = NULL;
-	int number_of_errors    = 0;
+	size_t filename_size     = 0;
+	int filename_size_is_set = 0;
 	int result               = 0;
 
-	result = libsmdev_handle_get_number_of_errors(
+	/* Test regular cases
+	 */
+	result = libsmdev_handle_get_filename_size(
 	          handle,
-	          &number_of_errors,
+	          &filename_size,
 	          &error );
 
-	SMDEV_TEST_ASSERT_EQUAL_INT(
+	SMDEV_TEST_ASSERT_NOT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	filename_size_is_set = result;
 
 	/* Test error cases
 	 */
-	result = libsmdev_handle_get_number_of_errors(
+	result = libsmdev_handle_get_filename_size(
 	          NULL,
-	          &number_of_errors,
+	          &filename_size,
 	          &error );
 
 	SMDEV_TEST_ASSERT_EQUAL_INT(
@@ -1272,30 +1404,32 @@ int smdev_test_handle_get_number_of_errors(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
 
-	result = libsmdev_handle_get_number_of_errors(
-	          handle,
-	          NULL,
-	          &error );
+	if( filename_size_is_set != 0 )
+	{
+		result = libsmdev_handle_get_filename_size(
+		          handle,
+		          NULL,
+		          &error );
 
-	SMDEV_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+		SMDEV_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
 
-	libcerror_error_free(
-	 &error );
-
+		libcerror_error_free(
+		 &error );
+	}
 	return( 1 );
 
 on_error:
@@ -1306,6 +1440,88 @@ on_error:
 	}
 	return( 0 );
 }
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+/* Tests the libsmdev_handle_get_filename_size_wide function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_handle_get_filename_size_wide(
+     libsmdev_handle_t *handle )
+{
+	libcerror_error_t *error      = NULL;
+	size_t filename_size_wide     = 0;
+	int filename_size_wide_is_set = 0;
+	int result                    = 0;
+
+	/* Test regular cases
+	 */
+	result = libsmdev_handle_get_filename_size_wide(
+	          handle,
+	          &filename_size_wide,
+	          &error );
+
+	SMDEV_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	filename_size_wide_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libsmdev_handle_get_filename_size_wide(
+	          NULL,
+	          &filename_size_wide,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( filename_size_wide_is_set != 0 )
+	{
+		result = libsmdev_handle_get_filename_size_wide(
+		          handle,
+		          NULL,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		SMDEV_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* The main program
  */
@@ -1320,12 +1536,12 @@ int main(
 #endif
 {
 	libcerror_error_t *error   = NULL;
+	libsmdev_handle_t *handle  = NULL;
 	system_character_t *source = NULL;
-	libsmdev_handle_t *handle        = NULL;
 	system_integer_t option    = 0;
 	int result                 = 0;
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = smdev_test_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )
@@ -1385,7 +1601,14 @@ int main(
 
 #endif /* defined( LIBSMDEV_HAVE_BFIO ) */
 
-		/* TODO add test for libsmdev_handle_close */
+		SMDEV_TEST_RUN(
+		 "libsmdev_handle_close",
+		 smdev_test_handle_close );
+
+		SMDEV_TEST_RUN_WITH_ARGS(
+		 "libsmdev_handle_open_close",
+		 smdev_test_handle_open_close,
+		 source );
 
 		/* Initialize test
 		 */
@@ -1408,24 +1631,60 @@ int main(
 	         error );
 
 		SMDEV_TEST_RUN_WITH_ARGS(
-		 "libsmdev_handle_get_number_of_sessions",
-		 smdev_test_handle_get_number_of_sessions,
+		 "libsmdev_handle_signal_abort",
+		 smdev_test_handle_signal_abort,
+		 handle );
+
+		/* TODO: add tests for libsmdev_handle_read_buffer */
+
+		/* TODO: add tests for libsmdev_handle_read_buffer_at_offset */
+
+		/* TODO: add tests for libsmdev_handle_write_buffer */
+
+		/* TODO: add tests for libsmdev_handle_write_buffer_at_offset */
+
+		/* TODO: add tests for libsmdev_handle_seek_offset */
+
+		SMDEV_TEST_RUN_WITH_ARGS(
+		 "libsmdev_handle_get_offset",
+		 smdev_test_handle_get_offset,
 		 handle );
 
 		SMDEV_TEST_RUN_WITH_ARGS(
-		 "libsmdev_handle_get_number_of_tracks",
-		 smdev_test_handle_get_number_of_tracks,
+		 "libsmdev_handle_get_filename_size",
+		 smdev_test_handle_get_filename_size,
 		 handle );
 
-		SMDEV_TEST_RUN_WITH_ARGS(
-		 "libsmdev_handle_get_number_of_error_retries",
-		 smdev_test_handle_get_number_of_error_retries,
-		 handle );
+		/* TODO: add tests for libsmdev_handle_get_filename */
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libsmdev_handle_set_filename */
+
+#endif /* defined( __GNUC__ ) */
+
+#if defined( HAVE_WIDE_CHARACTER_TYPE )
 
 		SMDEV_TEST_RUN_WITH_ARGS(
-		 "libsmdev_handle_get_number_of_errors",
-		 smdev_test_handle_get_number_of_errors,
+		 "libsmdev_handle_get_filename_size_wide",
+		 smdev_test_handle_get_filename_size_wide,
 		 handle );
+
+		/* TODO: add tests for libsmdev_handle_get_filename_wide */
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libsmdev_handle_set_filename_wide */
+
+		/* TODO: add tests for libsmdev_handle_append_session */
+
+		/* TODO: add tests for libsmdev_handle_append_lead_out */
+
+		/* TODO: add tests for libsmdev_handle_append_track */
+
+#endif /* defined( __GNUC__ ) */
 
 		/* Clean up
 		 */

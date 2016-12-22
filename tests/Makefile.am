@@ -8,17 +8,24 @@ AM_CPPFLAGS = \
 	@LIBCNOTIFY_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBCFILE_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBSMDEV_DLL_IMPORT@
 
+if HAVE_PYTHON_TESTS
+TESTS_PYSMDEV = \
+	test_python_functions.sh
+endif
+
 TESTS = \
 	test_api_functions.sh \
-	test_api_types.sh
+	test_api_types.sh \
+	$(TESTS_PYSMDEV)
 
 check_SCRIPTS = \
+	pysmdev_test_support.py \
 	test_api_functions.sh \
 	test_api_types.sh \
+	test_python_functions.sh \
 	test_runner.sh
 
 EXTRA_DIST = \
@@ -40,23 +47,25 @@ smdev_test_error_LDADD = \
 	../libsmdev/libsmdev.la
 
 smdev_test_handle_SOURCES = \
+	smdev_test_getopt.c smdev_test_getopt.h \
 	smdev_test_handle.c \
 	smdev_test_libcerror.h \
 	smdev_test_libclocale.h \
-	smdev_test_libcsystem.h \
+	smdev_test_libcnotify.h \
 	smdev_test_libsmdev.h \
 	smdev_test_libuna.h \
-	smdev_test_memory.c smdev_test_memory.h \
-	smdev_test_unused.h
+	smdev_test_macros.h \
+	smdev_test_memory.c smdev_test_memory.h
 
 smdev_test_handle_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	../libsmdev/libsmdev.la \
-	@LIBCERROR_LIBADD@
+	@LIBCTHREADS_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@PTHREAD_LIBADD@
 
 smdev_test_notify_SOURCES = \
 	smdev_test_libsmdev.h \

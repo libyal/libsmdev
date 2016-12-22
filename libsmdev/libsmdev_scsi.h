@@ -318,5 +318,5 @@ int libsmdev_scsi_get_pci_bus_address(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_SCSI_H ) */
 

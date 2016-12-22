@@ -38,9 +38,9 @@
 #include <libsmdev/extern.h>
 
 #else
-#define LIBSMDEV_EXTERN	extern
+#define LIBSMDEV_EXTERN	/* extern */
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 
 #endif /* !defined( _LIBSMDEV_INTERNAL_EXTERN_H ) */
 

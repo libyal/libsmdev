@@ -51,5 +51,5 @@ int libsmdev_ata_get_device_configuration(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_ATA_H ) */
 

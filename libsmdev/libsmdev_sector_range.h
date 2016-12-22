@@ -77,5 +77,5 @@ int libsmdev_sector_range_set(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_SECTOR_RANGE_H ) */
 

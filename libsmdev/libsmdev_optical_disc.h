@@ -56,5 +56,5 @@ int libsmdev_optical_disc_get_table_of_contents_ioctl(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBSMDEV_OPTICAL_DISK_H ) */
 

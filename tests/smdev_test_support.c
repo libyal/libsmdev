@@ -203,14 +203,6 @@ int main(
 	 "libsmdev_get_version",
 	 smdev_test_get_version );
 
-	SMDEV_TEST_RUN(
-	 "libsmdev_get_codepage",
-	 smdev_test_get_codepage );
-
-	SMDEV_TEST_RUN(
-	 "libsmdev_set_codepage",
-	 smdev_test_set_codepage );
-
 	return( EXIT_SUCCESS );
 
 on_error:
