@@ -44,5 +44,5 @@ PyObject *pysmdev_handle_get_bytes_per_sector(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYSMDEV_METADATA_H ) */
 

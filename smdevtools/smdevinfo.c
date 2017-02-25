@@ -34,12 +34,14 @@
 #endif
 
 #include "info_handle.h"
-#include "smdevoutput.h"
+#include "smdevtools_getopt.h"
 #include "smdevtools_libcerror.h"
 #include "smdevtools_libclocale.h"
 #include "smdevtools_libcnotify.h"
-#include "smdevtools_libcsystem.h"
 #include "smdevtools_libsmdev.h"
+#include "smdevtools_output.h"
+#include "smdevtools_signal.h"
+#include "smdevtools_unused.h"
 
 info_handle_t *smdevinfo_info_handle = NULL;
 int smdevinfo_abort                  = 0;
@@ -69,12 +71,12 @@ void usage_fprint(
 /* Signal handler for smdevinfo
  */
 void smdevinfo_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      smdevtools_signal_t signal SMDEVTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
-	static char *function   = "smdevinfo_signal_handler";
+	static char *function    = "smdevinfo_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	SMDEVTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	smdevinfo_abort = 1;
 
@@ -94,8 +96,13 @@ void smdevinfo_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -134,13 +141,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( libcsystem_initialize(
+        if( smdevtools_output_initialize(
              _IONBF,
              &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -148,7 +155,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = smdevtools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "ihvV" ) ) ) != (system_integer_t) -1 )
@@ -227,7 +234,7 @@ int main( int argc, char * const argv[] )
 	}
 	smdevinfo_info_handle->ignore_data_files = ignore_data_files;
 
-	if( libcsystem_signal_attach(
+	if( smdevtools_signal_attach(
 	     smdevinfo_signal_handler,
 	     &error ) != 1 )
 	{
@@ -272,7 +279,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_signal_detach(
+	if( smdevtools_signal_detach(
 	     &error ) != 1 )
 	{
 		fprintf(

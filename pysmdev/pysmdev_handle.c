@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libsmdev handle
+ * Python object wrapper of libsmdev_handle_t
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -23,7 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_STDLIB_H )
+#if defined( HAVE_STDLIB_H ) || defined( HAVE_WINAPI )
 #include <stdlib.h>
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Python bindings for libsmdev (pysmdev)
+ * Common output functions for the smdevtools
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,38 +19,37 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYSMDEV_H )
-#define _PYSMDEV_H
+#if !defined( _SMDEVTOOLS_OUTPUT_H )
+#define _SMDEVTOOLS_OUTPUT_H
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
 
-#include "pysmdev_python.h"
+#include "smdevtools_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-PyObject *pysmdev_get_version(
-           PyObject *self,
-           PyObject *arguments );
+int smdevtools_output_initialize(
+     int stdio_mode,
+     libcerror_error_t **error );
 
-PyObject *pysmdev_check_device(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
+void smdevoutput_copyright_fprint(
+      FILE *stream );
 
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_pysmdev(
-                void );
-#else
-PyMODINIT_FUNC initpysmdev(
-                void );
-#endif
+void smdevoutput_version_fprint(
+      FILE *stream,
+      const char *program );
+
+void smdevoutput_version_detailed_fprint(
+      FILE *stream,
+      const char *program );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PYSMDEV_H ) */
+#endif /* !defined( _SMDEVTOOLS_OUTPUT_H ) */
 

@@ -11,7 +11,6 @@ SUBDIRS = \
 	libuna \
 	libcfile \
 	libsmdev \
-	libcsystem \
 	smdevtools \
 	pysmdev \
 	pysmdev-python2 \

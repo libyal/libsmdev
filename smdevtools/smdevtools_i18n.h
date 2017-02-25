@@ -1,5 +1,5 @@
 /*
- * Python bindings for libsmdev (pysmdev)
+ * Internationalization (i18n) functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,38 +19,30 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYSMDEV_H )
-#define _PYSMDEV_H
+#if !defined( _SMDEVTOOLS_I18N_H )
+#define _SMDEVTOOLS_I18N_H
 
 #include <common.h>
-#include <types.h>
 
-#include "pysmdev_python.h"
+#if defined( HAVE_LIBINTL_H )
+#include <libintl.h>
+#endif
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-PyObject *pysmdev_get_version(
-           PyObject *self,
-           PyObject *arguments );
+/* TODO for now do nothing i18n-like
+#define	_( string ) \
+	gettext( string )
+*/
 
-PyObject *pysmdev_check_device(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_pysmdev(
-                void );
-#else
-PyMODINIT_FUNC initpysmdev(
-                void );
-#endif
+#define	_( string ) \
+	string
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PYSMDEV_H ) */
+#endif /* !defined( _SMDEVTOOLS_I18N_H ) */
 

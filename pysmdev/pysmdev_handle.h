@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libsmdev handle
+ * Python object wrapper of libsmdev_handle_t
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *

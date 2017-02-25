@@ -1,5 +1,5 @@
 /*
- * Python bindings for libsmdev (pysmdev)
+ * Signal handling functions
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,38 +19,54 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYSMDEV_H )
-#define _PYSMDEV_H
+#if !defined( _SMDEVTOOLS_SIGNAL_H )
+#define _SMDEVTOOLS_SIGNAL_H
 
 #include <common.h>
 #include <types.h>
 
-#include "pysmdev_python.h"
+#include "smdevtools_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-PyObject *pysmdev_get_version(
-           PyObject *self,
-           PyObject *arguments );
-
-PyObject *pysmdev_check_device(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_pysmdev(
-                void );
-#else
-PyMODINIT_FUNC initpysmdev(
-                void );
+#if !defined( HAVE_SIGNAL_H ) && !defined( WINAPI )
+#error missing signal functions
 #endif
+
+#if defined( WINAPI )
+typedef unsigned long smdevtools_signal_t;
+
+#else
+typedef int smdevtools_signal_t;
+
+#endif /* defined( WINAPI ) */
+
+#if defined( WINAPI )
+
+BOOL WINAPI smdevtools_signal_handler(
+             smdevtools_signal_t signal );
+
+#if defined( _MSC_VER )
+
+void smdevtools_signal_initialize_memory_debug(
+      void );
+
+#endif /* defined( _MSC_VER ) */
+
+#endif /* defined( WINAPI ) */
+
+int smdevtools_signal_attach(
+     void (*signal_handler)( smdevtools_signal_t ),
+     libcerror_error_t **error );
+
+int smdevtools_signal_detach(
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PYSMDEV_H ) */
+#endif /* !defined( _SMDEVTOOLS_SIGNAL_H ) */
 

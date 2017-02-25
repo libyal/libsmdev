@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20161222],
+ [20170225],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -78,17 +78,8 @@ AX_LIBCFILE_CHECK_ENABLE
 dnl Check for library function support
 AX_LIBSMDEV_CHECK_LOCAL
 
-dnl Check for enabling libcsystem for cross-platform C generic system functions
-AX_LIBCSYSTEM_CHECK_ENABLE
-
-dnl Check if smdevtools should be build as static executables
-AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
-
-dnl Check if libsmdev should be build with verbose output
-AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
-
-dnl Check if libsmdev should be build with debug output
-AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
+dnl Check for lnktools function support
+AX_SMDEVTOOLS_CHECK_LOCAL
 
 dnl Check if libsmdev python bindings (pysmdev) should be build
 AX_PYTHON_CHECK_PYPREFIX
@@ -113,29 +104,6 @@ AS_IF(
 dnl Check for test function support
 AX_TESTS_CHECK_LOCAL
 
-dnl Check if DLL support is needed
-AS_IF(
- [test "x$enable_shared" = xyes],
- [AS_CASE(
-  [$host],
-  [*cygwin* | *mingw*],
-  [AC_DEFINE(
-   [HAVE_DLLMAIN],
-   [1],
-   [Define to 1 to enable the DllMain function.])
-  AC_SUBST(
-   [HAVE_DLLMAIN],
-   [1])
-
-  AS_IF(
-   [test "x$ac_cv_enable_static_executables" = xno],
-   [AC_SUBST(
-    [LIBSMDEV_DLL_IMPORT],
-    ["-DLIBSMDEV_DLL_IMPORT"])
-   ])
-  ])
- ])
-
 dnl Set additional compiler flags
 CFLAGS="$CFLAGS -Wall";
 
@@ -147,13 +115,6 @@ AS_IF(
   [Requires:])
  AC_SUBST(
   [libsmdev_spec_build_requires],
-  [BuildRequires:])
- ])
-
-AS_IF(
- [test "x$ac_cv_libcsystem" = xyes],
- [AC_SUBST(
-  [libsmdev_spec_tools_build_requires],
   [BuildRequires:])
  ])
 
@@ -184,7 +145,6 @@ AC_CONFIG_FILES([libcnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libcfile/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
-AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([smdevtools/Makefile])
 AC_CONFIG_FILES([pysmdev/Makefile])
 AC_CONFIG_FILES([pysmdev-python2/Makefile])
@@ -221,7 +181,6 @@ Building:
    libclocale support:                         $ac_cv_libclocale
    libuna support:                             $ac_cv_libuna
    libcfile support:                           $ac_cv_libcfile
-   libcsystem support:                         $ac_cv_libcsystem
 
 Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading

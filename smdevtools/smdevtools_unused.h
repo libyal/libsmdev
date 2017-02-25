@@ -1,5 +1,5 @@
 /*
- * Python bindings for libsmdev (pysmdev)
+ * The unused definition
  *
  * Copyright (C) 2010-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,38 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYSMDEV_H )
-#define _PYSMDEV_H
+#if !defined( _SMDEVTOOLS_UNUSED_H )
+#define _SMDEVTOOLS_UNUSED_H
 
 #include <common.h>
-#include <types.h>
 
-#include "pysmdev_python.h"
+#if !defined( SMDEVTOOLS_ATTRIBUTE_UNUSED )
 
-#if defined( __cplusplus )
-extern "C" {
-#endif
+#if defined( __GNUC__ ) && __GNUC__ >= 3
+#define SMDEVTOOLS_ATTRIBUTE_UNUSED	__attribute__ ((__unused__))
 
-PyObject *pysmdev_get_version(
-           PyObject *self,
-           PyObject *arguments );
-
-PyObject *pysmdev_check_device(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC PyInit_pysmdev(
-                void );
 #else
-PyMODINIT_FUNC initpysmdev(
-                void );
-#endif
+#define SMDEVTOOLS_ATTRIBUTE_UNUSED
 
-#if defined( __cplusplus )
-}
-#endif
+#endif /* defined( __GNUC__ ) && __GNUC__ >= 3 */
 
-#endif /* !defined( _PYSMDEV_H ) */
+#endif /* !defined( SMDEVTOOLS_ATTRIBUTE_UNUSED ) */
+
+#if defined( _MSC_VER )
+#define SMDEVTOOLS_UNREFERENCED_PARAMETER( parameter ) \
+	UNREFERENCED_PARAMETER( parameter );
+
+#else
+#define SMDEVTOOLS_UNREFERENCED_PARAMETER( parameter ) \
+	/* parameter */
+
+#endif /* defined( _MSC_VER ) */
+
+#endif /* !defined( _SMDEVTOOLS_UNUSED_H ) */
 
