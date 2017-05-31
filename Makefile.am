@@ -26,13 +26,12 @@ DPKG_FILES = \
 	dpkg/compat \
 	dpkg/control \
 	dpkg/copyright \
-	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libsmdev.docs \
-	dpkg/libsmdev-dev.docs \
-	dpkg/libsmdev-python.docs \
-	dpkg/libsmdev-python3.docs \
-	dpkg/libsmdev-tools.docs \
+	dpkg/libsmdev.install \
+	dpkg/libsmdev-dev.install \
+	dpkg/libsmdev-python.install \
+	dpkg/libsmdev-python3.install \
+	dpkg/libsmdev-tools.install \
 	dpkg/source/format
 
 GETTEXT_FILES = \
