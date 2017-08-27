@@ -1657,11 +1657,11 @@ int main(
 
 		/* TODO: add tests for libsmdev_handle_get_filename */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT )
 
 		/* TODO: add tests for libsmdev_handle_set_filename */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT ) */
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
@@ -1674,7 +1674,7 @@ int main(
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT )
 
 		/* TODO: add tests for libsmdev_handle_set_filename_wide */
 
@@ -1684,7 +1684,7 @@ int main(
 
 		/* TODO: add tests for libsmdev_handle_append_track */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT ) */
 
 		/* Clean up
 		 */
