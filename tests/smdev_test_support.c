@@ -100,9 +100,9 @@ int smdev_test_get_codepage(
 	 result,
 	 1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -115,9 +115,9 @@ int smdev_test_get_codepage(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -151,9 +151,9 @@ int smdev_test_set_codepage(
 	 result,
 	 1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -166,9 +166,9 @@ int smdev_test_set_codepage(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

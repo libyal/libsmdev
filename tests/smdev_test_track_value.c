@@ -64,13 +64,13 @@ int smdev_test_track_value_initialize(
 	 result,
 	 1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "track_value",
-         track_value );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "track_value",
+	 track_value );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libsmdev_track_value_free(
 	          &track_value,
@@ -81,13 +81,13 @@ int smdev_test_track_value_initialize(
 	 result,
 	 1 );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "track_value",
-         track_value );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "track_value",
+	 track_value );
 
-        SMDEV_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int smdev_test_track_value_initialize(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int smdev_test_track_value_initialize(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int smdev_test_track_value_free(
 	 result,
 	 -1 );
 
-        SMDEV_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
