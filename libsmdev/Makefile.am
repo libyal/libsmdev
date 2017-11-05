@@ -27,7 +27,6 @@ libsmdev_la_SOURCES = \
 	libsmdev_libclocale.h \
 	libsmdev_libcnotify.h \
 	libsmdev_libuna.h \
-	libsmdev_metadata.c libsmdev_metadata.h \
 	libsmdev_notify.c libsmdev_notify.h \
 	libsmdev_optical_disc.c libsmdev_optical_disc.h \
 	libsmdev_scsi.c libsmdev_scsi.h \

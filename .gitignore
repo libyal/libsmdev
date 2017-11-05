@@ -126,6 +126,7 @@ stamp-h[1-9]
 /tests/smdev_test_error
 /tests/smdev_test_handle
 /tests/smdev_test_notify
+/tests/smdev_test_sector_range
 /tests/smdev_test_support
 /tests/smdev_test_track_value
 /tests/tmp*

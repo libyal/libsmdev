@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "error notify scsi_inquiry_cdb scsi_ioctrl_header scsi_read_disc_information_cdb scsi_read_toc_cdb scsi_read_track_information_cdb sector_range support track_value"
+$LibraryTests = "error notify sector_range support track_value"
 $LibraryTestsWithInput = "handle"
 
 Function GetTestToolDirectory

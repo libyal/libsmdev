@@ -34,7 +34,6 @@
 #include "libsmdev_libcerror.h"
 #include "libsmdev_libcfile.h"
 #include "libsmdev_libcnotify.h"
-#include "libsmdev_metadata.h"
 #include "libsmdev_optical_disc.h"
 #include "libsmdev_sector_range.h"
 #include "libsmdev_scsi.h"

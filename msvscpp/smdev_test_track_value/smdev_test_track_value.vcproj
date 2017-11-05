@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="smdev_test_handle"
-	ProjectGUID="{349854EE-4C44-4BE4-B94A-0FD0064B144D}"
-	RootNamespace="smdev_test_handle"
+	Name="smdev_test_track_value"
+	ProjectGUID="{86E46577-AE59-4979-9F88-5EEB137E2376}"
+	RootNamespace="smdev_test_track_value"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,19 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\smdev_test_functions.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\smdev_test_getopt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\smdev_test_handle.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tests\smdev_test_memory.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\smdev_test_track_value.c"
 				>
 			</File>
 		</Filter>
@@ -198,31 +190,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\tests\smdev_test_functions.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\smdev_test_getopt.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tests\smdev_test_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\smdev_test_libclocale.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\smdev_test_libcnotify.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tests\smdev_test_libsmdev.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\smdev_test_libuna.h"
 				>
 			</File>
 			<File
