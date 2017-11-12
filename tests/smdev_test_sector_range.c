@@ -518,6 +518,146 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libsmdev_sector_range_get function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_sector_range_get(
+     void )
+{
+	libcerror_error_t *error              = NULL;
+	libsmdev_sector_range_t *sector_range = NULL;
+	uint64_t number_of_sectors            = 0;
+	uint64_t start_sector                 = 0;
+	int result                            = 0;
+
+	/* Initialize test
+	 */
+	result = libsmdev_sector_range_initialize(
+	          &sector_range,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "sector_range",
+	 sector_range );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libsmdev_sector_range_get(
+	          sector_range,
+	          &start_sector,
+	          &number_of_sectors,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libsmdev_sector_range_get(
+	          NULL,
+	          &start_sector,
+	          &number_of_sectors,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_sector_range_get(
+	          sector_range,
+	          NULL,
+	          &number_of_sectors,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_sector_range_get(
+	          sector_range,
+	          &start_sector,
+	          NULL,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libsmdev_sector_range_free(
+	          &sector_range,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "sector_range",
+	 sector_range );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( sector_range != NULL )
+	{
+		libsmdev_sector_range_free(
+		 &sector_range,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT ) */
 
 /* The main program
@@ -549,7 +689,9 @@ int main(
 	 "libsmdev_sector_range_clone",
 	 smdev_test_sector_range_clone );
 
-	/* TODO: add tests for libsmdev_sector_range_get */
+	SMDEV_TEST_RUN(
+	 "libsmdev_sector_range_get",
+	 smdev_test_sector_range_get );
 
 	/* TODO: add tests for libsmdev_sector_range_set */
 

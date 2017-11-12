@@ -18,6 +18,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_smdevinfo.sh \
 	$(TESTS_PYSMDEV)
 
 check_SCRIPTS = \
@@ -25,7 +26,8 @@ check_SCRIPTS = \
 	pysmdev_test_support.py \
 	test_library.sh \
 	test_python_module.sh \
-	test_runner.sh
+	test_runner.sh \
+	test_smdevinfo.sh
 
 EXTRA_DIST = \
 	$(check_SCRIPTS)
