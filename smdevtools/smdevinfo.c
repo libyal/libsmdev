@@ -309,7 +309,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stdout,
-		 "%" PRIs_SYSTEM ": ABORTED\n",
+		 "%s: ABORTED\n",
 		 program );
 
 		return( EXIT_FAILURE );
