@@ -73,13 +73,15 @@ smdev_test_handle_LDADD = \
 	@PTHREAD_LIBADD@
 
 smdev_test_notify_SOURCES = \
+	smdev_test_libcerror.h \
 	smdev_test_libsmdev.h \
 	smdev_test_macros.h \
 	smdev_test_notify.c \
 	smdev_test_unused.h
 
 smdev_test_notify_LDADD = \
-	../libsmdev/libsmdev.la
+	../libsmdev/libsmdev.la \
+	@LIBCERROR_LIBADD@
 
 smdev_test_sector_range_SOURCES = \
 	smdev_test_libcerror.h \

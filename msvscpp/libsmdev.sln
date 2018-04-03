@@ -28,6 +28,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smdev_test_notify", "smdev_test_notify\smdev_test_notify.vcproj", "{FED1F2DA-99EC-473D-9AD7-2F22B89A1790}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D236EB8A-199F-4C8B-AE1E-EF82FBBA0FE3} = {D236EB8A-199F-4C8B-AE1E-EF82FBBA0FE3}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smdev_test_sector_range", "smdev_test_sector_range\smdev_test_sector_range.vcproj", "{EAB771C7-C8CA-4780-B9F9-F535B9AF8AAC}"
