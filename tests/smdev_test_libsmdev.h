@@ -1,5 +1,5 @@
 /*
- * The internal libsmdev header
+ * The libsmdev header wrapper
  *
  * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -23,13 +23,6 @@
 #define _SMDEV_TEST_LIBSMDEV_H
 
 #include <common.h>
-
-/* If Cygwin libtool DLL support is enabled and do not want to create static
- * executables set LIBSMDEV_DLL_IMPORT before including libsmdev.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBSMDEV_DLL_IMPORT
-#endif
 
 #include <libsmdev.h>
 

@@ -24,14 +24,7 @@
 
 #include <common.h>
 
-/* If Cygwin libtool DLL support is enabled set LIBSMDEV_DLL_IMPORT
- * before including libsmdev.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBSMDEV_DLL_IMPORT
-#endif
-
 #include <libsmdev.h>
 
-#endif
+#endif /* !defined( _PYSMDEV_LIBSMDEV_H ) */
 

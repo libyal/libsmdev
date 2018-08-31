@@ -28,17 +28,13 @@
  */
 #if !defined( HAVE_LOCAL_LIBSMDEV )
 
-/* If libtool DLL support is enabled set LIBSMDEV_DLL_EXPORT
- * before including libsmdev/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBSMDEV_DLL_EXPORT
-#endif
-
 #include <libsmdev/extern.h>
 
+#define LIBSMDEV_EXTERN_VARIABLE	LIBSMDEV_EXTERN
+
 #else
-#define LIBSMDEV_EXTERN	/* extern */
+#define LIBSMDEV_EXTERN		/* extern */
+#define LIBSMDEV_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 

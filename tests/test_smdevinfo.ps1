@@ -1,6 +1,6 @@
 # Info tool testing script
 #
-# Version: 20170911
+# Version: 20180805
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -14,12 +14,6 @@ Function GetTestToolDirectory
 	{
 		ForEach (${VSConfiguration} in "Release VSDebug" -split " ")
 		{
-			$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}"
-
-			If (Test-Path ${TestToolDirectory})
-			{
-				Return ${TestToolDirectory}
-			}
 			ForEach (${VSPlatform} in "Win32 x64" -split " ")
 			{
 				$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
@@ -28,6 +22,12 @@ Function GetTestToolDirectory
 				{
 					Return ${TestToolDirectory}
 				}
+			}
+			$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}"
+
+			If (Test-Path ${TestToolDirectory})
+			{
+				Return ${TestToolDirectory}
 			}
 		}
 	}
