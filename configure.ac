@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libsmdev],
- [20180831],
+ [20181017],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -139,9 +139,6 @@ AS_IF(
  [AC_SUBST(
   [libsmdev_spec_requires],
   [Requires:])
- AC_SUBST(
-  [libsmdev_spec_build_requires],
-  [BuildRequires:])
  ])
 
 dnl Set the date for the dpkg files
