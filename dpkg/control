@@ -9,6 +9,8 @@ Homepage: https://github.com/libyal/libsmdev
 Package: libsmdev
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libsmdev1
+Replaces: libsmdev1
 Suggests: libsmdev-dbg
 Description: Library to access and read storage media (SM) devices
  libsmdev is a library to access and read storage media (SM) devices.
@@ -31,6 +33,8 @@ Package: libsmdev-tools
 Section: utils
 Architecture: any
 Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libsmdev-utils
+Replaces: libsmdev-utils
 Description: Several tools for accessing storage media (SM) devices
  Several tools for accessing storage media (SM) devices.
 
@@ -45,6 +49,8 @@ Package: libsmdev-python
 Section: python
 Architecture: any
 Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libsmdev
+Replaces: python-libsmdev
 Suggests: libsmdev-python-dbg
 Description: Python 2 bindings for libsmdev
  Python 2 bindings for libsmdev.
@@ -60,6 +66,8 @@ Package: libsmdev-python3
 Section: python
 Architecture: any
 Depends: libsmdev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libsmdev
+Replaces: python3-libsmdev
 Suggests: libsmdev-python3-dbg
 Description: Python 3 bindings for libsmdev
  Python 3 bindings for libsmdev.
