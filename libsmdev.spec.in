@@ -13,6 +13,14 @@ BuildRequires: gcc @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_re
 %description -n libsmdev
 Library to access and read storage media (SM) devices
 
+%package -n libsmdev-static
+Summary: Library to access and read storage media (SM) devices
+Group: Development/Libraries
+Requires: libsmdev = %{version}-%{release}
+
+%description -n libsmdev-static
+Static library version of libsmdev.
+
 %package -n libsmdev-devel
 Summary: Header files and libraries for developing applications for libsmdev
 Group: Development/Libraries
@@ -73,11 +81,16 @@ rm -rf %{buildroot}
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
+%files -n libsmdev-static
+%defattr(644,root,root,755)
+%license COPYING
+%doc AUTHORS README
+%attr(755,root,root) %{_libdir}/*.a
+
 %files -n libsmdev-devel
 %defattr(644,root,root,755)
 %license COPYING
-%doc AUTHORS README ChangeLog
-%{_libdir}/*.a
+%doc AUTHORS README
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libsmdev.pc

@@ -1,7 +1,7 @@
 /*
  * Handle functions
  *
- * Copyright (C) 2010-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1153,8 +1153,6 @@ ssize_t libsmdev_handle_read_buffer(
 {
 	libsmdev_internal_handle_t *internal_handle = NULL;
 	static char *function                       = "libsmdev_handle_read_buffer";
-	off64_t calculated_current_offset           = 0;
-	off64_t current_offset                      = 0;
 	size_t buffer_offset                        = 0;
 	size_t error_granularity_buffer_offset      = 0;
 	size_t error_granularity_size               = 0;
@@ -1162,8 +1160,11 @@ ssize_t libsmdev_handle_read_buffer(
 	size_t read_error_size                      = 0;
 	size_t read_size                            = 0;
 	ssize_t read_count                          = 0;
+	off64_t calculated_current_offset           = 0;
+	off64_t current_offset                      = 0;
 	uint32_t error_code                         = 0;
 	int16_t number_of_read_errors               = 0;
+	int result                                  = 0;
 
 	if( handle == NULL )
 	{
@@ -1491,14 +1492,16 @@ ssize_t libsmdev_handle_read_buffer(
 				 read_error_size );
 			}
 #endif
-			if( libcdata_range_list_insert_range(
-			     internal_handle->errors_range_list,
-			     (uint64_t) current_offset,
-			     (uint64_t) read_error_size,
-			     NULL,
-			     NULL,
-			     NULL,
-			     error ) != 1 )
+			result = libcdata_range_list_insert_range(
+			          internal_handle->errors_range_list,
+			          (uint64_t) current_offset,
+			          (uint64_t) read_error_size,
+			          NULL,
+			          NULL,
+			          NULL,
+			          error );
+
+			if( result = -1 )
 			{
 				libcerror_error_set(
 				 error,
