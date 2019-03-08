@@ -1501,7 +1501,7 @@ ssize_t libsmdev_handle_read_buffer(
 			          NULL,
 			          error );
 
-			if( result = -1 )
+			if( result == -1 )
 			{
 				libcerror_error_set(
 				 error,

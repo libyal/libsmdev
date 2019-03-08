@@ -1,11 +1,9 @@
-.Dd September 11, 2016
+.Dd March  8, 2019
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
 .Nm libsmdev.h
 .Nd Library to access and read storage media (SM) devices
-.Sh LIBRARY
-.Lb libsmdev
 .Sh SYNOPSIS
 .In libsmdev.h
 .Pp
@@ -19,23 +17,23 @@ Support functions
 .Ft int
 .Fn libsmdev_get_access_flags_write "void"
 .Ft int
-.Fn libsmdev_get_codepage "int *codepage, libsmdev_error_t **error"
+.Fn libsmdev_get_codepage "int *codepage" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_set_codepage "int codepage, libsmdev_error_t **error"
+.Fn libsmdev_set_codepage "int codepage" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_check_device "const char *filename, libsmdev_error_t **error"
+.Fn libsmdev_check_device "const char *filename" "libsmdev_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libsmdev_check_device_wide "const wchar_t *filename, libsmdev_error_t **error"
+.Fn libsmdev_check_device_wide "const wchar_t *filename" "libsmdev_error_t **error"
 .Pp
 Notify functions
 .Ft void
 .Fn libsmdev_notify_set_verbose "int verbose"
 .Ft int
-.Fn libsmdev_notify_set_stream "FILE *stream, libsmdev_error_t **error"
+.Fn libsmdev_notify_set_stream "FILE *stream" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_notify_stream_open "const char *filename, libsmdev_error_t **error"
+.Fn libsmdev_notify_stream_open "const char *filename" "libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_notify_stream_close "libsmdev_error_t **error"
 .Pp
@@ -43,87 +41,87 @@ Error functions
 .Ft void
 .Fn libsmdev_error_free "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_error_fprint "libsmdev_error_t *error, FILE *stream"
+.Fn libsmdev_error_fprint "libsmdev_error_t *error" "FILE *stream"
 .Ft int
-.Fn libsmdev_error_sprint "libsmdev_error_t *error, char *string, size_t size"
+.Fn libsmdev_error_sprint "libsmdev_error_t *error" "char *string" "size_t size"
 .Ft int
-.Fn libsmdev_error_backtrace_fprint "libsmdev_error_t *error, FILE *stream"
+.Fn libsmdev_error_backtrace_fprint "libsmdev_error_t *error" "FILE *stream"
 .Ft int
-.Fn libsmdev_error_backtrace_sprint "libsmdev_error_t *error, char *string, size_t size"
+.Fn libsmdev_error_backtrace_sprint "libsmdev_error_t *error" "char *string" "size_t size"
 .Pp
 Handle functions
 .Ft int
-.Fn libsmdev_handle_initialize "libsmdev_handle_t **handle, libsmdev_error_t **error"
+.Fn libsmdev_handle_initialize "libsmdev_handle_t **handle" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_free "libsmdev_handle_t **handle, libsmdev_error_t **error"
+.Fn libsmdev_handle_free "libsmdev_handle_t **handle" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle, libsmdev_error_t **error"
+.Fn libsmdev_handle_signal_abort "libsmdev_handle_t *handle" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_open "libsmdev_handle_t *handle, const char *filename, int access_flags, libsmdev_error_t **error"
+.Fn libsmdev_handle_open "libsmdev_handle_t *handle" "const char *filename" "int access_flags" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_close "libsmdev_handle_t *handle, libsmdev_error_t **error"
+.Fn libsmdev_handle_close "libsmdev_handle_t *handle" "libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_read_buffer "libsmdev_handle_t *handle, uint8_t *buffer, size_t buffer_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_read_buffer "libsmdev_handle_t *handle" "uint8_t *buffer" "size_t buffer_size" "libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_read_buffer_at_offset "libsmdev_handle_t *handle, uint8_t *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Fn libsmdev_handle_read_buffer_at_offset "libsmdev_handle_t *handle" "uint8_t *buffer" "size_t buffer_size" "off64_t offset" "libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_write_buffer "libsmdev_handle_t *handle, const uint8_t *buffer, size_t buffer_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_write_buffer "libsmdev_handle_t *handle" "const uint8_t *buffer" "size_t buffer_size" "libsmdev_error_t **error"
 .Ft ssize_t
-.Fn libsmdev_handle_write_buffer_at_offset "libsmdev_handle_t *handle, const uint8_t *buffer, size_t buffer_size, off64_t offset, libsmdev_error_t **error"
+.Fn libsmdev_handle_write_buffer_at_offset "libsmdev_handle_t *handle" "const uint8_t *buffer" "size_t buffer_size" "off64_t offset" "libsmdev_error_t **error"
 .Ft off64_t
-.Fn libsmdev_handle_seek_offset "libsmdev_handle_t *handle, off64_t offset, int whence, libsmdev_error_t **error"
+.Fn libsmdev_handle_seek_offset "libsmdev_handle_t *handle" "off64_t offset" "int whence" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_offset "libsmdev_handle_t *handle, off64_t *offset, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_offset "libsmdev_handle_t *handle" "off64_t *offset" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_filename_size "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_filename_size "libsmdev_handle_t *handle" "size_t *filename_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_filename "libsmdev_handle_t *handle, char *filename, size_t filename_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_filename "libsmdev_handle_t *handle" "char *filename" "size_t filename_size" "libsmdev_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libsmdev_handle_open_wide "libsmdev_handle_t *handle, const wchar_t *filename, int access_flags, libsmdev_error_t **error"
+.Fn libsmdev_handle_open_wide "libsmdev_handle_t *handle" "const wchar_t *filename" "int access_flags" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_filename_size_wide "libsmdev_handle_t *handle, size_t *filename_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_filename_size_wide "libsmdev_handle_t *handle" "size_t *filename_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_filename_wide "libsmdev_handle_t *handle, wchar_t *filename, size_t filename_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_filename_wide "libsmdev_handle_t *handle" "wchar_t *filename" "size_t filename_size" "libsmdev_error_t **error"
 .Pp
 Meta data functions
 .Ft int
-.Fn libsmdev_handle_get_media_size "libsmdev_handle_t *handle, size64_t *media_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_media_size "libsmdev_handle_t *handle" "size64_t *media_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_bytes_per_sector "libsmdev_handle_t *handle, uint32_t *bytes_per_sector, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_bytes_per_sector "libsmdev_handle_t *handle" "uint32_t *bytes_per_sector" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_media_type "libsmdev_handle_t *handle, uint8_t *media_type, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_media_type "libsmdev_handle_t *handle" "uint8_t *media_type" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_bus_type "libsmdev_handle_t *handle, uint8_t *bus_type, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_bus_type "libsmdev_handle_t *handle" "uint8_t *bus_type" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_utf8_information_value "libsmdev_handle_t *handle, const uint8_t *identifier, size_t identifier_size, const uint8_t *utf8_string, size_t utf8_string_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_utf8_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_size" "const uint8_t *utf8_string" "size_t utf8_string_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_utf16_information_value "libsmdev_handle_t *handle, const uint8_t *identifier, size_t identifier_size, const uint16_t *utf16_string, size_t utf16_string_size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_utf16_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_size" "const uint16_t *utf16_string" "size_t utf16_string_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_number_of_sessions "libsmdev_handle_t *handle, int *number_of_sessions, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_number_of_sessions "libsmdev_handle_t *handle" "int *number_of_sessions" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_session "libsmdev_handle_t *handle, int index, uint64_t *start_sector, uint64_t *number_of_sectors, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_session "libsmdev_handle_t *handle" "int index" "uint64_t *start_sector" "uint64_t *number_of_sectors" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_number_of_tracks "libsmdev_handle_t *handle, int *number_of_tracks, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_number_of_tracks "libsmdev_handle_t *handle" "int *number_of_tracks" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_track "libsmdev_handle_t *handle, int index, uint64_t *start_sector, uint64_t *number_of_sectors, uint8_t *type, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_track "libsmdev_handle_t *handle" "int index" "uint64_t *start_sector" "uint64_t *number_of_sectors" "uint8_t *type" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_number_of_error_retries "libsmdev_handle_t *handle, uint8_t *number_of_error_retries, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_number_of_error_retries "libsmdev_handle_t *handle" "uint8_t *number_of_error_retries" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_set_number_of_error_retries "libsmdev_handle_t *handle, uint8_t number_of_error_retries, libsmdev_error_t **error"
+.Fn libsmdev_handle_set_number_of_error_retries "libsmdev_handle_t *handle" "uint8_t number_of_error_retries" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_error_granularity "libsmdev_handle_t *handle, size_t *error_granularity, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_error_granularity "libsmdev_handle_t *handle" "size_t *error_granularity" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_set_error_granularity "libsmdev_handle_t *handle, size_t error_granularity, libsmdev_error_t **error"
+.Fn libsmdev_handle_set_error_granularity "libsmdev_handle_t *handle" "size_t error_granularity" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_error_flags "libsmdev_handle_t *handle, uint8_t *error_flags, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_error_flags "libsmdev_handle_t *handle" "uint8_t *error_flags" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_set_error_flags "libsmdev_handle_t *handle, uint8_t error_flags, libsmdev_error_t **error"
+.Fn libsmdev_handle_set_error_flags "libsmdev_handle_t *handle" "uint8_t error_flags" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_number_of_errors "libsmdev_handle_t *handle, int *number_of_errors, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_number_of_errors "libsmdev_handle_t *handle" "int *number_of_errors" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_error "libsmdev_handle_t *handle, int index, off64_t *offset, size64_t *size, libsmdev_error_t **error"
+.Fn libsmdev_handle_get_error "libsmdev_handle_t *handle" "int index" "off64_t *offset" "size64_t *size" "libsmdev_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libsmdev_get_version
@@ -136,8 +134,8 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libsmdev allows to be compiled with wide character support (wchar_t).
-
+libsmdev can be compiled with wide character support (wchar_t).
+.sp
 To compile libsmdev with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes
  or define:
@@ -145,7 +143,7 @@ To compile libsmdev with wide character support use:
  or
 .Ar UNICODE
  during compilation.
-
+.sp
 .Ar LIBSMDEV_WIDE_CHARACTER_TYPE
  in libsmdev/features.h can be used to determine if libsmdev was compiled with wide character support.
 .Sh BUGS
@@ -154,7 +152,7 @@ Please report bugs of any kind on the project issue tracker: https://github.com/
 These man pages are generated from "libsmdev.h".
 .Sh COPYRIGHT
 Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>.
-
+.sp
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO
