@@ -3505,7 +3505,7 @@ int libsmdev_internal_handle_determine_media_information(
 	}
 #endif
 /* Disabled for now
-	if( libsmdev_scsi_get_identier(
+	if( libsmdev_scsi_get_identifier(
 	     internal_handle->device_file,
 	     error ) != 1 )
 	{

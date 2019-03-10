@@ -397,8 +397,8 @@ LIBSMDEV_EXTERN \
 int libsmdev_handle_get_utf8_information_value(
      libsmdev_handle_t *handle,
      const uint8_t *identifier,
-     size_t identifier_size,
-     const uint8_t *utf8_string,
+     size_t identifier_length,
+     uint8_t *utf8_string,
      size_t utf8_string_size,
      libsmdev_error_t **error );
 
@@ -410,8 +410,8 @@ LIBSMDEV_EXTERN \
 int libsmdev_handle_get_utf16_information_value(
      libsmdev_handle_t *handle,
      const uint8_t *identifier,
-     size_t identifier_size,
-     const uint16_t *utf16_string,
+     size_t identifier_length,
+     uint16_t *utf16_string,
      size_t utf16_string_size,
      libsmdev_error_t **error );
 

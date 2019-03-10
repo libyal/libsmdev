@@ -130,7 +130,7 @@ PyObject *pysmdev_check_device(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &string_object ) == 0 )
 	{

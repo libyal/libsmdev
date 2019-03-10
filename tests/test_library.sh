@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="error notify sector_range support track_value";
+LIBRARY_TESTS="ata error notify optical_disc scsi sector_range string support track_value";
 LIBRARY_TESTS_WITH_INPUT="handle";
 OPTION_SETS="";
 

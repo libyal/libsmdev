@@ -66,6 +66,17 @@ int libsmdev_scsi_command(
 	static char *function = "libsmdev_scsi_command";
 	ssize_t read_count    = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( command == NULL )
 	{
 		libcerror_error_set(
@@ -209,6 +220,17 @@ int libsmdev_scsi_ioctrl(
 	size_t ioctrl_request_size = 0;
 	ssize_t read_count         = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	ioctrl_request_size = sizeof( libsmdev_scsi_ioctrl_header_t ) + request_data_size;
 
 	ioctrl_request = (uint8_t *) memory_allocate(
@@ -307,6 +329,17 @@ ssize_t libsmdev_scsi_inquiry(
 	static char *function  = "libsmdev_scsi_inquiry";
 	ssize_t response_count = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -423,6 +456,17 @@ ssize_t libsmdev_scsi_read_toc(
 	static char *function  = "libsmdev_scsi_read_toc";
 	ssize_t response_count = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -531,6 +575,17 @@ ssize_t libsmdev_scsi_read_disc_information(
 	static char *function  = "libsmdev_scsi_read_disc_information";
 	ssize_t response_count = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -639,6 +694,17 @@ ssize_t libsmdev_scsi_read_track_information(
 	static char *function  = "libsmdev_scsi_read_track_information";
 	ssize_t response_count = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( response == NULL )
 	{
 		libcerror_error_set(
@@ -738,7 +804,7 @@ ssize_t libsmdev_scsi_read_track_information(
 /* Retrieves the SCSI identifier
  * Returns 1 if successful or -1 on error
  */
-int libsmdev_scsi_get_identier(
+int libsmdev_scsi_get_identifier(
      libcfile_file_t *device_file,
      libcerror_error_t **error )
 {
@@ -753,6 +819,17 @@ int libsmdev_scsi_get_identier(
 	static char *function = "libsmdev_scsi_get_identifier";
 	ssize_t read_count    = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( SG_GET_SCSI_ID )
 	read_count = libcfile_file_io_control_read(
 	              device_file,
@@ -785,8 +862,9 @@ int libsmdev_scsi_get_identier(
 		 sizeof( identifier ),
 		 0 );
 	}
-#endif
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+#endif /* defined( SG_GET_SCSI_ID ) */
+
 	return( 1 );
 }
 
@@ -811,6 +889,17 @@ int libsmdev_scsi_get_bus_type(
 	static char *function       = "libsmdev_scsi_get_bus_type";
 	ssize_t read_count          = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( bus_type == NULL )
 	{
 		libcerror_error_set(
@@ -855,7 +944,8 @@ int libsmdev_scsi_get_bus_type(
 				 *error );
 			}
 		}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 		libcerror_error_free(
 		 error );
 
@@ -878,7 +968,8 @@ int libsmdev_scsi_get_bus_type(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	*bus_type = 0;
 
 	if( *bus_type == 0 )
@@ -942,7 +1033,8 @@ int libsmdev_scsi_get_bus_type(
 			}
 		}
 	}
-#endif
+#endif /* defined( SCSI_IOCTL_PROBE_HOST ) */
+
 	return( 1 );
 }
 
@@ -959,9 +1051,20 @@ int libsmdev_scsi_get_pci_bus_address(
      size_t pci_bus_address_size,
      libcerror_error_t **error )
 {
-	static char *function = "libsmdev_scsi_get_bus_type";
+	static char *function = "libsmdev_scsi_get_pci_bus_address";
 	ssize_t read_count    = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( pci_bus_address == NULL )
 	{
 		libcerror_error_set(
@@ -1043,10 +1146,11 @@ int libsmdev_scsi_get_pci_bus_address(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+#endif /* defined( SCSI_IOCTL_GET_PCI ) */
+
 	return( 1 );
 }
 
-#endif
+#endif /* defined( HAVE_SCSI_SG_H ) */
 

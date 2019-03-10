@@ -33,12 +33,32 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	smdev_test_ata \
 	smdev_test_error \
 	smdev_test_handle \
 	smdev_test_notify \
+	smdev_test_optical_disc \
+	smdev_test_scsi \
 	smdev_test_sector_range \
+	smdev_test_string \
 	smdev_test_support \
 	smdev_test_track_value
+
+smdev_test_ata_SOURCES = \
+	smdev_test_ata.c \
+	smdev_test_libcerror.h \
+	smdev_test_libcfile.h \
+	smdev_test_libsmdev.h \
+	smdev_test_macros.h \
+	smdev_test_unused.h
+
+smdev_test_ata_LDADD = \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	../libsmdev/libsmdev.la \
+	@LIBCERROR_LIBADD@
 
 smdev_test_error_SOURCES = \
 	smdev_test_error.c \
@@ -83,6 +103,38 @@ smdev_test_notify_LDADD = \
 	../libsmdev/libsmdev.la \
 	@LIBCERROR_LIBADD@
 
+smdev_test_optical_disc_SOURCES = \
+	smdev_test_libcerror.h \
+	smdev_test_libcfile.h \
+	smdev_test_libsmdev.h \
+	smdev_test_macros.h \
+	smdev_test_optical_disc.c \
+	smdev_test_unused.h
+
+smdev_test_optical_disc_LDADD = \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	../libsmdev/libsmdev.la \
+	@LIBCERROR_LIBADD@
+
+smdev_test_scsi_SOURCES = \
+	smdev_test_libcerror.h \
+	smdev_test_libcfile.h \
+	smdev_test_libsmdev.h \
+	smdev_test_macros.h \
+	smdev_test_scsi.c \
+	smdev_test_unused.h
+
+smdev_test_scsi_LDADD = \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	../libsmdev/libsmdev.la \
+	@LIBCERROR_LIBADD@
+
 smdev_test_sector_range_SOURCES = \
 	smdev_test_libcerror.h \
 	smdev_test_libsmdev.h \
@@ -92,6 +144,17 @@ smdev_test_sector_range_SOURCES = \
 	smdev_test_unused.h
 
 smdev_test_sector_range_LDADD = \
+	../libsmdev/libsmdev.la \
+	@LIBCERROR_LIBADD@
+
+smdev_test_string_SOURCES = \
+	smdev_test_libcerror.h \
+	smdev_test_libsmdev.h \
+	smdev_test_macros.h \
+	smdev_test_string.c \
+	smdev_test_unused.h
+
+smdev_test_string_LDADD = \
 	../libsmdev/libsmdev.la \
 	@LIBCERROR_LIBADD@
 

@@ -124,10 +124,14 @@ stamp-h[1-9]
 /smdevtools/*.exe
 /smdevtools/smdevinfo
 /tests/*.exe
+/tests/smdev_test_ata
 /tests/smdev_test_error
 /tests/smdev_test_handle
 /tests/smdev_test_notify
+/tests/smdev_test_optical_disc
+/tests/smdev_test_scsi
 /tests/smdev_test_sector_range
+/tests/smdev_test_string
 /tests/smdev_test_support
 /tests/smdev_test_track_value
 /tests/tmp*

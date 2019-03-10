@@ -105,6 +105,532 @@ int libsmdev_optical_disc_get_table_of_contents(
 	return( result );
 }
 
+/* Retrieves the table of contents from the optical disk using IOCTL
+ * Returns 1 if successful, 0 if not or -1 on error
+ */
+int libsmdev_optical_disc_get_table_of_contents_ioctl(
+     libcfile_file_t *device_file,
+     libsmdev_internal_handle_t *internal_handle,
+     libcerror_error_t **error )
+{
+	struct cdrom_tochdr toc_header;
+	struct cdrom_tocentry toc_entry;
+
+	static char *function        = "libsmdev_optical_disc_get_table_of_contents_ioctl";
+	ssize_t read_count           = 0;
+	uint32_t last_session_size   = 0;
+	uint32_t last_session_offset = 0;
+	uint32_t last_track_size     = 0;
+	uint32_t last_track_offset   = 0;
+	uint32_t offset              = 0;
+	uint16_t entry_index         = 0;
+	uint8_t first_entry          = 0;
+	uint8_t last_entry           = 0;
+	uint8_t last_track_type      = 0;
+	uint8_t session_index        = 0;
+	uint8_t track_index          = 0;
+	uint8_t track_type           = 0;
+	int result                   = 0;
+
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
+	read_count = libcfile_file_io_control_read(
+	              device_file,
+	              CDROMREADTOCHDR,
+	              NULL,
+	              0,
+	              (uint8_t *) &toc_header,
+	              sizeof( struct cdrom_tochdr ),
+	              error );
+
+	if( read_count == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+		 "%s: unable to query device for: CDROMREADTOCHDR.",
+		 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
+	}
+	first_entry = toc_header.cdth_trk0;
+	last_entry  = toc_header.cdth_trk1;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: number of entries\t: %" PRIu8 "\n",
+		 function,
+		 last_entry );
+	}
+#endif
+	for( entry_index = (uint16_t) first_entry;
+	     entry_index <= (uint16_t) last_entry;
+	     entry_index++ )
+	{
+		if( memory_set(
+		     &toc_entry,
+		     0,
+		     sizeof( struct cdrom_tocentry ) ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear TOC entry.",
+			 function );
+
+			goto on_error;
+		}
+		toc_entry.cdte_track  = (uint8_t) entry_index;
+		toc_entry.cdte_format = CDROM_LBA;
+
+		read_count = libcfile_file_io_control_read(
+		              device_file,
+		              CDROMREADTOCENTRY,
+		              NULL,
+		              0,
+		              (uint8_t *) &toc_entry,
+		              sizeof( struct cdrom_tocentry ),
+		              error );
+
+		if( read_count == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: CDROMREADTOCENTRY.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+
+			break;
+		}
+		if( toc_entry.cdte_format == CDROM_LBA )
+		{
+			offset = (uint32_t) toc_entry.cdte_addr.lba;
+		}
+		else if( toc_entry.cdte_format == CDROM_MSF )
+		{
+			libsmdev_optical_disc_copy_msf_to_lba(
+			 toc_entry.cdte_addr.msf.minute,
+			 toc_entry.cdte_addr.msf.second,
+			 toc_entry.cdte_addr.msf.frame,
+			 offset );
+		}
+		else
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported CDTE format.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
+		{
+			track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
+		}
+		else
+		{
+			track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: entry: %" PRIu16 "",
+			 function,
+			 entry_index );
+
+			if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
+			{
+				libcnotify_printf(
+				 " (audio)" );
+			}
+			else
+			{
+				libcnotify_printf(
+				 " (data)" );
+			}
+			if( toc_entry.cdte_format == CDROM_LBA )
+			{
+				libcnotify_printf(
+				 " start\t: %" PRIu32 "",
+				 toc_entry.cdte_addr.lba );
+			}
+			else if( toc_entry.cdte_format == CDROM_MSF )
+			{
+				libcnotify_printf(
+				 " start\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 "",
+				 toc_entry.cdte_addr.msf.minute,
+				 toc_entry.cdte_addr.msf.second,
+				 toc_entry.cdte_addr.msf.frame );
+			}
+			libcnotify_printf(
+			 " (offset: %" PRIu32 ")\n",
+			 offset );
+		}
+#endif
+		if( entry_index > first_entry )
+		{
+			if( ( offset < last_track_offset )
+			 || ( offset < last_session_offset ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid offset value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
+			last_track_size = offset - last_track_offset;
+
+			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
+			 || ( last_track_type != track_type ) )
+			{
+				if( session_index == 0 )
+				{
+					if( last_track_size < 11400 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid last track size value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					last_track_size -= 11400;
+				}
+				else
+				{
+					if( last_track_size < 6900 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid last track size value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
+					last_track_size -= 6900;
+				}
+			}
+			if( libsmdev_handle_append_track(
+			     internal_handle,
+			     last_track_offset,
+			     last_track_size,
+			     last_track_type,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append track: %" PRIu8 ".",
+				 function,
+				 track_index );
+
+				goto on_error;
+			}
+			track_index++;
+
+			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
+			 || ( last_track_type != track_type ) )
+			{
+				last_session_size = offset - last_session_offset;
+
+				if( libsmdev_handle_append_session(
+				     internal_handle,
+				     last_session_offset,
+				     last_session_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append session: %" PRIu8 ".",
+					 function,
+					 session_index );
+
+					goto on_error;
+				}
+				session_index++;
+
+				last_session_offset = offset;
+			}
+		}
+		last_track_offset = offset;
+		last_track_type   = track_type;
+	}
+	if( read_count != -1 )
+	{
+		if( memory_set(
+		     &toc_entry,
+		     0,
+		     sizeof( struct cdrom_tocentry ) ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear TOC entry.",
+			 function );
+
+			goto on_error;
+		}
+		toc_entry.cdte_track  = CDROM_LEADOUT;
+		toc_entry.cdte_format = CDROM_LBA;
+
+		read_count = libcfile_file_io_control_read(
+			      device_file,
+			      CDROMREADTOCENTRY,
+			      NULL,
+			      0,
+			      (uint8_t *) &toc_entry,
+			      sizeof( struct cdrom_tocentry ),
+			      error );
+
+		if( read_count == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
+			 "%s: unable to query device for: CDROMREADTOCENTRY.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+			}
+#endif
+			libcerror_error_free(
+			 error );
+		}
+		else
+		{
+			if( toc_entry.cdte_format == CDROM_LBA )
+			{
+				offset = (uint32_t) toc_entry.cdte_addr.lba;
+			}
+			else if( toc_entry.cdte_format == CDROM_MSF )
+			{
+				libsmdev_optical_disc_copy_msf_to_lba(
+				 toc_entry.cdte_addr.msf.minute,
+				 toc_entry.cdte_addr.msf.second,
+				 toc_entry.cdte_addr.msf.frame,
+				 offset );
+			}
+			else
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported CDTE format.",
+				 function );
+
+				goto on_error;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "\tLead out" );
+
+				if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
+				{
+					libcnotify_printf(
+					 " (audio)" );
+				}
+				else
+				{
+					libcnotify_printf(
+					 " (data)" );
+				}
+				if( toc_entry.cdte_format == CDROM_LBA )
+				{
+					libcnotify_printf(
+					 " start:\t%" PRIu32 "",
+					 toc_entry.cdte_addr.lba );
+				}
+				else if( toc_entry.cdte_format == CDROM_MSF )
+				{
+					libcnotify_printf(
+					 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
+					 toc_entry.cdte_addr.msf.minute,
+					 toc_entry.cdte_addr.msf.second,
+					 toc_entry.cdte_addr.msf.frame );
+				}
+				libcnotify_printf(
+				 " (offset: %" PRIu32 ")\n\n",
+				 offset );
+			}
+#endif
+			if( ( offset < last_track_offset )
+			 || ( offset < last_session_offset ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid offset value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
+			last_track_size = offset - last_track_offset;
+
+			if( libsmdev_handle_append_track(
+			     internal_handle,
+			     last_track_offset,
+			     last_track_size,
+			     last_track_type,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append last track: %" PRIu8 ".",
+				 function,
+				 track_index );
+
+				goto on_error;
+			}
+			last_session_size = offset - last_session_offset;
+
+			if( libsmdev_handle_append_session(
+			     internal_handle,
+			     last_session_offset,
+			     last_session_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append session: %" PRIu8 ".",
+				 function,
+				 session_index );
+
+				goto on_error;
+			}
+			result = 1;
+		}
+	}
+	if( result == 0 )
+	{
+		if( libcdata_array_empty(
+		     internal_handle->tracks_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty tracks array.",
+			 function );
+
+			goto on_error;
+		}
+		if( libcdata_array_empty(
+		     internal_handle->sessions_array,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to empty sessions array.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	libcdata_array_empty(
+	 internal_handle->tracks_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
+	 NULL );
+
+	libcdata_array_empty(
+	 internal_handle->sessions_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
+	 NULL );
+
+	return( -1 );
+}
+
 /* Retrieves the table of contents from the optical disk using the SCSI READ TOC command
  * Returns 1 if successful, 0 if not or -1 on error
  */
@@ -140,6 +666,28 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint8_t track_type           = 0;
 	int result                   = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid handle.",
+		 function );
+
+		return( -1 );
+	}
 	toc_data_size = 1024;
 
 	toc_data = (uint8_t *) memory_allocate(
@@ -868,509 +1416,5 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the table of contents from the optical disk using IOCTL
- * Returns 1 if successful, 0 if not or -1 on error
- */
-int libsmdev_optical_disc_get_table_of_contents_ioctl(
-     libcfile_file_t *device_file,
-     libsmdev_internal_handle_t *internal_handle,
-     libcerror_error_t **error )
-{
-	struct cdrom_tochdr toc_header;
-	struct cdrom_tocentry toc_entry;
-
-	static char *function        = "libsmdev_optical_disc_get_table_of_contents_ioctl";
-	ssize_t read_count           = 0;
-	uint32_t last_session_size   = 0;
-	uint32_t last_session_offset = 0;
-	uint32_t last_track_size     = 0;
-	uint32_t last_track_offset   = 0;
-	uint32_t offset              = 0;
-	uint16_t entry_index         = 0;
-	uint8_t first_entry          = 0;
-	uint8_t last_entry           = 0;
-	uint8_t last_track_type      = 0;
-	uint8_t session_index        = 0;
-	uint8_t track_index          = 0;
-	uint8_t track_type           = 0;
-	int result                   = 0;
-
-	read_count = libcfile_file_io_control_read(
-	              device_file,
-	              CDROMREADTOCHDR,
-	              NULL,
-	              0,
-	              (uint8_t *) &toc_header,
-	              sizeof( struct cdrom_tochdr ),
-	              error );
-
-	if( read_count == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-		 "%s: unable to query device for: CDROMREADTOCHDR.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-		}
-#endif
-		libcerror_error_free(
-		 error );
-
-		return( 0 );
-	}
-	first_entry = toc_header.cdth_trk0;
-	last_entry  = toc_header.cdth_trk1;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: number of entries\t: %" PRIu8 "\n",
-		 function,
-		 last_entry );
-	}
-#endif
-	for( entry_index = (uint16_t) first_entry;
-	     entry_index <= (uint16_t) last_entry;
-	     entry_index++ )
-	{
-		if( memory_set(
-		     &toc_entry,
-		     0,
-		     sizeof( struct cdrom_tocentry ) ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear TOC entry.",
-			 function );
-
-			goto on_error;
-		}
-		toc_entry.cdte_track  = (uint8_t) entry_index;
-		toc_entry.cdte_format = CDROM_LBA;
-
-		read_count = libcfile_file_io_control_read(
-		              device_file,
-		              CDROMREADTOCENTRY,
-		              NULL,
-		              0,
-		              (uint8_t *) &toc_entry,
-		              sizeof( struct cdrom_tocentry ),
-		              error );
-
-		if( read_count == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: CDROMREADTOCENTRY.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-
-			break;
-		}
-		if( toc_entry.cdte_format == CDROM_LBA )
-		{
-			offset = (uint32_t) toc_entry.cdte_addr.lba;
-		}
-		else if( toc_entry.cdte_format == CDROM_MSF )
-		{
-			libsmdev_optical_disc_copy_msf_to_lba(
-			 toc_entry.cdte_addr.msf.minute,
-			 toc_entry.cdte_addr.msf.second,
-			 toc_entry.cdte_addr.msf.frame,
-			 offset );
-		}
-		else
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported CDTE format.",
-			 function );
-
-			goto on_error;
-		}
-		if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
-		{
-			track_type = LIBSMDEV_TRACK_TYPE_AUDIO;
-		}
-		else
-		{
-			track_type = LIBSMDEV_TRACK_TYPE_MODE1_2048;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: entry: %" PRIu16 "",
-			 function,
-			 entry_index );
-
-			if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
-			{
-				libcnotify_printf(
-				 " (audio)" );
-			}
-			else
-			{
-				libcnotify_printf(
-				 " (data)" );
-			}
-			if( toc_entry.cdte_format == CDROM_LBA )
-			{
-				libcnotify_printf(
-				 " start\t: %" PRIu32 "",
-				 toc_entry.cdte_addr.lba );
-			}
-			else if( toc_entry.cdte_format == CDROM_MSF )
-			{
-				libcnotify_printf(
-				 " start\t: %02" PRIu8 ":%02" PRIu8 ".%02" PRIu8 "",
-				 toc_entry.cdte_addr.msf.minute,
-				 toc_entry.cdte_addr.msf.second,
-				 toc_entry.cdte_addr.msf.frame );
-			}
-			libcnotify_printf(
-			 " (offset: %" PRIu32 ")\n",
-			 offset );
-		}
-#endif
-		if( entry_index > first_entry )
-		{
-			if( ( offset < last_track_offset )
-			 || ( offset < last_session_offset ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid offset value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-			last_track_size = offset - last_track_offset;
-
-			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
-			 || ( last_track_type != track_type ) )
-			{
-				if( session_index == 0 )
-				{
-					if( last_track_size < 11400 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid last track size value out of bounds.",
-						 function );
-
-						goto on_error;
-					}
-					last_track_size -= 11400;
-				}
-				else
-				{
-					if( last_track_size < 6900 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid last track size value out of bounds.",
-						 function );
-
-						goto on_error;
-					}
-					last_track_size -= 6900;
-				}
-			}
-			if( libsmdev_handle_append_track(
-			     internal_handle,
-			     last_track_offset,
-			     last_track_size,
-			     last_track_type,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append track: %" PRIu8 ".",
-				 function,
-				 track_index );
-
-				goto on_error;
-			}
-			track_index++;
-
-			if( ( last_track_type == LIBSMDEV_TRACK_TYPE_MODE1_2048 )
-			 || ( last_track_type != track_type ) )
-			{
-				last_session_size = offset - last_session_offset;
-
-				if( libsmdev_handle_append_session(
-				     internal_handle,
-				     last_session_offset,
-				     last_session_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-					 "%s: unable to append session: %" PRIu8 ".",
-					 function,
-					 session_index );
-
-					goto on_error;
-				}
-				session_index++;
-
-				last_session_offset = offset;
-			}
-		}
-		last_track_offset = offset;
-		last_track_type   = track_type;
-	}
-	if( read_count != -1 )
-	{
-		if( memory_set(
-		     &toc_entry,
-		     0,
-		     sizeof( struct cdrom_tocentry ) ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear TOC entry.",
-			 function );
-
-			goto on_error;
-		}
-		toc_entry.cdte_track  = CDROM_LEADOUT;
-		toc_entry.cdte_format = CDROM_LBA;
-
-		read_count = libcfile_file_io_control_read(
-			      device_file,
-			      CDROMREADTOCENTRY,
-			      NULL,
-			      0,
-			      (uint8_t *) &toc_entry,
-			      sizeof( struct cdrom_tocentry ),
-			      error );
-
-		if( read_count == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_IOCTL_FAILED,
-			 "%s: unable to query device for: CDROMREADTOCENTRY.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libcnotify_print_error_backtrace(
-					 *error );
-				}
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		else
-		{
-			if( toc_entry.cdte_format == CDROM_LBA )
-			{
-				offset = (uint32_t) toc_entry.cdte_addr.lba;
-			}
-			else if( toc_entry.cdte_format == CDROM_MSF )
-			{
-				libsmdev_optical_disc_copy_msf_to_lba(
-				 toc_entry.cdte_addr.msf.minute,
-				 toc_entry.cdte_addr.msf.second,
-				 toc_entry.cdte_addr.msf.frame,
-				 offset );
-			}
-			else
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported CDTE format.",
-				 function );
-
-				goto on_error;
-			}
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "\tLead out" );
-
-				if( ( toc_entry.cdte_ctrl & CDROM_DATA_TRACK ) == 0 )
-				{
-					libcnotify_printf(
-					 " (audio)" );
-				}
-				else
-				{
-					libcnotify_printf(
-					 " (data)" );
-				}
-				if( toc_entry.cdte_format == CDROM_LBA )
-				{
-					libcnotify_printf(
-					 " start:\t%" PRIu32 "",
-					 toc_entry.cdte_addr.lba );
-				}
-				else if( toc_entry.cdte_format == CDROM_MSF )
-				{
-					libcnotify_printf(
-					 " start:\t%02" PRIu8 ":%02" PRIu8 ".02%" PRIu8 "",
-					 toc_entry.cdte_addr.msf.minute,
-					 toc_entry.cdte_addr.msf.second,
-					 toc_entry.cdte_addr.msf.frame );
-				}
-				libcnotify_printf(
-				 " (offset: %" PRIu32 ")\n\n",
-				 offset );
-			}
-#endif
-			if( ( offset < last_track_offset )
-			 || ( offset < last_session_offset ) )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid offset value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-			last_track_size = offset - last_track_offset;
-
-			if( libsmdev_handle_append_track(
-			     internal_handle,
-			     last_track_offset,
-			     last_track_size,
-			     last_track_type,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append last track: %" PRIu8 ".",
-				 function,
-				 track_index );
-
-				goto on_error;
-			}
-			last_session_size = offset - last_session_offset;
-
-			if( libsmdev_handle_append_session(
-			     internal_handle,
-			     last_session_offset,
-			     last_session_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append session: %" PRIu8 ".",
-				 function,
-				 session_index );
-
-				goto on_error;
-			}
-			result = 1;
-		}
-	}
-	if( result == 0 )
-	{
-		if( libcdata_array_empty(
-		     internal_handle->tracks_array,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty tracks array.",
-			 function );
-
-			goto on_error;
-		}
-		if( libcdata_array_empty(
-		     internal_handle->sessions_array,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to empty sessions array.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( result );
-
-on_error:
-	libcdata_array_empty(
-	 internal_handle->tracks_array,
-	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_track_value_free,
-	 NULL );
-
-	libcdata_array_empty(
-	 internal_handle->sessions_array,
-	 (int (*)(intptr_t **, libcerror_error_t **)) &libsmdev_sector_range_free,
-	 NULL );
-
-	return( -1 );
-}
-
-#endif
+#endif /* defined( HAVE_LINUX_CDROM_H ) */
 

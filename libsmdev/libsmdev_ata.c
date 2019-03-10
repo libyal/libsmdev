@@ -49,6 +49,17 @@ int libsmdev_ata_get_device_configuration(
 	static char *function = "libsmdev_ata_get_device_configuration";
 	int read_count        = 0;
 
+	if( device_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid device file.",
+		 function );
+
+		return( -1 );
+	}
 	if( device_configuration == NULL )
 	{
 		libcerror_error_set(
@@ -60,7 +71,6 @@ int libsmdev_ata_get_device_configuration(
 
 		return( -1 );
 	}
-#if defined( HDIO_GET_IDENTITY )
 	read_count = libcfile_file_io_control_read(
 	              device_file,
 	              HDIO_GET_IDENTITY,
@@ -141,10 +151,10 @@ int libsmdev_ata_get_device_configuration(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 
-#endif
+#endif /* defined( HDIO_GET_IDENTITY ) */
 

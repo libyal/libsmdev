@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "error notify sector_range support track_value"
+$LibraryTests = "ata error notify optical_disc scsi sector_range string support track_value"
 $LibraryTestsWithInput = "handle"
 
 $InputGlob = "*"

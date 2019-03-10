@@ -270,6 +270,331 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libsmdev_track_value_get function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_track_value_get(
+     void )
+{
+	libcerror_error_t *error            = NULL;
+	libsmdev_track_value_t *track_value = NULL;
+	uint64_t number_of_sectors          = 0;
+	uint64_t start_sector               = 0;
+	uint8_t type                        = 0;
+	int result                          = 0;
+
+	/* Initialize test
+	 */
+	result = libsmdev_track_value_initialize(
+	          &track_value,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "track_value",
+	 track_value );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libsmdev_track_value_get(
+	          track_value,
+	          &start_sector,
+	          &number_of_sectors,
+	          &type,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libsmdev_track_value_get(
+	          NULL,
+	          &start_sector,
+	          &number_of_sectors,
+	          &type,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_get(
+	          track_value,
+	          NULL,
+	          &number_of_sectors,
+	          &type,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_get(
+	          track_value,
+	          &start_sector,
+	          NULL,
+	          &type,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_get(
+	          track_value,
+	          &start_sector,
+	          &number_of_sectors,
+	          NULL,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libsmdev_track_value_free(
+	          &track_value,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "track_value",
+	 track_value );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( track_value != NULL )
+	{
+		libsmdev_track_value_free(
+		 &track_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libsmdev_track_value_set function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_track_value_set(
+     void )
+{
+	libcerror_error_t *error            = NULL;
+	libsmdev_track_value_t *track_value = NULL;
+	int result                          = 0;
+
+	/* Initialize test
+	 */
+	result = libsmdev_track_value_initialize(
+	          &track_value,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "track_value",
+	 track_value );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libsmdev_track_value_set(
+	          track_value,
+	          0,
+	          64,
+	          LIBSMDEV_TRACK_TYPE_MODE1_2048,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libsmdev_track_value_set(
+	          NULL,
+	          0,
+	          64,
+	          LIBSMDEV_TRACK_TYPE_MODE1_2048,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_set(
+	          track_value,
+	          (uint64_t) INT64_MAX + 1,
+	          64,
+	          LIBSMDEV_TRACK_TYPE_MODE1_2048,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_set(
+	          track_value,
+	          0,
+	          (uint64_t) INT64_MAX + 1,
+	          LIBSMDEV_TRACK_TYPE_MODE1_2048,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_track_value_set(
+	          track_value,
+	          0,
+	          64,
+	          0xff,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libsmdev_track_value_free(
+	          &track_value,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "track_value",
+	 track_value );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( track_value != NULL )
+	{
+		libsmdev_track_value_free(
+		 &track_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libsmdev_track_value_get_bytes_per_sector function
  * Returns 1 if successful or 0 if not
  */
@@ -279,7 +604,6 @@ int smdev_test_track_value_get_bytes_per_sector(
 	libcerror_error_t *error            = NULL;
 	libsmdev_track_value_t *track_value = NULL;
 	uint32_t bytes_per_sector           = 0;
-	int bytes_per_sector_is_set         = 0;
 	int result                          = 0;
 
 	/* Initialize test
@@ -308,16 +632,14 @@ int smdev_test_track_value_get_bytes_per_sector(
 	          &bytes_per_sector,
 	          &error );
 
-	SMDEV_TEST_ASSERT_NOT_EQUAL_INT(
+	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	SMDEV_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	bytes_per_sector_is_set = result;
 
 	/* Test error cases
 	 */
@@ -338,25 +660,23 @@ int smdev_test_track_value_get_bytes_per_sector(
 	libcerror_error_free(
 	 &error );
 
-	if( bytes_per_sector_is_set != 0 )
-	{
-		result = libsmdev_track_value_get_bytes_per_sector(
-		          track_value,
-		          NULL,
-		          &error );
+	result = libsmdev_track_value_get_bytes_per_sector(
+	          track_value,
+	          NULL,
+	          &error );
 
-		SMDEV_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		SMDEV_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libsmdev_track_value_free(
@@ -420,9 +740,13 @@ int main(
 	 "libsmdev_track_value_free",
 	 smdev_test_track_value_free );
 
-	/* TODO: add tests for libsmdev_track_value_get */
+	SMDEV_TEST_RUN(
+	 "libsmdev_track_value_get",
+	 smdev_test_track_value_get );
 
-	/* TODO: add tests for libsmdev_track_value_set */
+	SMDEV_TEST_RUN(
+	 "libsmdev_track_value_set",
+	 smdev_test_track_value_set );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_track_value_get_bytes_per_sector",

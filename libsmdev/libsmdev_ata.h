@@ -41,11 +41,13 @@ extern "C" {
 #endif
 
 #if defined( HDIO_GET_IDENTITY )
+
 int libsmdev_ata_get_device_configuration(
      libcfile_file_t *device_file,
      struct hd_driveid *device_configuration,
      libcerror_error_t **error );
-#endif
+
+#endif /* defined( HDIO_GET_IDENTITY ) */
 
 #if defined( __cplusplus )
 }

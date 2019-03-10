@@ -297,7 +297,7 @@ ssize_t libsmdev_scsi_read_track_information(
          size_t response_size,
          libcerror_error_t **error );
 
-int libsmdev_scsi_get_identier(
+int libsmdev_scsi_get_identifier(
      libcfile_file_t *device_file,
      libcerror_error_t **error );
 
@@ -312,7 +312,7 @@ int libsmdev_scsi_get_pci_bus_address(
      size_t pci_bus_address_size,
      libcerror_error_t **error );
 
-#endif
+#endif /* defined( HAVE_SCSI_SG_H ) */
 
 #if defined( __cplusplus )
 }

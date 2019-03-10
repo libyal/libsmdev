@@ -40,17 +40,17 @@ int libsmdev_optical_disc_get_table_of_contents(
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 
-int libsmdev_optical_disc_get_table_of_contents_scsi(
-     libcfile_file_t *device_file,
-     libsmdev_internal_handle_t *internal_handle,
-     libcerror_error_t **error );
-
 int libsmdev_optical_disc_get_table_of_contents_ioctl(
      libcfile_file_t *device_file,
      libsmdev_internal_handle_t *internal_handle,
      libcerror_error_t **error );
 
-#endif
+int libsmdev_optical_disc_get_table_of_contents_scsi(
+     libcfile_file_t *device_file,
+     libsmdev_internal_handle_t *internal_handle,
+     libcerror_error_t **error );
+
+#endif /* defined( HAVE_LINUX_CDROM_H ) */
 
 #if defined( __cplusplus )
 }

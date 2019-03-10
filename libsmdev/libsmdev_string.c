@@ -98,7 +98,7 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 			break;
 		}
 	}
-	for( last_character = (ssize_t) byte_stream_size;
+	for( last_character = (ssize_t) byte_stream_size - 1;
 	     last_character >= 0;
 	     last_character-- )
 	{
@@ -126,7 +126,7 @@ ssize_t libsmdev_string_trim_copy_from_byte_stream(
 			string[ string_iterator++ ] = byte_stream[ first_character++ ];
 		}
 	}
-	string[ string_iterator ] = 0;
+	string[ string_iterator++ ] = 0;
 
 	return( (ssize_t) string_iterator );
 }

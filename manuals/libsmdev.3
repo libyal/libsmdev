@@ -1,4 +1,4 @@
-.Dd March  8, 2019
+.Dd March 10, 2019
 .Dt libsmdev 3
 .Os libsmdev
 .Sh NAME
@@ -95,9 +95,9 @@ Meta data functions
 .Ft int
 .Fn libsmdev_handle_get_bus_type "libsmdev_handle_t *handle" "uint8_t *bus_type" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_utf8_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_size" "const uint8_t *utf8_string" "size_t utf8_string_size" "libsmdev_error_t **error"
+.Fn libsmdev_handle_get_utf8_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_length" "uint8_t *utf8_string" "size_t utf8_string_size" "libsmdev_error_t **error"
 .Ft int
-.Fn libsmdev_handle_get_utf16_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_size" "const uint16_t *utf16_string" "size_t utf16_string_size" "libsmdev_error_t **error"
+.Fn libsmdev_handle_get_utf16_information_value "libsmdev_handle_t *handle" "const uint8_t *identifier" "size_t identifier_length" "uint16_t *utf16_string" "size_t utf16_string_size" "libsmdev_error_t **error"
 .Ft int
 .Fn libsmdev_handle_get_number_of_sessions "libsmdev_handle_t *handle" "int *number_of_sessions" "libsmdev_error_t **error"
 .Ft int

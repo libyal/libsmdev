@@ -1,5 +1,5 @@
 /*
- * Character type string functions
+ * The internal libcfile header
  *
  * Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,28 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBSMDEV_STRING_H )
-#define _LIBSMDEV_STRING_H
+#if !defined( _SMDEV_TEST_LIBCFILE_H )
+#define _SMDEV_TEST_LIBCFILE_H
 
 #include <common.h>
-#include <types.h>
 
-#include "libsmdev_libcerror.h"
+/* Define HAVE_LOCAL_LIBCFILE for local use of libcfile
+ */
+#if defined( HAVE_LOCAL_LIBCFILE )
 
-#if defined( _cplusplus )
-extern "C" {
+#include <libcfile_definitions.h>
+#include <libcfile_file.h>
+#include <libcfile_support.h>
+#include <libcfile_types.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBCFILE_DLL_IMPORT
+ * before including libcfile.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCFILE_DLL_IMPORT
 #endif
 
-ssize_t libsmdev_string_trim_copy_from_byte_stream(
-         uint8_t *string,
-         size_t string_size,
-         const uint8_t *byte_stream,
-         size_t byte_stream_size,
-         libcerror_error_t **error );
+#include <libcfile.h>
 
-#if defined( _cplusplus )
-}
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCFILE ) */
 
-#endif /* !defined( _LIBSMDEV_STRING_H ) */
+#endif /* !defined( _SMDEV_TEST_LIBCFILE_H ) */
 
