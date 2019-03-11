@@ -124,6 +124,7 @@ smdev_test_scsi_SOURCES = \
 	smdev_test_libcfile.h \
 	smdev_test_libsmdev.h \
 	smdev_test_macros.h \
+	smdev_test_memory.c smdev_test_memory.h \
 	smdev_test_scsi.c \
 	smdev_test_unused.h
 

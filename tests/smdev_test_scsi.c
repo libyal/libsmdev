@@ -27,18 +27,23 @@
 #include <stdlib.h>
 #endif
 
-#if defined( HAVE_CYGWIN_HDREG_H )
-#include <cygwin/hdreg.h>
+#if defined( HAVE_SCSI_SCSI_H )
+#include <scsi/scsi.h>
 #endif
 
-#if defined( HAVE_LINUX_HDREG_H )
-#include <linux/hdreg.h>
+#if defined( HAVE_SCSI_SCSI_IOCTL_H )
+#include <scsi/scsi_ioctl.h>
+#endif
+
+#if defined( HAVE_SCSI_SG_H )
+#include <scsi/sg.h>
 #endif
 
 #include "smdev_test_libcerror.h"
 #include "smdev_test_libcfile.h"
 #include "smdev_test_libsmdev.h"
 #include "smdev_test_macros.h"
+#include "smdev_test_memory.h"
 #include "smdev_test_unused.h"
 
 #include "../libsmdev/libsmdev_scsi.h"
@@ -47,15 +52,15 @@
 
 #if defined( HAVE_SCSI_SG_H )
 
-/* Tests the libsmdev_scsi_get_bus_type function
+/* Tests the libsmdev_scsi_get_identifier function
  * Returns 1 if successful or 0 if not
  */
-int smdev_test_scsi_get_bus_type(
+int smdev_test_scsi_get_identifier(
      void )
 {
 	libcerror_error_t *error     = NULL;
 	libcfile_file_t *device_file = NULL;
-	uint8_t bus_type             = 0;
+	int expected_result          = 0;
 	int result                   = 0;
 
 	/* Initialize test
@@ -91,10 +96,182 @@ int smdev_test_scsi_get_bus_type(
 	          "/dev/sda",
 	          LIBCFILE_OPEN_READ,
 	          NULL );
+
+	if( result == -1 )
+	{
+		result = libcfile_file_open(
+		          device_file,
+		          "/dev/vda",
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+	}
 #endif
 
 	if( result == 1 )
 	{
+#if defined( SG_GET_SCSI_ID )
+		expected_result = 1;
+#else
+		expected_result = 0;
+#endif
+		result = libsmdev_scsi_get_identifier(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 expected_result );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = libcfile_file_close(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test on a closed file
+	 */
+	result = libsmdev_scsi_get_identifier(
+	          device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libsmdev_scsi_get_identifier(
+	          NULL,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libcfile_file_free(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( device_file != NULL )
+	{
+		libcfile_file_free(
+		 &device_file,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libsmdev_scsi_get_bus_type function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_scsi_get_bus_type(
+     void )
+{
+	libcerror_error_t *error     = NULL;
+	libcfile_file_t *device_file = NULL;
+	uint8_t bus_type             = 0;
+	int expected_result          = 0;
+	int result                   = 0;
+
+	/* Initialize test
+	 */
+	result = libcfile_file_initialize(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+#if defined( WINAPI )
+	result = libcfile_file_open_wide(
+	          device_file,
+	          L"\\\\.\\PhysicalDrive0",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#else
+	result = libcfile_file_open(
+	          device_file,
+	          "/dev/sda",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+
+	if( result == -1 )
+	{
+		result = libcfile_file_open(
+		          device_file,
+		          "/dev/vda",
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+	}
+#endif
+
+	if( result == 1 )
+	{
+#if defined( SCSI_IOCTL_PROBE_HOST )
+		expected_result = 1;
+#else
+		expected_result = 0;
+#endif
 		result = libsmdev_scsi_get_bus_type(
 		          device_file,
 		          &bus_type,
@@ -103,7 +280,7 @@ int smdev_test_scsi_get_bus_type(
 		SMDEV_TEST_ASSERT_EQUAL_INT(
 		 "result",
 		 result,
-		 1 );
+		 expected_result );
 
 		SMDEV_TEST_ASSERT_IS_NULL(
 		 "error",
@@ -210,6 +387,257 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libsmdev_scsi_get_pci_bus_address function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_scsi_get_pci_bus_address(
+     void )
+{
+	uint8_t pci_bus_address[ 32 ];
+
+	libcerror_error_t *error     = NULL;
+	libcfile_file_t *device_file = NULL;
+	int expected_result          = 0;
+	int result                   = 0;
+
+	/* Initialize test
+	 */
+	result = libcfile_file_initialize(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+#if defined( WINAPI )
+	result = libcfile_file_open_wide(
+	          device_file,
+	          L"\\\\.\\PhysicalDrive0",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#else
+	result = libcfile_file_open(
+	          device_file,
+	          "/dev/sda",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+
+	if( result == -1 )
+	{
+		result = libcfile_file_open(
+		          device_file,
+		          "/dev/vda",
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+	}
+#endif
+
+	if( result == 1 )
+	{
+#if defined( SCSI_IOCTL_GET_PCI )
+		expected_result = 1;
+#else
+		expected_result = 0;
+#endif
+		result = libsmdev_scsi_get_pci_bus_address(
+		          device_file,
+		          pci_bus_address,
+		          32,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 expected_result );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = libcfile_file_close(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test on a closed file
+	 */
+	result = libsmdev_scsi_get_pci_bus_address(
+	          device_file,
+	          pci_bus_address,
+	          32,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libsmdev_scsi_get_pci_bus_address(
+	          NULL,
+	          pci_bus_address,
+	          32,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_scsi_get_pci_bus_address(
+	          device_file,
+	          NULL,
+	          32,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_scsi_get_pci_bus_address(
+	          device_file,
+	          pci_bus_address,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libsmdev_scsi_get_pci_bus_address(
+	          device_file,
+	          pci_bus_address,
+	          0,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_SMDEV_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
+
+	/* Test libsmdev_scsi_get_pci_bus_address with memset failing
+	 */
+	smdev_test_memset_attempts_before_fail = 0;
+
+	result = libsmdev_scsi_get_pci_bus_address(
+	          device_file,
+	          pci_bus_address,
+	          32,
+	          &error );
+
+	if( smdev_test_memset_attempts_before_fail != -1 )
+	{
+		smdev_test_memset_attempts_before_fail = -1;
+	}
+	else
+	{
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		SMDEV_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_SMDEV_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED ) */
+
+	/* Clean up
+	 */
+	result = libcfile_file_free(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( device_file != NULL )
+	{
+		libcfile_file_free(
+		 &device_file,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( HAVE_SCSI_SG_H ) */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBSMDEV_DLL_IMPORT ) */
@@ -245,13 +673,17 @@ int main(
 
 	/* TODO add tests for libsmdev_scsi_read_track_information */
 
-	/* TODO add tests for libsmdev_scsi_get_identifier */
+	SMDEV_TEST_RUN(
+	 "libsmdev_scsi_get_identifier",
+	 smdev_test_scsi_get_identifier );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_scsi_get_bus_type",
 	 smdev_test_scsi_get_bus_type );
 
-	/* TODO add tests for libsmdev_scsi_get_pci_bus_address */
+	SMDEV_TEST_RUN(
+	 "libsmdev_scsi_get_pci_bus_address",
+	 smdev_test_scsi_get_pci_bus_address );
 
 #endif /* defined( HAVE_SCSI_SG_H ) */
 

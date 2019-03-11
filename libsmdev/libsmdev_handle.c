@@ -3521,11 +3521,13 @@ int libsmdev_internal_handle_determine_media_information(
 	uint8_t pci_bus_address[ 64 ];
 	size_t pci_bus_address_size = 64;
 
-	if( libsmdev_scsi_get_pci_bus_address(
-	     internal_handle->device_file,
-	     pci_bus_address,
-	     pci_bus_address_size,
-	     error ) != 1 )
+	result = libsmdev_scsi_get_pci_bus_address(
+	          internal_handle->device_file,
+	          pci_bus_address,
+	          pci_bus_address_size,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,

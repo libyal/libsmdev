@@ -1,7 +1,7 @@
 #!/bin/bash
 # Info tool testing script
 #
-# Version: 20170825
+# Version: 20190311
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -49,11 +49,18 @@ RESULT=${EXIT_IGNORE};
 
 INPUT_FILE="/dev/sda";
 
-if test -f ${INPUT_FILE};
+if test -e ${INPUT_FILE};
 then
-	run_test_on_input_file "smdevinfo" "smdevinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS}";
-	RESULT=$?;
+	INPUT_FILE="/dev/vda";
 fi
+
+if ! test -e ${INPUT_FILE};
+then
+	exit ${EXIT_IGNORE};
+fi
+
+run_test_on_input_file "smdevinfo" "smdevinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS}";
+RESULT=$?;
 
 exit ${RESULT};
 

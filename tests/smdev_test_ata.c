@@ -92,6 +92,15 @@ int smdev_test_ata_get_device_configuration(
 	          "/dev/sda",
 	          LIBCFILE_OPEN_READ,
 	          NULL );
+
+	if( result == -1 )
+	{
+		result = libcfile_file_open(
+		          device_file,
+		          "/dev/vda",
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+	}
 #endif
 
 	if( result == 1 )

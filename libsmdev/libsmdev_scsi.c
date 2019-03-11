@@ -802,7 +802,7 @@ ssize_t libsmdev_scsi_read_track_information(
 }
 
 /* Retrieves the SCSI identifier
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_scsi_get_identifier(
      libcfile_file_t *device_file,
@@ -849,7 +849,22 @@ int libsmdev_scsi_get_identifier(
 		 "%s: unable to query device for: SCSI_IOCTL_GET_IDLUN.",
 		 function );
 
-		return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -863,9 +878,12 @@ int libsmdev_scsi_get_identifier(
 		 0 );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-#endif /* defined( SG_GET_SCSI_ID ) */
 
 	return( 1 );
+#else
+	return( 0 );
+
+#endif /* defined( SG_GET_SCSI_ID ) */
 }
 
 /* Determines and retrieves the bus type
@@ -1033,9 +1051,11 @@ int libsmdev_scsi_get_bus_type(
 			}
 		}
 	}
-#endif /* defined( SCSI_IOCTL_PROBE_HOST ) */
-
 	return( 1 );
+#else
+	return( 0 );
+
+#endif /* defined( SCSI_IOCTL_PROBE_HOST ) */
 }
 
 #if !defined( SCSI_IOCTL_GET_PCI )
@@ -1043,7 +1063,7 @@ int libsmdev_scsi_get_bus_type(
 #endif
 
 /* Determines and retrieves the PCI bus address
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not or -1 on error
  */
 int libsmdev_scsi_get_pci_bus_address(
      libcfile_file_t *device_file,
@@ -1131,7 +1151,22 @@ int libsmdev_scsi_get_pci_bus_address(
 		 "%s: unable to query device for: SCSI_IOCTL_GET_PCI.",
 		 function );
 
-		return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
 	}
 	pci_bus_address[ pci_bus_address_size - 1 ] = 0;
 
@@ -1147,9 +1182,12 @@ int libsmdev_scsi_get_pci_bus_address(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
-#endif /* defined( SCSI_IOCTL_GET_PCI ) */
 
 	return( 1 );
+#else
+	return( 0 );
+
+#endif /* defined( SCSI_IOCTL_GET_PCI ) */
 }
 
 #endif /* defined( HAVE_SCSI_SG_H ) */
