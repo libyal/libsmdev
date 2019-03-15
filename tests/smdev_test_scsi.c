@@ -52,6 +52,389 @@
 
 #if defined( HAVE_SCSI_SG_H )
 
+/* Tests the libsmdev_scsi_read_disc_information function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_scsi_read_disc_information(
+     void )
+{
+	uint8_t response[ 64 ];
+
+	libcerror_error_t *error     = NULL;
+	libcfile_file_t *device_file = NULL;
+	ssize_t read_count           = 0;
+	int result                   = 0;
+
+	/* Initialize test
+	 */
+	result = libcfile_file_initialize(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+#if defined( WINAPI )
+	result = libcfile_file_open_wide(
+	          device_file,
+	          L"\\\\.\\CDROM0",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#else
+	result = libcfile_file_open(
+	          device_file,
+	          "/dev/cdrom",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#endif
+	if( result == 1 )
+	{
+		read_count = libsmdev_scsi_read_disc_information(
+		              device_file,
+		              response,
+		              64,
+		              &error );
+
+		SMDEV_TEST_ASSERT_NOT_EQUAL_SSIZE(
+		 "read_count",
+		 read_count,
+		 (ssize_t) -1 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = libcfile_file_close(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	read_count = libsmdev_scsi_read_disc_information(
+	              NULL,
+	              response,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	read_count = libsmdev_scsi_read_disc_information(
+	              device_file,
+	              NULL,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	read_count = libsmdev_scsi_read_disc_information(
+	              device_file,
+	              response,
+	              (size_t) SSIZE_MAX + 1,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test on a closed file
+	 */
+	read_count = libsmdev_scsi_read_disc_information(
+	              device_file,
+	              response,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libcfile_file_free(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( device_file != NULL )
+	{
+		libcfile_file_free(
+		 &device_file,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libsmdev_scsi_read_track_information function
+ * Returns 1 if successful or 0 if not
+ */
+int smdev_test_scsi_read_track_information(
+     void )
+{
+	uint8_t response[ 64 ];
+
+	libcerror_error_t *error     = NULL;
+	libcfile_file_t *device_file = NULL;
+	ssize_t read_count           = 0;
+	int result                   = 0;
+
+	/* Initialize test
+	 */
+	result = libcfile_file_initialize(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+#if defined( WINAPI )
+	result = libcfile_file_open_wide(
+	          device_file,
+	          L"\\\\.\\CDROM0",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#else
+	result = libcfile_file_open(
+	          device_file,
+	          "/dev/cdrom",
+	          LIBCFILE_OPEN_READ,
+	          NULL );
+#endif
+	if( result == 1 )
+	{
+		read_count = libsmdev_scsi_read_track_information(
+		              device_file,
+		              0,
+		              response,
+		              64,
+		              &error );
+
+		SMDEV_TEST_ASSERT_NOT_EQUAL_SSIZE(
+		 "read_count",
+		 read_count,
+		 (ssize_t) -1 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = libcfile_file_close(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	read_count = libsmdev_scsi_read_track_information(
+	              NULL,
+	              0,
+	              response,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	read_count = libsmdev_scsi_read_track_information(
+	              device_file,
+	              0,
+	              NULL,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	read_count = libsmdev_scsi_read_track_information(
+	              device_file,
+	              0,
+	              response,
+	              (size_t) SSIZE_MAX + 1,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test on a closed file
+	 */
+	read_count = libsmdev_scsi_read_track_information(
+	              device_file,
+	              0,
+	              response,
+	              64,
+	              &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_SSIZE(
+	 "read_count",
+	 read_count,
+	 (ssize_t) -1 );
+
+	SMDEV_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libcfile_file_free(
+	          &device_file,
+	          &error );
+
+	SMDEV_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "device_file",
+	 device_file );
+
+	SMDEV_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( device_file != NULL )
+	{
+		libcfile_file_free(
+		 &device_file,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libsmdev_scsi_get_identifier function
  * Returns 1 if successful or 0 if not
  */
@@ -397,7 +780,6 @@ int smdev_test_scsi_get_pci_bus_address(
 
 	libcerror_error_t *error     = NULL;
 	libcfile_file_t *device_file = NULL;
-	int expected_result          = 0;
 	int result                   = 0;
 
 	/* Initialize test
@@ -443,14 +825,8 @@ int smdev_test_scsi_get_pci_bus_address(
 		          NULL );
 	}
 #endif
-
 	if( result == 1 )
 	{
-#if defined( SCSI_IOCTL_GET_PCI )
-		expected_result = 1;
-#else
-		expected_result = 0;
-#endif
 		result = libsmdev_scsi_get_pci_bus_address(
 		          device_file,
 		          pci_bus_address,
@@ -460,7 +836,7 @@ int smdev_test_scsi_get_pci_bus_address(
 		SMDEV_TEST_ASSERT_EQUAL_INT(
 		 "result",
 		 result,
-		 expected_result );
+		 1 );
 
 		SMDEV_TEST_ASSERT_IS_NULL(
 		 "error",
@@ -669,9 +1045,13 @@ int main(
 
 	/* TODO add tests for libsmdev_scsi_read_toc */
 
-	/* TODO add tests for libsmdev_scsi_read_disc_information */
+	SMDEV_TEST_RUN(
+	 "libsmdev_scsi_read_disc_information",
+	 smdev_test_scsi_read_disc_information );
 
-	/* TODO add tests for libsmdev_scsi_read_track_information */
+	SMDEV_TEST_RUN(
+	 "libsmdev_scsi_read_track_information",
+	 smdev_test_scsi_read_track_information );
 
 	SMDEV_TEST_RUN(
 	 "libsmdev_scsi_get_identifier",

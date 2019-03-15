@@ -1132,7 +1132,6 @@ int libsmdev_scsi_get_pci_bus_address(
 
 		return( -1 );
 	}
-#if defined( SCSI_IOCTL_GET_PCI )
 	read_count = libcfile_file_io_control_read(
 	              device_file,
 	              SCSI_IOCTL_GET_PCI,
@@ -1184,10 +1183,6 @@ int libsmdev_scsi_get_pci_bus_address(
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	return( 1 );
-#else
-	return( 0 );
-
-#endif /* defined( SCSI_IOCTL_GET_PCI ) */
 }
 
 #endif /* defined( HAVE_SCSI_SG_H ) */
