@@ -49,7 +49,7 @@ RESULT=${EXIT_IGNORE};
 
 INPUT_FILE="/dev/sda";
 
-if test -e ${INPUT_FILE};
+if ! test -e ${INPUT_FILE};
 then
 	INPUT_FILE="/dev/vda";
 fi

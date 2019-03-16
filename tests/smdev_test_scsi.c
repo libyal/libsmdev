@@ -479,17 +479,7 @@ int smdev_test_scsi_get_identifier(
 	          "/dev/sda",
 	          LIBCFILE_OPEN_READ,
 	          NULL );
-
-	if( result == -1 )
-	{
-		result = libcfile_file_open(
-		          device_file,
-		          "/dev/vda",
-		          LIBCFILE_OPEN_READ,
-		          NULL );
-	}
 #endif
-
 	if( result == 1 )
 	{
 #if defined( SG_GET_SCSI_ID )
@@ -637,17 +627,7 @@ int smdev_test_scsi_get_bus_type(
 	          "/dev/sda",
 	          LIBCFILE_OPEN_READ,
 	          NULL );
-
-	if( result == -1 )
-	{
-		result = libcfile_file_open(
-		          device_file,
-		          "/dev/vda",
-		          LIBCFILE_OPEN_READ,
-		          NULL );
-	}
 #endif
-
 	if( result == 1 )
 	{
 #if defined( SCSI_IOCTL_PROBE_HOST )
@@ -815,15 +795,6 @@ int smdev_test_scsi_get_pci_bus_address(
 	          "/dev/sda",
 	          LIBCFILE_OPEN_READ,
 	          NULL );
-
-	if( result == -1 )
-	{
-		result = libcfile_file_open(
-		          device_file,
-		          "/dev/vda",
-		          LIBCFILE_OPEN_READ,
-		          NULL );
-	}
 #endif
 	if( result == 1 )
 	{

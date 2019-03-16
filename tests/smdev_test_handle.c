@@ -33,6 +33,7 @@
 #include "smdev_test_functions.h"
 #include "smdev_test_getopt.h"
 #include "smdev_test_libcerror.h"
+#include "smdev_test_libcfile.h"
 #include "smdev_test_libsmdev.h"
 #include "smdev_test_macros.h"
 #include "smdev_test_memory.h"
@@ -1134,11 +1135,12 @@ int main(
      char * const argv[] )
 #endif
 {
-	libcerror_error_t *error   = NULL;
-	libsmdev_handle_t *handle  = NULL;
-	system_character_t *source = NULL;
-	system_integer_t option    = 0;
-	int result                 = 0;
+	libcerror_error_t *error     = NULL;
+	libcfile_file_t *device_file = NULL;
+	libsmdev_handle_t *handle    = NULL;
+	system_character_t *source   = NULL;
+	system_integer_t option      = 0;
+	int result                   = 0;
 
 	while( ( option = smdev_test_getopt(
 	                   argc,
@@ -1177,6 +1179,97 @@ int main(
 	 "libsmdev_handle_free",
 	 smdev_test_handle_free );
 
+	if( source != NULL )
+	{
+		result = libcfile_file_initialize(
+		          &device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		SMDEV_TEST_ASSERT_IS_NOT_NULL(
+		 "device_file",
+		 device_file );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+#if defined( WINAPI )
+		source = _SYSTEM_STRING( "\\\\.\\PhysicalDrive0" );
+#else
+		source = _SYSTEM_STRING( "/dev/sda" );
+#endif
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libcfile_file_open_wide(
+		          device_file,
+		          source,
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+#else
+		result = libcfile_file_open(
+		          device_file,
+		          source,
+		          LIBCFILE_OPEN_READ,
+		          NULL );
+#endif
+#if !defined( WINAPI )
+		if( result != 1 )
+		{
+			source = _SYSTEM_STRING( "/dev/vda" );
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libcfile_file_open_wide(
+			          device_file,
+			          source,
+			          LIBCFILE_OPEN_READ,
+			          NULL );
+#else
+			result = libcfile_file_open(
+			          device_file,
+			          source,
+			          LIBCFILE_OPEN_READ,
+			          NULL );
+#endif
+		}
+#endif
+		if( result != 1 )
+		{
+			source = NULL;
+		}
+		result = libcfile_file_close(
+		          device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 0 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = libcfile_file_free(
+		          &device_file,
+		          &error );
+
+		SMDEV_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "device_file",
+		 device_file );
+
+		SMDEV_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	if( source != NULL )
 	{
@@ -1318,6 +1411,12 @@ on_error:
 	{
 		smdev_test_handle_close_source(
 		 &handle,
+		 NULL );
+	}
+	if( device_file != NULL )
+	{
+		libcfile_file_free(
+		 &device_file,
 		 NULL );
 	}
 	return( EXIT_FAILURE );

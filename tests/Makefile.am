@@ -25,6 +25,7 @@ check_SCRIPTS = \
 	pysmdev_test_handle.py \
 	pysmdev_test_support.py \
 	test_library.sh \
+	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh \
 	test_smdevinfo.sh
@@ -83,6 +84,7 @@ smdev_test_handle_SOURCES = \
 	smdev_test_unused.h
 
 smdev_test_handle_LDADD = \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

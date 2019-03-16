@@ -100,10 +100,10 @@ int smdev_test_ata_get_device_configuration(
 		          &device_configuration,
 		          &error );
 
-		SMDEV_TEST_ASSERT_EQUAL_INT(
+		SMDEV_TEST_ASSERT_NOT_EQUAL_INT(
 		 "result",
 		 result,
-		 1 );
+		 -1 );
 
 		SMDEV_TEST_ASSERT_IS_NULL(
 		 "error",
