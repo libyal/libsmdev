@@ -157,6 +157,33 @@ int libsmdev_check_device(
 
 		return( -1 );
 	}
+	result = libcfile_file_exists(
+	          filename,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
+		 "%s: unable to check if file exists.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 "%s: file does not exist.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO check if file is directory */
 	if( libcfile_file_initialize(
 	     &file,
 	     error ) != 1 )
@@ -262,6 +289,32 @@ int libsmdev_check_device_wide(
 
 		return( -1 );
 	}
+	result = libcfile_file_exists_wide(
+	          filename,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
+		 "%s: unable to check if file exists.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 "%s: file does not exist.",
+		 function );
+
+		goto on_error;
+	}
 	if( libcfile_file_initialize(
 	     &file,
 	     error ) != 1 )
@@ -275,6 +328,7 @@ int libsmdev_check_device_wide(
 
 		goto on_error;
 	}
+/* TODO check if file is directory */
 	if( libcfile_file_open_wide(
 	     file,
 	     filename,
@@ -343,5 +397,5 @@ on_error:
 	return( -1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
