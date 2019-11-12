@@ -37,7 +37,7 @@ then
 
 		make install DESTDIR=${PWD}/osx-pkg;
 		mkdir -p ${PWD}/osx-pkg/usr/share/doc/libsmdev;
-		cp AUTHORS COPYING NEWS README ${PWD}/osx-pkg/usr/share/doc/libsmdev;
+		cp AUTHORS COPYING COPYING.LESSER NEWS README ${PWD}/osx-pkg/usr/share/doc/libsmdev;
 
 		pkgbuild --root osx-pkg --identifier com.github.libyal.libsmdev --version ${VERSION} --ownership recommended ../libsmdev-${VERSION}.pkg;
 	fi
