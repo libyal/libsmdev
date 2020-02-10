@@ -1,7 +1,7 @@
 /*
  * Support functions
  *
- * Copyright (C) 2010-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,7 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #if defined( HAVE_SYS_STAT_H )
 #include <sys/stat.h>
@@ -135,6 +137,8 @@ int libsmdev_set_codepage(
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 
+#if defined( WINAPI )
+
 /* Determines if a file is a device
  * Returns 1 if true, 0 if not or -1 on error
  */
@@ -183,7 +187,7 @@ int libsmdev_check_device(
 
 		goto on_error;
 	}
-/* TODO check if file is directory */
+/* TODO check if file is directory or FIFO */
 	if( libcfile_file_initialize(
 	     &file,
 	     error ) != 1 )
@@ -265,7 +269,106 @@ on_error:
 	return( -1 );
 }
 
+#elif defined( HAVE_STAT )
+
+/* Determines if a file is a device
+ * This function uses the POSIX stat function or equivalent
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+int libsmdev_check_device(
+     const char *filename,
+     libcerror_error_t **error )
+{
+	struct stat file_statistics;
+
+	static char *function = "libsmdev_check_device";
+	int result            = 0;
+
+	if( filename == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_set(
+	     &file_statistics,
+	     0,
+	     sizeof( struct stat ) ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear file statistics.",
+		 function );
+
+		return( -1 );
+	}
+	/* Do not use open() here since we do not want to block opening a FIFO/pipe
+	 */
+	result = stat(
+	          filename,
+	          &file_statistics );
+
+	if( result != 0 )
+	{
+		switch( errno )
+		{
+			case EACCES:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
+				 "%s: access denied to file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				break;
+
+			case ENOENT:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
+				 "%s: no such file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				break;
+
+			default:
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_GENERIC,
+				 errno,
+				 "%s: unable to stat file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				return( -1 );
+		}
+	}
+	if( S_ISBLK( file_statistics.st_mode )
+	 || S_ISCHR( file_statistics.st_mode ) )
+	{
+		return( 1 );
+	}
+	return( 0 );
+}
+
+#else
+#error Missing check device function
+#endif
+
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
+#if defined( WINAPI )
 
 /* Determines if a file is a device
  * Returns 1 if true, 0 if not or -1 on error
@@ -328,7 +431,7 @@ int libsmdev_check_device_wide(
 
 		goto on_error;
 	}
-/* TODO check if file is directory */
+/* TODO check if file is directory or FIFO */
 	if( libcfile_file_open_wide(
 	     file,
 	     filename,
@@ -396,6 +499,220 @@ on_error:
 	}
 	return( -1 );
 }
+
+#elif defined( HAVE_STAT )
+
+/* Determines if a file is a device
+ * This function uses the POSIX stat function or equivalent
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+int libsmdev_check_device_wide(
+     const wchar_t *filename,
+     libcerror_error_t **error )
+{
+	struct stat file_statistics;
+
+	static char *function       = "libsmdev_check_device_wide";
+	char *narrow_filename       = NULL;
+	size_t filename_size        = 0;
+	size_t narrow_filename_size = 0;
+	int result                  = 0;
+
+	if( filename == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	filename_size = 1 + wide_string_length(
+	                     filename );
+
+	/* Convert the filename to a narrow string
+	 * if the platform has no wide character open function
+	 */
+	if( libclocale_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_size_from_utf32(
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          libclocale_codepage,
+		          &narrow_filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_size_from_utf16(
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          libclocale_codepage,
+		          &narrow_filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to determine narrow character filename size.",
+		 function );
+
+		return( -1 );
+	}
+	narrow_filename = narrow_string_allocate(
+	                   narrow_filename_size );
+
+	if( narrow_filename == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create narrow character filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( libclocale_codepage == 0 )
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_utf8_string_copy_from_utf32(
+		          (libuna_utf8_character_t *) narrow_filename,
+		          narrow_filename_size,
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_utf8_string_copy_from_utf16(
+		          (libuna_utf8_character_t *) narrow_filename,
+		          narrow_filename_size,
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	else
+	{
+#if SIZEOF_WCHAR_T == 4
+		result = libuna_byte_stream_copy_from_utf32(
+		          (uint8_t *) narrow_filename,
+		          narrow_filename_size,
+		          libclocale_codepage,
+		          (libuna_utf32_character_t *) filename,
+		          filename_size,
+		          error );
+#elif SIZEOF_WCHAR_T == 2
+		result = libuna_byte_stream_copy_from_utf16(
+		          (uint8_t *) narrow_filename,
+		          narrow_filename_size,
+		          libclocale_codepage,
+		          (libuna_utf16_character_t *) filename,
+		          filename_size,
+		          error );
+#else
+#error Unsupported size of wchar_t
+#endif /* SIZEOF_WCHAR_T */
+	}
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set narrow character filename.",
+		 function );
+
+		memory_free(
+		 narrow_filename );
+
+		return( -1 );
+	}
+	/* Do not use open() here since we do not want to block opening a FIFO/pipe
+	 */
+	result = stat(
+	          narrow_filename,
+	          &file_statistics );
+
+	memory_free(
+	 narrow_filename );
+
+	if( result != 0 )
+	{
+		switch( errno )
+		{
+			case EACCES:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_ACCESS_DENIED,
+				 "%s: access denied to file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				break;
+
+			case ENOENT:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_INVALID_RESOURCE,
+				 "%s: no such file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				break;
+
+			default:
+				libcerror_system_set_error(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_GENERIC,
+				 errno,
+				 "%s: unable to stat file: %" PRIs_SYSTEM ".",
+				 function,
+				 filename );
+
+				return( -1 );
+		}
+	}
+	if( S_ISBLK( file_statistics.st_mode )
+	 || S_ISCHR( file_statistics.st_mode ) )
+	{
+		return( 1 );
+	}
+	return( 0 );
+}
+
+#else
+#error Missing check device wide function
+#endif
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
