@@ -1,14 +1,17 @@
 #!/bin/bash
 # Info tool testing script
 #
-# Version: 20190311
+# Version: 20200223
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
+PROFILES=("smdevinfo");
+OPTIONS_PER_PROFILE=("");
 OPTION_SETS="";
-OPTIONS="";
+
+INPUT_GLOB="*";
 
 if ! test -z ${SKIP_TOOLS_TESTS};
 then
@@ -45,18 +48,16 @@ fi
 
 source ${TEST_RUNNER};
 
-RESULT=${EXIT_IGNORE};
-
 INPUT_FILE="/dev/sda";
 
-if ! test -e ${INPUT_FILE};
+if ! test -b ${INPUT_FILE} || ! test -r ${INPUT_FILE};
 then
 	INPUT_FILE="/dev/vda";
 fi
 
-if ! test -e ${INPUT_FILE};
+if ! test -b ${INPUT_FILE} || ! test -r ${INPUT_FILE};
 then
-	exit ${EXIT_IGNORE};
+	INPUT_FILE="/dev/null";
 fi
 
 run_test_on_input_file "smdevinfo" "smdevinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS}";

@@ -55,8 +55,8 @@ int smdev_test_string_trim_copy_from_byte_stream(
 
 	libcerror_error_t *error = NULL;
 	uint8_t *byte_stream     = (uint8_t *) " TEST ";
-	size_t result            = 0;
-	int compare_result      = 0;
+	ssize_t result           = 0;
+	int compare_result       = 0;
 
 	/* Test regular cases
 	 */
