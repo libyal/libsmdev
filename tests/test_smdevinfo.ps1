@@ -1,6 +1,6 @@
 # Info tool testing script
 #
-# Version: 20200223
+# Version: 20200726
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -8,7 +8,7 @@ $ExitIgnore = 77
 
 $Profiles = @("smdevinfo")
 $OptionsPerProfile = @("")
-$OptionSets="";
+$OptionSets = ""
 
 $InputGlob = "*"
 
@@ -50,11 +50,6 @@ If (-Not (Test-Path ${TestExecutablesDirectory}))
 }
 
 $TestExecutable = "${TestExecutablesDirectory}\smdevinfo.exe"
-
-If (-Not (Test-Path -Path "input"))
-{
-	Exit ${ExitSuccess}
-}
 
 Invoke-Expression ${TestExecutable} "\\\\.\\PhysicalDrive0"
 

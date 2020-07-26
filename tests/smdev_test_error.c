@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #endif
 
-#include "smdev_test_libcerror.h"
 #include "smdev_test_libsmdev.h"
 #include "smdev_test_macros.h"
 #include "smdev_test_unused.h"

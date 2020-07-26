@@ -1,5 +1,5 @@
 /*
- * Python bindings for libsmdev (pysmdev)
+ * Python bindings module for libsmdev (pysmdev)
  *
  * Copyright (C) 2010-2020, Joachim Metz <joachim.metz@gmail.com>
  *

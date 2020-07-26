@@ -39,7 +39,7 @@ class HandleTypeTests(unittest.TestCase):
   def test_open(self):
     """Tests the open function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -56,33 +56,10 @@ class HandleTypeTests(unittest.TestCase):
     with self.assertRaises(ValueError):
       smdev_handle.open(unittest.source, mode="w")
 
-  def test_open_file_object(self):
-    """Tests the open_file_object function."""
-    if not unittest.source:
-      return
-
-    file_object = open(unittest.source, "rb")
-
-    smdev_handle = pysmdev.handle()
-
-    smdev_handle.open_file_object(file_object)
-
-    with self.assertRaises(IOError):
-      smdev_handle.open_file_object(file_object)
-
-    smdev_handle.close()
-
-    # TODO: change IOError into TypeError
-    with self.assertRaises(IOError):
-      smdev_handle.open_file_object(None)
-
-    with self.assertRaises(ValueError):
-      smdev_handle.open_file_object(file_object, mode="w")
-
   def test_close(self):
     """Tests the close function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -92,7 +69,7 @@ class HandleTypeTests(unittest.TestCase):
   def test_open_close(self):
     """Tests the open and close functions."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -104,25 +81,10 @@ class HandleTypeTests(unittest.TestCase):
     smdev_handle.open(unittest.source)
     smdev_handle.close()
 
-    file_object = open(unittest.source, "rb")
-
-    # Test open_file_object and close.
-    smdev_handle.open_file_object(file_object)
-    smdev_handle.close()
-
-    # Test open_file_object and close a second time to validate clean up on close.
-    smdev_handle.open_file_object(file_object)
-    smdev_handle.close()
-
-    # Test open_file_object and close and dereferencing file_object.
-    smdev_handle.open_file_object(file_object)
-    del file_object
-    smdev_handle.close()
-
   def test_read_buffer(self):
     """Tests the read_buffer function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -160,31 +122,10 @@ class HandleTypeTests(unittest.TestCase):
     with self.assertRaises(IOError):
       smdev_handle.read_buffer(size=4096)
 
-  def test_read_buffer_file_object(self):
-    """Tests the read_buffer function on a file-like object."""
-    if not unittest.source:
-      return
-
-    file_object = open(unittest.source, "rb")
-
-    smdev_handle = pysmdev.handle()
-
-    smdev_handle.open_file_object(file_object)
-
-    file_size = smdev_handle.get_size()
-
-    # Test normal read.
-    data = smdev_handle.read_buffer(size=4096)
-
-    self.assertIsNotNone(data)
-    self.assertEqual(len(data), min(file_size, 4096))
-
-    smdev_handle.close()
-
   def test_read_buffer_at_offset(self):
     """Tests the read_buffer_at_offset function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -220,7 +161,7 @@ class HandleTypeTests(unittest.TestCase):
   def test_seek_offset(self):
     """Tests the seek_offset function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
@@ -281,7 +222,7 @@ if __name__ == "__main__":
 
   argument_parser.add_argument(
       "source", nargs="?", action="store", metavar="PATH",
-      default=None, help="The path of the source file.")
+      default=None, help="path of the source file.")
 
   options, unknown_options = argument_parser.parse_known_args()
   unknown_options.insert(0, sys.argv[0])

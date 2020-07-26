@@ -330,9 +330,8 @@ PyMODINIT_FUNC initpysmdev(
                 void )
 #endif
 {
-	PyObject *module                 = NULL;
-	PyTypeObject *handle_type_object = NULL;
-	PyGILState_STATE gil_state       = 0;
+	PyObject *module           = NULL;
+	PyGILState_STATE gil_state = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libsmdev_notify_set_stream(
@@ -379,12 +378,10 @@ PyMODINIT_FUNC initpysmdev(
 	Py_IncRef(
 	 (PyObject *) &pysmdev_handle_type_object );
 
-	handle_type_object = &pysmdev_handle_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "handle",
-	 (PyObject *) handle_type_object );
+	 (PyObject *) &pysmdev_handle_type_object );
 
 	PyGILState_Release(
 	 gil_state );

@@ -254,6 +254,8 @@ int smdev_test_handle_initialize(
 	          &handle,
 	          &error );
 
+	handle = NULL;
+
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -265,8 +267,6 @@ int smdev_test_handle_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	handle = NULL;
 
 #if defined( HAVE_SMDEV_TEST_MEMORY )
 

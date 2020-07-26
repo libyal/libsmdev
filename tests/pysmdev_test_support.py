@@ -19,6 +19,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import argparse
+import os
+import sys
 import unittest
 
 import pysmdev
@@ -30,10 +33,34 @@ class SupportFunctionsTests(unittest.TestCase):
   def test_get_version(self):
     """Tests the get_version function."""
     version = pysmdev.get_version()
+    self.assertIsNotNone(version)
 
-    # TODO: check version.
-    # self.assertEqual(version, "00000000")
+  # TODO: add tests for check_device
+
+  def test_open(self):
+    """Tests the open function."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    smdev_handle = pysmdev.open(unittest.source)
+    self.assertIsNotNone(smdev_handle)
+
+    smdev_handle.close()
+
+    with self.assertRaises(TypeError):
+      pysmdev.open(None)
 
 
 if __name__ == "__main__":
-  unittest.main(verbosity=2)
+  argument_parser = argparse.ArgumentParser()
+
+  argument_parser.add_argument(
+      "source", nargs="?", action="store", metavar="PATH",
+      default=None, help="path of the source device.")
+
+  options, unknown_options = argument_parser.parse_known_args()
+  unknown_options.insert(0, sys.argv[0])
+
+  setattr(unittest, "source", options.source)
+
+  unittest.main(argv=unknown_options, verbosity=2)

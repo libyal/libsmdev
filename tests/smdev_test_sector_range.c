@@ -113,6 +113,8 @@ int smdev_test_sector_range_initialize(
 	          &sector_range,
 	          &error );
 
+	sector_range = NULL;
+
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int smdev_test_sector_range_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	sector_range = NULL;
 
 #if defined( HAVE_SMDEV_TEST_MEMORY )
 
@@ -281,6 +281,15 @@ int smdev_test_sector_range_clone(
 	libsmdev_sector_range_t *source_sector_range      = NULL;
 	int result                                        = 0;
 
+#if defined( HAVE_SMDEV_TEST_MEMORY )
+	int number_of_malloc_fail_tests                   = 1;
+	int test_number                                   = 0;
+
+#if defined( OPTIMIZATION_DISABLED )
+	int number_of_memcpy_fail_tests                   = 1;
+#endif
+#endif /* defined( HAVE_SMDEV_TEST_MEMORY ) */
+
 	/* Initialize test
 	 */
 	result = libsmdev_sector_range_initialize(
@@ -381,6 +390,8 @@ int smdev_test_sector_range_clone(
 	          source_sector_range,
 	          &error );
 
+	destination_sector_range = NULL;
+
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -393,87 +404,97 @@ int smdev_test_sector_range_clone(
 	libcerror_error_free(
 	 &error );
 
-	destination_sector_range = NULL;
-
 #if defined( HAVE_SMDEV_TEST_MEMORY )
 
-	/* Test libsmdev_sector_range_clone with malloc failing
-	 */
-	smdev_test_malloc_attempts_before_fail = 0;
-
-	result = libsmdev_sector_range_clone(
-	          &destination_sector_range,
-	          source_sector_range,
-	          &error );
-
-	if( smdev_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		smdev_test_malloc_attempts_before_fail = -1;
+		/* Test libsmdev_sector_range_clone with malloc failing
+		 */
+		smdev_test_malloc_attempts_before_fail = test_number;
 
-		if( destination_sector_range != NULL )
+		result = libsmdev_sector_range_clone(
+		          &destination_sector_range,
+		          source_sector_range,
+		          &error );
+
+		if( smdev_test_malloc_attempts_before_fail != -1 )
 		{
-			libsmdev_sector_range_free(
-			 &destination_sector_range,
-			 NULL );
+			smdev_test_malloc_attempts_before_fail = -1;
+
+			if( destination_sector_range != NULL )
+			{
+				libsmdev_sector_range_free(
+				 &destination_sector_range,
+				 NULL );
+			}
+		}
+		else
+		{
+			SMDEV_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			SMDEV_TEST_ASSERT_IS_NULL(
+			 "destination_sector_range",
+			 destination_sector_range );
+
+			SMDEV_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+#if defined( OPTIMIZATION_DISABLED )
+
+	for( test_number = 0;
+	     test_number < number_of_memcpy_fail_tests;
+	     test_number++ )
 	{
-		SMDEV_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libsmdev_sector_range_clone with memcpy failing
+		 */
+		smdev_test_memcpy_attempts_before_fail = test_number;
 
-		SMDEV_TEST_ASSERT_IS_NULL(
-		 "destination_sector_range",
-		 destination_sector_range );
+		result = libsmdev_sector_range_clone(
+		          &destination_sector_range,
+		          source_sector_range,
+		          &error );
 
-		SMDEV_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-
-	/* Test libsmdev_sector_range_clone with memcpy failing
-	 */
-	smdev_test_memcpy_attempts_before_fail = 0;
-
-	result = libsmdev_sector_range_clone(
-	          &destination_sector_range,
-	          source_sector_range,
-	          &error );
-
-	if( smdev_test_memcpy_attempts_before_fail != -1 )
-	{
-		smdev_test_memcpy_attempts_before_fail = -1;
-
-		if( destination_sector_range != NULL )
+		if( smdev_test_memcpy_attempts_before_fail != -1 )
 		{
-			libsmdev_sector_range_free(
-			 &destination_sector_range,
-			 NULL );
+			smdev_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_sector_range != NULL )
+			{
+				libsmdev_sector_range_free(
+				 &destination_sector_range,
+				 NULL );
+			}
+		}
+		else
+		{
+			SMDEV_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			SMDEV_TEST_ASSERT_IS_NULL(
+			 "destination_sector_range",
+			 destination_sector_range );
+
+			SMDEV_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
-	{
-		SMDEV_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		SMDEV_TEST_ASSERT_IS_NULL(
-		 "destination_sector_range",
-		 destination_sector_range );
-
-		SMDEV_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
+#endif /* defined( OPTIMIZATION_DISABLED ) */
 #endif /* defined( HAVE_SMDEV_TEST_MEMORY ) */
 
 	/* Clean up

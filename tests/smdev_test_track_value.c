@@ -113,6 +113,8 @@ int smdev_test_track_value_initialize(
 	          &track_value,
 	          &error );
 
+	track_value = NULL;
+
 	SMDEV_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int smdev_test_track_value_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	track_value = NULL;
 
 #if defined( HAVE_SMDEV_TEST_MEMORY )
 
