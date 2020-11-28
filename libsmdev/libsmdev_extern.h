@@ -30,7 +30,11 @@
 
 #include <libsmdev/extern.h>
 
+#if defined( __CYGWIN__ )
+#define LIBSMDEV_EXTERN_VARIABLE	extern
+#else
 #define LIBSMDEV_EXTERN_VARIABLE	LIBSMDEV_EXTERN
+#endif
 
 #else
 #define LIBSMDEV_EXTERN		/* extern */

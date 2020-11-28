@@ -60,10 +60,7 @@ PyMethodDef pysmdev_module_methods[] = {
 	  "Opens a handle." },
 
 	/* Sentinel */
-	{ NULL,
-	  NULL,
-	  0,
-	  NULL}
+	{ NULL, NULL, 0, NULL }
 };
 
 /* Retrieves the pysmdev/libsmdev version
@@ -362,8 +359,9 @@ PyMODINIT_FUNC initpysmdev(
 		return;
 #endif
 	}
+#if PY_VERSION_HEX < 0x03070000
 	PyEval_InitThreads();
-
+#endif
 	gil_state = PyGILState_Ensure();
 
 	/* Setup the handle type object
