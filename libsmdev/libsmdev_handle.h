@@ -155,13 +155,15 @@ int libsmdev_handle_open(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBSMDEV_EXTERN \
 int libsmdev_handle_open_wide(
      libsmdev_handle_t *handle,
      const wchar_t *filename,
      int access_flags,
      libcerror_error_t **error );
-#endif
+
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 LIBSMDEV_EXTERN \
 int libsmdev_handle_close(

@@ -1246,8 +1246,9 @@ ssize_t libsmdev_handle_read_buffer(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: reading buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
+			 "%s: reading buffer at offset: %" PRIi64 " (0x%08" PRIx64 ") of size: %" PRIzd ".\n",
 			 function,
+			 internal_handle->offset + (off64_t) buffer_offset,
 			 internal_handle->offset + (off64_t) buffer_offset,
 			 read_size );
 		}
@@ -1259,18 +1260,41 @@ ssize_t libsmdev_handle_read_buffer(
 			      &error_code,
 		              error );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: read buffer at offset: %" PRIi64 " of size: %" PRIzd ".\n",
-			 function,
-			 internal_handle->offset + (off64_t) buffer_offset,
-			 read_count );
-		}
-#endif
 		if( read_count == -1 )
 		{
+#if !defined( WINAPI )
+			if( error_code == EIO )
+			{
+				/* Determine if the device file is still valid, in case removable media is removed
+				 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libcfile_file_exists_wide(
+				          internal_handle->filename,
+				          NULL );
+#else
+				result = libcfile_file_exists(
+				          internal_handle->filename,
+				          NULL );
+#endif
+				if( result != 1 )
+				{
+					error_code = ENODEV;
+				}
+			}
+#endif /* !defined( WINAPI ) */
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: unable to read buffer at offset: %" PRIi64 " (0x%08" PRIx64 ") with error code: %" PRIu32 ".\n",
+				 function,
+				 internal_handle->offset + (off64_t) buffer_offset,
+				 internal_handle->offset + (off64_t) buffer_offset,
+				 error_code );
+			}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 			switch( error_code )
 			{
 #if defined( WINAPI )
@@ -1368,6 +1392,18 @@ ssize_t libsmdev_handle_read_buffer(
 
 			}
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		else if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: read buffer at offset: %" PRIi64 " (0x%08" PRIx64 ") of size: %" PRIzd ".\n",
+			 function,
+			 internal_handle->offset + (off64_t) buffer_offset,
+			 internal_handle->offset + (off64_t) buffer_offset,
+			 read_count );
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 		if( read_count > (ssize_t) read_size )
 		{
 			libcerror_error_set(
@@ -1486,8 +1522,9 @@ ssize_t libsmdev_handle_read_buffer(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: adding read error at offset: %" PRIi64 ", number of bytes: %" PRIzd ".\n",
+				 "%s: adding read error at offset: %" PRIi64 " (0x%08" PRIx64 "), number of bytes: %" PRIzd ".\n",
 				 function,
+				 current_offset,
 				 current_offset,
 				 read_error_size );
 			}
