@@ -39,10 +39,11 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
-    smdev_handle = pysmdev.open(unittest.source)
+    smdev_handle = pysmdev.open(test_source)
     self.assertIsNotNone(smdev_handle)
 
     smdev_handle.close()

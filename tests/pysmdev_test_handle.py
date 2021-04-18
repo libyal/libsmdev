@@ -38,15 +38,16 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
 
     with self.assertRaises(IOError):
-      smdev_handle.open(unittest.source)
+      smdev_handle.open(test_source)
 
     smdev_handle.close()
 
@@ -54,11 +55,12 @@ class HandleTypeTests(unittest.TestCase):
       smdev_handle.open(None)
 
     with self.assertRaises(ValueError):
-      smdev_handle.open(unittest.source, mode="w")
+      smdev_handle.open(test_source, mode="w")
 
   def test_close(self):
     """Tests the close function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
@@ -68,27 +70,29 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
     # Test open and close.
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
     smdev_handle.close()
 
     # Test open and close a second time to validate clean up on close.
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
     smdev_handle.close()
 
   def test_read_buffer(self):
     """Tests the read_buffer function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
 
     file_size = smdev_handle.get_size()
 
@@ -124,12 +128,13 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_read_buffer_at_offset(self):
     """Tests the read_buffer_at_offset function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
 
     file_size = smdev_handle.get_size()
 
@@ -160,12 +165,13 @@ class HandleTypeTests(unittest.TestCase):
 
   def test_seek_offset(self):
     """Tests the seek_offset function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(unittest.source)
+    smdev_handle.open(test_source)
 
     file_size = smdev_handle.get_size()
 
