@@ -29,7 +29,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libsmdev.install \
 	dpkg/libsmdev-dev.install \
-	dpkg/libsmdev-python.install \
 	dpkg/libsmdev-python3.install \
 	dpkg/libsmdev-tools.install \
 	dpkg/source/format
