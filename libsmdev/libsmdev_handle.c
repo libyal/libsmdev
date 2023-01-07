@@ -690,6 +690,8 @@ int libsmdev_handle_open(
 			goto on_error;
 		}
 	}
+#if !defined( __CYGWIN__ )
+
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */
@@ -707,6 +709,8 @@ int libsmdev_handle_open(
 
 		goto on_error;
 	}
+#endif /* !defined( __CYGWIN__ ) */
+
 	return( 1 );
 
 on_error:
@@ -932,6 +936,8 @@ int libsmdev_handle_open_wide(
 			goto on_error;
 		}
 	}
+#if !defined( __CYGWIN__ )
+
 	/* Use this function to double the read-ahead system buffer on POSIX system
 	 * This provides for some additional performance
 	 */
@@ -949,6 +955,8 @@ int libsmdev_handle_open_wide(
 
 		goto on_error;
 	}
+#endif /* !defined( __CYGWIN__ ) */
+
 	return( 1 );
 
 on_error:

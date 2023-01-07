@@ -1,7 +1,7 @@
 #!/bin/bash
 # Info tool testing script
 #
-# Version: 20200705
+# Version: 20230107
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -30,6 +30,11 @@ then
 	echo "Missing test executable: ${TEST_EXECUTABLE}";
 
 	exit ${EXIT_FAILURE};
+fi
+
+if test "${OSTYPE}" = "msys";
+then
+	exit ${EXIT_IGNORE};
 fi
 
 TEST_RUNNER="tests/test_runner.sh";
