@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libsmdev],
- [20230217],
+ [20230504],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
