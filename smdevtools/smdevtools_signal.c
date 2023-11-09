@@ -40,7 +40,7 @@ void (*smdevtools_signal_signal_handler)( smdevtools_signal_t ) = NULL;
 /* Signal handler for Ctrl+C or Ctrl+Break signals
  */
 BOOL WINAPI smdevtools_signal_handler(
-             unsigned long signal )
+             smdevtools_signal_t signal )
 {
 	static char *function = "smdevtools_signal_handler";
 
@@ -112,7 +112,7 @@ int smdevtools_signal_attach(
 	smdevtools_signal_signal_handler = signal_handler;
 
 	if( SetConsoleCtrlHandler(
-	     smdevtools_signal_handler,
+	     (PHANDLER_ROUTINE) smdevtools_signal_handler,
 	     TRUE ) == 0 )
 	{
 		libcerror_error_set(
@@ -179,7 +179,7 @@ int smdevtools_signal_detach(
 	static char *function = "smdevtools_signal_detach";
 
 	if( SetConsoleCtrlHandler(
-	     smdevtools_signal_handler,
+	     (PHANDLER_ROUTINE) smdevtools_signal_handler,
 	     FALSE ) == 0 )
 	{
 		libcerror_error_set(

@@ -19,9 +19,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libsmdev.h
-	/bin/rm -f libsmdev/definitions.h
-	/bin/rm -f libsmdev/features.h
-	/bin/rm -f libsmdev/types.h
-	/bin/rm -f Makefile
+	-rm -f libsmdev.h
+	-rm -f libsmdev/definitions.h
+	-rm -f libsmdev/features.h
+	-rm -f libsmdev/types.h
+	-rm -f Makefile
 

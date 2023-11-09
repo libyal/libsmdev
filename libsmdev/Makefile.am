@@ -60,11 +60,13 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libsmdev_definitions.h
-	/bin/rm -f libsmdev.rc
-	/bin/rm -f Makefile
+	-rm -f libsmdev_definitions.h
+	-rm -f libsmdev.rc
+	-rm -f Makefile
 
-splint:
+sources-local: $(BUILT_SOURCES)
+
+splint-local:
 	@echo "Running splint on libsmdev ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libsmdev_la_SOURCES)
 
