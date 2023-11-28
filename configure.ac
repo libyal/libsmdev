@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libsmdev],
- [20231109],
+ [20231128],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -94,7 +94,7 @@ dnl Check if libsmdev Python bindings (pysmdev) required headers and functions a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pysmdev/pysmdev_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -149,8 +149,6 @@ AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libcfile/Makefile])
 AC_CONFIG_FILES([libsmdev/Makefile])
 AC_CONFIG_FILES([pysmdev/Makefile])
-AC_CONFIG_FILES([pysmdev-python2/Makefile])
-AC_CONFIG_FILES([pysmdev-python3/Makefile])
 AC_CONFIG_FILES([smdevtools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])

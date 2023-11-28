@@ -13,8 +13,6 @@ SUBDIRS = \
 	libsmdev \
 	smdevtools \
 	pysmdev \
-	pysmdev-python2 \
-	pysmdev-python3 \
 	po \
 	manuals \
 	tests \
