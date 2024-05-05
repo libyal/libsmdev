@@ -6,9 +6,7 @@ EXTRA_DIST = \
 	libsmdev.3 \
 	smdevinfo.1
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f Makefile
 

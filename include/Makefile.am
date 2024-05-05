@@ -15,13 +15,11 @@ EXTRA_DIST = \
 	libsmdev/features.h.in \
 	libsmdev/types.h.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libsmdev.h \
+	libsmdev/definitions.h \
+	libsmdev/features.h \
+	libsmdev/types.h \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libsmdev.h
-	-rm -f libsmdev/definitions.h
-	-rm -f libsmdev/features.h
-	-rm -f libsmdev/types.h
-	-rm -f Makefile
 
