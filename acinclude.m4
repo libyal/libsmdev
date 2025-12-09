@@ -1,6 +1,6 @@
 dnl Checks for required headers and functions
 dnl
-dnl Version: 20190308
+dnl Version: 20240520
 
 dnl Check if winioctl.h defines STORAGE_BUS_TYPE
 AC_DEFUN([AX_LIBSMDEV_CHECK_HEADER_WINIOCTL_H_STORAGE_BUS_TYPE],
