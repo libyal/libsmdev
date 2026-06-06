@@ -24,21 +24,28 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBSMDEV_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBSMDEV_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBSMDEV_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBSMDEV for local use of libsmdev
  */
 #if !defined( HAVE_LOCAL_LIBSMDEV )
 
 #include <libsmdev/extern.h>
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
-#define LIBSMDEV_EXTERN_VARIABLE	extern
-#else
-#define LIBSMDEV_EXTERN_VARIABLE	LIBSMDEV_EXTERN
-#endif
-
 #else
 #define LIBSMDEV_EXTERN		/* extern */
-#define LIBSMDEV_EXTERN_VARIABLE	extern
+#define LIBSMDEV_EXTERN_VARIABLE	LIBSMDEV_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBSMDEV ) */
 

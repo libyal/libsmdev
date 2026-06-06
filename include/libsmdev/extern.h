@@ -31,14 +31,17 @@
  */
 #if defined( LIBSMDEV_DLL_EXPORT )
 #define LIBSMDEV_EXTERN __declspec(dllexport)
+#define LIBSMDEV_EXTERN_VARIABLE extern __declspec(dllexport)
 
 #elif defined( LIBSMDEV_DLL_IMPORT )
-#define LIBSMDEV_EXTERN extern __declspec(dllimport)
+#define LIBSMDEV_EXTERN __declspec(dllimport)
+#define LIBSMDEV_EXTERN_VARIABLE extern __declspec(dllimport)
 
 #else
 #define LIBSMDEV_EXTERN extern
+#define LIBSMDEV_EXTERN_VARIABLE extern
 
-#endif
+#endif /* defined( LIBSMDEV_DLL_EXPORT ) */
 
 #endif /* !defined( _LIBSMDEV_EXTERN_H ) */
 

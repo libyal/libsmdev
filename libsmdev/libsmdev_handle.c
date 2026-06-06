@@ -2233,13 +2233,13 @@ int libsmdev_handle_set_filename(
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_utf8(
 		          (libuna_utf8_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_utf8(
 		          (libuna_utf8_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -2251,14 +2251,14 @@ int libsmdev_handle_set_filename(
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf32_string_size_from_byte_stream(
 		          (uint8_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_size_from_byte_stream(
 		          (uint8_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
@@ -2302,14 +2302,14 @@ int libsmdev_handle_set_filename(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (libuna_utf8_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf16_string_copy_from_utf8(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (libuna_utf8_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -2322,7 +2322,7 @@ int libsmdev_handle_set_filename(
 		          (libuna_utf32_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
@@ -2330,7 +2330,7 @@ int libsmdev_handle_set_filename(
 		          (libuna_utf16_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (uint8_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          error );
 #else
@@ -2769,13 +2769,13 @@ int libsmdev_handle_set_filename_wide(
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_utf8_string_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf8_string_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          &( internal_handle->filename_size ),
 		          error );
 #else
@@ -2787,14 +2787,14 @@ int libsmdev_handle_set_filename_wide(
 #if SIZEOF_WCHAR_T == 4
 		result = libuna_byte_stream_size_from_utf32(
 		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_size_from_utf16(
 		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          libclocale_codepage,
 		          &( internal_handle->filename_size ),
 		          error );
@@ -2859,14 +2859,14 @@ int libsmdev_handle_set_filename_wide(
 		          (libuna_utf8_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_utf8_string_copy_from_utf16(
 		          (libuna_utf8_character_t *) internal_handle->filename,
 		          internal_handle->filename_size,
 		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #else
 #error Unsupported size of wchar_t
@@ -2880,7 +2880,7 @@ int libsmdev_handle_set_filename_wide(
 		          internal_handle->filename_size,
 		          libclocale_codepage,
 		          (libuna_utf32_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #elif SIZEOF_WCHAR_T == 2
 		result = libuna_byte_stream_copy_from_utf16(
@@ -2888,7 +2888,7 @@ int libsmdev_handle_set_filename_wide(
 		          internal_handle->filename_size,
 		          libclocale_codepage,
 		          (libuna_utf16_character_t *) filename,
-		          filename_length + 1,
+		          filename_length,
 		          error );
 #else
 #error Unsupported size of wchar_t
