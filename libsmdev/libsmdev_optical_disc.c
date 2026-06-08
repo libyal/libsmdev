@@ -655,7 +655,6 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint32_t session_size        = 0;
 	uint32_t session_offset      = 0;
 	uint32_t next_session_offset = 0;
-	uint16_t entry_index         = 0;
 	uint8_t first_track_number   = 0;
 	uint8_t last_track_number    = 0;
 	uint8_t lead_out_index       = 0;
@@ -665,6 +664,10 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 	uint8_t track_number         = 0;
 	uint8_t track_type           = 0;
 	int result                   = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint16_t entry_index         = 0;
+#endif
 
 	if( device_file == NULL )
 	{
@@ -1191,7 +1194,9 @@ int libsmdev_optical_disc_get_table_of_contents_scsi(
 			toc_entries     += 11;
 			toc_data_offset += 11;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 			entry_index++;
+#endif
 		}
 		if( ( track_index + 1 ) == track_number )
 		{
