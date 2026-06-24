@@ -1,5 +1,5 @@
 /*
- * Shows information obtained from storage media (SM) devices
+ * Shows information obtained from a storage media (SM) device.
  *
  * Copyright (C) 2010-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -56,27 +56,6 @@
 info_handle_t *smdevinfo_info_handle = NULL;
 int smdevinfo_abort                  = 0;
 
-/* Prints the executable usage information
- */
-void usage_fprint(
-      FILE *stream )
-{
-	if( stream == NULL )
-	{
-		return;
-	}
-	fprintf( stream, "Use smdevinfo to determine information about storage\n"
-	                 "media (SM) device(s)\n\n" );
-
-	fprintf( stream, "Usage: smdevinfo [ -hivV ] source\n\n" );
-
-	fprintf( stream, "\tsource: the source device file\n\n" );
-
-	fprintf( stream, "\t-h:     shows this help\n" );
-	fprintf( stream, "\t-v:     verbose output to stderr\n" );
-	fprintf( stream, "\t-V:     print version\n" );
-}
-
 /* Signal handler for smdevinfo
  */
 void smdevinfo_signal_handler(
@@ -89,19 +68,21 @@ void smdevinfo_signal_handler(
 
 	smdevinfo_abort = 1;
 
-	if( ( smdevinfo_info_handle != NULL )
-	 && ( info_handle_signal_abort(
-	       smdevinfo_info_handle,
-	       &error ) != 1 ) )
+	if( smdevinfo_info_handle != NULL )
 	{
-		libcnotify_printf(
-		 "%s: unable to signal info handle to abort.\n",
-		 function );
+		if( info_handle_signal_abort(
+		     smdevinfo_info_handle,
+		     &error ) != 1 )
+		{
+			libcnotify_printf(
+			 "%s: unable to signal info handle to abort.\n",
+			 function );
 
-		libcnotify_print_error_backtrace(
-		 error );
-		libcerror_error_free(
-		 &error );
+			libcnotify_print_error_backtrace(
+			 error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
@@ -127,10 +108,22 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
-	libcerror_error_t *error   = NULL;
+	const char *description = \
+		"Use smdevinfo to determine information about a storage media (SM) device.";
+
+	smdevtools_option_t options[ ] = {
+		{ 'h', NULL, "shows this help" },
+		{ 'v', NULL, "verbose output to stderr" },
+		{ 'V', NULL, "print version" },
+		{ 0, "source", "the source device" },
+	};
+	system_character_t options_string[ 32 ];
+
+	libsmdev_error_t *error    = NULL;
 	system_character_t *source = NULL;
 	char *program              = "smdevinfo";
 	system_integer_t option    = 0;
+	int number_of_options      = (int) ( sizeof( options ) / sizeof( smdevtools_option_t ) );
 	int verbose                = 0;
 
 #if defined( __MINGW32__ ) && defined( HAVE_MINGW_BINMODE )
@@ -145,7 +138,7 @@ int main( int argc, char * const argv[] )
 	 1 );
 
 	if( libclocale_initialize(
-             "smdevtools",
+	     "smdevtools",
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -154,9 +147,9 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( smdevtools_output_initialize(
-             _IONBF,
-             &error ) != 1 )
+	if( smdevtools_output_initialize(
+	     _IONBF,
+	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
@@ -164,14 +157,26 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	smdevoutput_version_fprint(
+	smdevtools_output_version_fprint(
 	 stdout,
 	 program );
 
+	if( smdevtools_getopt_get_options_string(
+	     options,
+	     number_of_options,
+	     options_string,
+	     32 ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to determine options string.\n" );
+
+		goto on_error;
+	}
 	while( ( option = smdevtools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "hvV" ) ) ) != (system_integer_t) -1 )
+	                   options_string ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -182,14 +187,22 @@ int main( int argc, char * const argv[] )
 				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
-				usage_fprint(
-				 stdout );
+				smdevtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_FAILURE );
 
 			case (system_integer_t) 'h':
-				usage_fprint(
-				 stdout );
+				smdevtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_SUCCESS );
 
@@ -199,7 +212,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				smdevoutput_copyright_fprint(
+				smdevtools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
@@ -209,10 +222,14 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Missing source file.\n" );
+		 "Missing source device.\n" );
 
-		usage_fprint(
-		 stdout );
+		smdevtools_getopt_usage_fprint(
+		 stdout,
+		 program,
+		 description,
+		 options,
+		 number_of_options );
 
 		return( EXIT_FAILURE );
 	}
@@ -230,13 +247,9 @@ int main( int argc, char * const argv[] )
 	     &smdevinfo_info_handle,
 	     &error ) != 1 )
 	{
-		smdevoutput_version_fprint(
-		 stderr,
-		 program );
-
 		fprintf(
 		 stderr,
-		 "Unable to create info handle.\n" );
+		 "Unable to initialize info handle.\n" );
 
 		goto on_error;
 	}
@@ -260,18 +273,17 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to open file: %" PRIs_SYSTEM ".\n",
-		 source );
+		 "Unable to open source device.\n" );
 
 		goto on_error;
 	}
-	if( info_handle_handle_fprint(
+	if( info_handle_device_fprint(
 	     smdevinfo_info_handle,
 	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to print information.\n" );
+		 "Unable to print device information.\n" );
 
 		goto on_error;
 	}
@@ -333,5 +345,5 @@ on_error:
 		 NULL );
 	}
 	return( EXIT_FAILURE );
-
 }
+

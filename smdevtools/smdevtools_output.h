@@ -36,14 +36,14 @@ int smdevtools_output_initialize(
      int stdio_mode,
      libcerror_error_t **error );
 
-void smdevoutput_copyright_fprint(
+void smdevtools_output_copyright_fprint(
       FILE *stream );
 
-void smdevoutput_version_fprint(
+void smdevtools_output_version_fprint(
       FILE *stream,
       const char *program );
 
-void smdevoutput_version_detailed_fprint(
+void smdevtools_output_version_detailed_fprint(
       FILE *stream,
       const char *program );
 

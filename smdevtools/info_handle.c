@@ -594,17 +594,17 @@ int info_handle_tracks_fprint(
 	return( result );
 }
 
-/* Prints the handle information
+/* Prints the device information
  * Returns 1 if successful or -1 on error
  */
-int info_handle_handle_fprint(
+int info_handle_device_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
 	uint8_t media_information_value[ 64 ];
         system_character_t byte_size_string[ 16 ];
 
-	static char *function     = "info_handle_handle_fprint";
+	static char *function     = "info_handle_device_fprint";
 	size64_t media_size       = 0;
 	uint32_t bytes_per_sector = 0;
 	uint8_t bus_type          = 0;

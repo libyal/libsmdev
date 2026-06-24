@@ -3,8 +3,7 @@ man_MANS = \
 	smdevinfo.1
 
 EXTRA_DIST = \
-	libsmdev.3 \
-	smdevinfo.1
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \

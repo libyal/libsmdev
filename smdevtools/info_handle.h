@@ -81,7 +81,7 @@ int info_handle_tracks_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
-int info_handle_handle_fprint(
+int info_handle_device_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
