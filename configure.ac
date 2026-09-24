@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libsmdev],
-  [20260917],
+  [20260924],
   [https://github.com/libyal/libsmdev/issues])
 
 AC_CONFIG_SRCDIR(

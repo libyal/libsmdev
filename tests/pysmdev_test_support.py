@@ -28,55 +28,56 @@ import pysmdev
 
 
 class SupportFunctionsTests(unittest.TestCase):
-  """Tests the support functions."""
+    """Tests the support functions."""
 
-  def _check_read_access(self, path):
-      """Check if a device file can be read.
+    def _check_read_access(self, path):
+        """Check if a device file can be read.
 
-      Args:
-        path (str): path to the device file.
-      """
-      # Note that os.access(path, os.R_OK) can return True while open(path, 'rb') fails.
-      try:
-        with open(path, 'rb'): pass
-      except Exception:
-        return False
+        Args:
+          path (str): path to the device file.
+        """
+        # Note that os.access(path, os.R_OK) can return True while open(path, 'rb') fails.
+        try:
+            with open(path, "rb"):
+                pass
+        except Exception:
+            return False
 
-      return True
+        return True
 
-  def _get_source(self):
-    """Retrieves a source for testing."""
-    if platform.system() == 'Windows':
-      return '\\\\.\\PhysicalDrive0'
+    def _get_source(self):
+        """Retrieves a source for testing."""
+        if platform.system() == "Windows":
+            return "\\\\.\\PhysicalDrive0"
 
-    source = '/dev/sda'
-    if not os.path.exists(source):
-      source = '/dev/vda'
+        source = "/dev/sda"
+        if not os.path.exists(source):
+            source = "/dev/vda"
 
-    if not self._check_read_access(source):
-      raise unittest.SkipTest("missing readable source")
+        if not self._check_read_access(source):
+            raise unittest.SkipTest("missing readable source")
 
-    return source
+        return source
 
-  def test_get_version(self):
-    """Tests the get_version function."""
-    version = pysmdev.get_version()
-    self.assertIsNotNone(version)
+    def test_get_version(self):
+        """Tests the get_version function."""
+        version = pysmdev.get_version()
+        self.assertIsNotNone(version)
 
-  # TODO: add tests for check_device
+    # TODO: add tests for check_device
 
-  def test_open(self):
-    """Tests the open function."""
-    test_source = self._get_source()
+    def test_open(self):
+        """Tests the open function."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.open(test_source)
-    self.assertIsNotNone(smdev_handle)
+        smdev_handle = pysmdev.open(test_source)
+        self.assertIsNotNone(smdev_handle)
 
-    smdev_handle.close()
+        smdev_handle.close()
 
-    with self.assertRaises(TypeError):
-      pysmdev.open(None)
+        with self.assertRaises(TypeError):
+            pysmdev.open(None)
 
 
 if __name__ == "__main__":
-  unittest.main(verbosity=2)
+    unittest.main(verbosity=2)

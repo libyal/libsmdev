@@ -28,210 +28,211 @@ import pysmdev
 
 
 class HandleTypeTests(unittest.TestCase):
-  """Tests the handle type."""
+    """Tests the handle type."""
 
-  def _check_read_access(self, path):
-      """Check if a device file can be read.
+    def _check_read_access(self, path):
+        """Check if a device file can be read.
 
-      Args:
-        path (str): path to the device file.
-      """
-      # Note that os.access(path, os.R_OK) can return True while open(path, 'rb') fails.
-      try:
-        with open(path, 'rb'): pass
-      except Exception:
-        return False
+        Args:
+          path (str): path to the device file.
+        """
+        # Note that os.access(path, os.R_OK) can return True while open(path, 'rb') fails.
+        try:
+            with open(path, "rb"):
+                pass
+        except Exception:
+            return False
 
-      return True
+        return True
 
-  def _get_source(self):
-    """Retrieves a source for testing."""
-    if platform.system() == 'Windows':
-      return '\\\\.\\PhysicalDrive0'
+    def _get_source(self):
+        """Retrieves a source for testing."""
+        if platform.system() == "Windows":
+            return "\\\\.\\PhysicalDrive0"
 
-    source = '/dev/sda'
-    if not os.path.exists(source):
-      source = '/dev/vda'
+        source = "/dev/sda"
+        if not os.path.exists(source):
+            source = "/dev/vda"
 
-    if not self._check_read_access(source):
-      raise unittest.SkipTest("missing readable source")
+        if not self._check_read_access(source):
+            raise unittest.SkipTest("missing readable source")
 
-    return source
+        return source
 
-  def test_signal_abort(self):
-    """Tests the signal_abort function."""
-    smdev_handle = pysmdev.handle()
+    def test_signal_abort(self):
+        """Tests the signal_abort function."""
+        smdev_handle = pysmdev.handle()
 
-    smdev_handle.signal_abort()
+        smdev_handle.signal_abort()
 
-  def test_open(self):
-    """Tests the open function."""
-    test_source = self._get_source()
+    def test_open(self):
+        """Tests the open function."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.handle()
+        smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(test_source)
+        smdev_handle.open(test_source)
 
-    with self.assertRaises(IOError):
-      smdev_handle.open(test_source)
+        with self.assertRaises(IOError):
+            smdev_handle.open(test_source)
 
-    smdev_handle.close()
+        smdev_handle.close()
 
-    with self.assertRaises(TypeError):
-      smdev_handle.open(None)
+        with self.assertRaises(TypeError):
+            smdev_handle.open(None)
 
-    with self.assertRaises(ValueError):
-      smdev_handle.open(test_source, mode="w")
+        with self.assertRaises(ValueError):
+            smdev_handle.open(test_source, mode="w")
 
-  def test_close(self):
-    """Tests the close function."""
-    smdev_handle = pysmdev.handle()
+    def test_close(self):
+        """Tests the close function."""
+        smdev_handle = pysmdev.handle()
 
-    with self.assertRaises(IOError):
-      smdev_handle.close()
+        with self.assertRaises(IOError):
+            smdev_handle.close()
 
-  def test_open_close(self):
-    """Tests the open and close functions."""
-    test_source = self._get_source()
+    def test_open_close(self):
+        """Tests the open and close functions."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.handle()
+        smdev_handle = pysmdev.handle()
 
-    # Test open and close.
-    smdev_handle.open(test_source)
-    smdev_handle.close()
+        # Test open and close.
+        smdev_handle.open(test_source)
+        smdev_handle.close()
 
-    # Test open and close a second time to validate clean up on close.
-    smdev_handle.open(test_source)
-    smdev_handle.close()
+        # Test open and close a second time to validate clean up on close.
+        smdev_handle.open(test_source)
+        smdev_handle.close()
 
-  def test_read_buffer(self):
-    """Tests the read_buffer function."""
-    test_source = self._get_source()
+    def test_read_buffer(self):
+        """Tests the read_buffer function."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.handle()
+        smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(test_source)
+        smdev_handle.open(test_source)
 
-    file_size = smdev_handle.get_media_size()
+        file_size = smdev_handle.get_media_size()
 
-    # Test normal read.
-    data = smdev_handle.read_buffer(size=4096)
+        # Test normal read.
+        data = smdev_handle.read_buffer(size=4096)
 
-    self.assertIsNotNone(data)
-    self.assertEqual(len(data), min(file_size, 4096))
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), min(file_size, 4096))
 
-    if file_size < 4096:
-      data = smdev_handle.read_buffer()
+        if file_size < 4096:
+            data = smdev_handle.read_buffer()
 
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), file_size)
+            self.assertIsNotNone(data)
+            self.assertEqual(len(data), file_size)
 
-    # Test read beyond file size.
-    if file_size > 16:
-      smdev_handle.seek_offset(-16, os.SEEK_END)
+        # Test read beyond file size.
+        if file_size > 16:
+            smdev_handle.seek_offset(-16, os.SEEK_END)
 
-      data = smdev_handle.read_buffer(size=4096)
+            data = smdev_handle.read_buffer(size=4096)
 
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), 16)
+            self.assertIsNotNone(data)
+            self.assertEqual(len(data), 16)
 
-    with self.assertRaises(ValueError):
-      smdev_handle.read_buffer(size=-1)
+        with self.assertRaises(ValueError):
+            smdev_handle.read_buffer(size=-1)
 
-    smdev_handle.close()
+        smdev_handle.close()
 
-    # Test the read without open.
-    with self.assertRaises(IOError):
-      smdev_handle.read_buffer(size=4096)
+        # Test the read without open.
+        with self.assertRaises(IOError):
+            smdev_handle.read_buffer(size=4096)
 
-  def test_read_buffer_at_offset(self):
-    """Tests the read_buffer_at_offset function."""
-    test_source = self._get_source()
+    def test_read_buffer_at_offset(self):
+        """Tests the read_buffer_at_offset function."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.handle()
+        smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(test_source)
+        smdev_handle.open(test_source)
 
-    file_size = smdev_handle.get_media_size()
+        file_size = smdev_handle.get_media_size()
 
-    # Test normal read.
-    data = smdev_handle.read_buffer_at_offset(4096, 0)
+        # Test normal read.
+        data = smdev_handle.read_buffer_at_offset(4096, 0)
 
-    self.assertIsNotNone(data)
-    self.assertEqual(len(data), min(file_size, 4096))
+        self.assertIsNotNone(data)
+        self.assertEqual(len(data), min(file_size, 4096))
 
-    # Test read beyond file size.
-    if file_size > 16:
-      data = smdev_handle.read_buffer_at_offset(4096, file_size - 16)
+        # Test read beyond file size.
+        if file_size > 16:
+            data = smdev_handle.read_buffer_at_offset(4096, file_size - 16)
 
-      self.assertIsNotNone(data)
-      self.assertEqual(len(data), 16)
+            self.assertIsNotNone(data)
+            self.assertEqual(len(data), 16)
 
-    with self.assertRaises(ValueError):
-      smdev_handle.read_buffer_at_offset(-1, 0)
+        with self.assertRaises(ValueError):
+            smdev_handle.read_buffer_at_offset(-1, 0)
 
-    with self.assertRaises(ValueError):
-      smdev_handle.read_buffer_at_offset(4096, -1)
+        with self.assertRaises(ValueError):
+            smdev_handle.read_buffer_at_offset(4096, -1)
 
-    smdev_handle.close()
+        smdev_handle.close()
 
-    # Test the read without open.
-    with self.assertRaises(IOError):
-      smdev_handle.read_buffer_at_offset(4096, 0)
+        # Test the read without open.
+        with self.assertRaises(IOError):
+            smdev_handle.read_buffer_at_offset(4096, 0)
 
-  def test_seek_offset(self):
-    """Tests the seek_offset function."""
-    test_source = self._get_source()
+    def test_seek_offset(self):
+        """Tests the seek_offset function."""
+        test_source = self._get_source()
 
-    smdev_handle = pysmdev.handle()
+        smdev_handle = pysmdev.handle()
 
-    smdev_handle.open(test_source)
+        smdev_handle.open(test_source)
 
-    file_size = smdev_handle.get_media_size()
+        file_size = smdev_handle.get_media_size()
 
-    smdev_handle.seek_offset(16, os.SEEK_SET)
+        smdev_handle.seek_offset(16, os.SEEK_SET)
 
-    offset = smdev_handle.get_offset()
-    self.assertEqual(offset, 16)
+        offset = smdev_handle.get_offset()
+        self.assertEqual(offset, 16)
 
-    smdev_handle.seek_offset(16, os.SEEK_CUR)
+        smdev_handle.seek_offset(16, os.SEEK_CUR)
 
-    offset = smdev_handle.get_offset()
-    self.assertEqual(offset, 32)
+        offset = smdev_handle.get_offset()
+        self.assertEqual(offset, 32)
 
-    smdev_handle.seek_offset(-16, os.SEEK_CUR)
+        smdev_handle.seek_offset(-16, os.SEEK_CUR)
 
-    offset = smdev_handle.get_offset()
-    self.assertEqual(offset, 16)
+        offset = smdev_handle.get_offset()
+        self.assertEqual(offset, 16)
 
-    smdev_handle.seek_offset(-16, os.SEEK_END)
+        smdev_handle.seek_offset(-16, os.SEEK_END)
 
-    offset = smdev_handle.get_offset()
-    self.assertEqual(offset, file_size - 16)
+        offset = smdev_handle.get_offset()
+        self.assertEqual(offset, file_size - 16)
 
-    smdev_handle.seek_offset(16, os.SEEK_END)
+        smdev_handle.seek_offset(16, os.SEEK_END)
 
-    offset = smdev_handle.get_offset()
-    self.assertEqual(offset, file_size + 16)
+        offset = smdev_handle.get_offset()
+        self.assertEqual(offset, file_size + 16)
 
-    with self.assertRaises(IOError):
-      smdev_handle.seek_offset(-1, os.SEEK_SET)
+        with self.assertRaises(IOError):
+            smdev_handle.seek_offset(-1, os.SEEK_SET)
 
-    with self.assertRaises(IOError):
-      smdev_handle.seek_offset(-32 - file_size, os.SEEK_CUR)
+        with self.assertRaises(IOError):
+            smdev_handle.seek_offset(-32 - file_size, os.SEEK_CUR)
 
-    with self.assertRaises(IOError):
-      smdev_handle.seek_offset(-32 - file_size, os.SEEK_END)
+        with self.assertRaises(IOError):
+            smdev_handle.seek_offset(-32 - file_size, os.SEEK_END)
 
-    with self.assertRaises(ValueError):
-      smdev_handle.seek_offset(0, -1)
+        with self.assertRaises(ValueError):
+            smdev_handle.seek_offset(0, -1)
 
-    smdev_handle.close()
+        smdev_handle.close()
 
-    # Test the seek without open.
-    with self.assertRaises(IOError):
-      smdev_handle.seek_offset(16, os.SEEK_SET)
+        # Test the seek without open.
+        with self.assertRaises(IOError):
+            smdev_handle.seek_offset(16, os.SEEK_SET)
 
 
 if __name__ == "__main__":
-  unittest.main(verbosity=2)
+    unittest.main(verbosity=2)
